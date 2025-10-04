@@ -13,6 +13,7 @@ Link Design Website &rarr;
 - 2406353250 - Elsa Mayora Sidabutar
 
 ## Deskripsi Aplikasi
+Aplikasi Trophy Threads bertujuan untuk memudahkan pengguna mendapatkan informasi tentang pertandingan sepak bola serta menawarkan merchandise yang direkomendasikan untuk mendukung tim favorit mereka.
 
 ## Manfaat Aplikasi
 
