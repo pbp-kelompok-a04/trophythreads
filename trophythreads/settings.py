@@ -32,7 +32,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", 
                  "127.0.0.1", 
-                 "samuel-marcelino-trophythreads.pbp.cs.ui.ic.id"]
+                 "samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",]
 
 
 # Application definition
