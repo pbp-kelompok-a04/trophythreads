@@ -15,9 +15,13 @@ Link Design Website &rarr;
 ## Deskripsi Aplikasi
 Aplikasi Trophy Threads bertujuan untuk memudahkan pengguna mendapatkan informasi tentang pertandingan sepak bola serta menawarkan merchandise yang direkomendasikan untuk mendukung tim favorit mereka.
 
-## Manfaat Aplikasi
-
 ## Daftar Modul
+1. Modul Informasi Pertandingan (jadwal, hasil, forum diskusi)
+2. Modul Pembelian produk (merchandise)
+3. Modul Review Produk 
+4. Modul forum diskusi
+5. Modul keranjang 
+6. Modul favorit 
 
 ## Dataset
 Link Dataset &rarr;
