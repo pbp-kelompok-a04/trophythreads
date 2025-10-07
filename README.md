@@ -17,11 +17,52 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 
 ## Daftar Modul
 1. Modul Informasi Pertandingan (jadwal, hasil, forum diskusi)
-2. Modul Pembelian produk (merchandise)
-3. Modul Review Produk 
-4. Modul forum diskusi
-5. Modul keranjang 
-6. Modul favorit 
+2. Modul Pembelian produk (merchandise) // TODO (2 POV/ROLE?)
+- Tujuannya dimana seller menawarkan, menampilkan, dan memproses pembelian merchandise sedangkan user melakukan checkout dan pembayaran.
+- Fitur Utama
+  a. Create = seller membuat/memposting suatu produk (merchandise).
+  b. Read = menampilkan halaman detail dan lengkap dari produk yang dibuat/dijual seller.
+  c. Update = seller dapat mengupdate detail dari produk yang dibuat.
+  d. Delete = seller dapat menghapus produk yang sudah dibuat dari halaman.
+- Hak akses: Seller dan User
+- UI/UX:
+  a. Seller
+  > Halaman untuk menambah produk serta detailnya (nama, harga, upload gambar, stok, lihat pesanan yang di checkout, update status pesanan, dsb)
+  > Halaman untuk mengedit/mengupdate detail dari produk yang sudah dibuat.
+  b. User (buyer) 
+  > Halaman katalog untuk mencari produk. // TODO (ini masuk sini kah?)
+  > Halaman detail produk serta tombol "checkout".
+  > Halaman ringkasan pesanan serta identitas dari user (buyer) serta untuk memproses dan melanjutkan ke pembayaran.
+  > Halaman pembayaran di dalam aplikasi, integrasi gateway (OVO/Gopay/E-Wallet).
+  > Halaman konfirmasi & status pesanan (processing, shipped, delivered).
+- Edge cases: Pembatalan & refund akan revert stok dan mengembalikan saldo ke user (buyer).
+4. Modul Review Produk 
+5. Modul forum diskusi:
+- Tujuannya sebagai forum untuk diskusi umum dengan user lainnya mengenai topik seputar pertandingan, merchandise, komunitas/fandom/general, thread, dan sebagainya.
+- Fitur Utama
+  a. Create = membuat forum baru atau berkomentar/reply ke forum diskusi user lain yang sudah ada.
+  b. Read = menampilkan halaman forum diskusi suatu topik beserta semua komentar/replies yang ada.
+  c. Update = mengedit postingan ataupun komentar yang telah di posting ke forum.
+  d. Delete = menghapus halaman forum diskusi ataupun komentar yang telah di posting.
+- Hak akses: User, Admin, Seller
+- UI/UX:
+  a. Halaman forum diskusi (kategori: general/pertandingan/merchandise/dsb).
+  b. Thread list yang di sort berdasrarkan latest/recent/pinned.
+  c. Thread view yang isinya postingan awal + replies threaded. Reply box berada di bawah postingan yang sebaris dengan opsi like.
+- Edge cases: Long threads > collapse older replies dan offer "jump to newest".
+6. Modul keranjang 
+7. Modul favorit (semacam Wishlist):
+- Tujuannya untuk menyimpan dan membuat halaman khusus yang menampilkan semua produk item yang disukai user.
+- Fitur Utama
+  a. Create = menambahkan produk item ke favorit.
+  b. Read = menampilkan halaman yang isinya semua produk item di favorit.
+  c. Update = // TODO 
+  d. Delete = hapus produk item dari favorit.
+- Hak akses: User 
+- UI/UX:
+  a. Tombol "added to fav" muncul di detail_product.html.
+  b. Halaman "Favorit" yang menyimpan dan menampilkan daftar semua produk yang disukai user.
+- Edge cases: Jika produk dihapus oleh seller maka di halaman "Favorit" produk otomatis hilang atau tidak dapat ditemukan.
 
 ## Dataset
 Link Dataset &rarr;
