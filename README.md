@@ -68,3 +68,16 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 Link Dataset &rarr;
 
 ## Role Pengguna
+**User**
+- Melakukan registrasi sebagai user untuk menggunakan Trophy Threads.
+- Melihat informasi pertandingan dan merchandise berbagai timnas sepak bola.
+- Membeli merchandise timnas sepak bola. 
+- Menyimpan merchandise sebagai favorit.
+- Menambahkan komentar pada forum ataupun ulasan pada review merchandise.
+**Seller Official**
+- Melakukan registrasi sebagai official merchandise seller untuk menggunakan Trophy Threads.
+- Menambahkan, edit, dan delete merchandise.
+**Admin**
+- Melakukan registrasi sebagai admin untuk menggunakan Trophy Threads.
+- Menambahkan, edit, dan delete informasi pertandingan sepak bola.
+- Memantau aktivitas forum.
