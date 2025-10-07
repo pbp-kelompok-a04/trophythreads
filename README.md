@@ -74,9 +74,11 @@ Link Dataset &rarr;
 - Membeli merchandise timnas sepak bola. 
 - Menyimpan merchandise sebagai favorit.
 - Menambahkan komentar pada forum ataupun ulasan pada review merchandise.
+
 **Seller Official**
 - Melakukan registrasi sebagai official merchandise seller untuk menggunakan Trophy Threads.
 - Menambahkan, edit, dan delete merchandise.
+
 **Admin**
 - Melakukan registrasi sebagai admin untuk menggunakan Trophy Threads.
 - Menambahkan, edit, dan delete informasi pertandingan sepak bola.
