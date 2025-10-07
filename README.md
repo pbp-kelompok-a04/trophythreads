@@ -66,6 +66,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 
 ## Dataset
 Link Dataset &rarr; https://www.kaggle.com/datasets/shouvikdey21/sports-ecommerce-products-dataset?resource=download
+
 Dari data set terserbut, kami melakukan filtering untuk mengambil produk dengan kata kunci "football" yang menghasilkan 354 produk sepak bola sebagai initial dataset aplikasi Trhopy Threads.
 
 ## Role Pengguna
