@@ -30,7 +30,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 - Fitur Utama
   a. Create = Seller membuat/memposting suatu produk (merchandise).
   b. Read = menampilkan halaman detail produk (nama, harga, stok, deskripsi, rating) dari produk yang dibuat/dijual seller.
-  c. Update = Seller dapat mengupdate detail dari produk yang dibuat dan status pemesanan.
+  c. Update = Seller dapat mengupdate detail (nama, harga, stok, deskripsi) dari produk yang dibuat.
   d. Delete = Seller dapat menghapus produk yang sudah dibuat dari halaman.
 - Hak akses: Seller 
 - Edge cases: Pembatalan & refund akan revert stok dan mengembalikan saldo ke user.
