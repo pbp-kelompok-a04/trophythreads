@@ -27,8 +27,9 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 - Hak akses: User dan Seller
 - UI/UX:
   a. Seller
-  > Halaman untuk menambah produk serta detailnya (nama, harga, upload gambar, stok, lihat pesanan yang di checkout, update status pesanan, dsb)
+  > Halaman untuk menambah produk serta detailnya (nama, harga, upload gambar, stok, dsb)
   > Halaman untuk mengedit/mengupdate detail dari produk yang sudah dibuat.
+  > Halaman untuk mengupdate melihat pesanan yang di checkout dan update status pesanan.
   b. User (buyer) 
   > Halaman katalog untuk mencari produk. // TODO (ini masuk sini kah?)
   > Halaman detail produk serta tombol "checkout".
