@@ -83,6 +83,9 @@ Kami akan melakukan data scraping dari official store merchandise tim nasional I
 
 Dari data set tersebut, kami melakukan filtering untuk mengambil matches dengan kata kunci "indonesia" yang menghasilkan 1169 pertandingan sepak bola yang dilakukan oleh Indonesia sebagai initial dataset aplikasi Trhopy Threads.
 
+&rarr; https://drive.google.com/drive/folders/1Bp9IQWZHkvkv52hcglGraw0di8hJB-2U?usp=sharing
+Berikut adalah link drive berisi file csv untuk dataset forum dan rating yang adalah dummy dataset, dataset produk merchandise hasil data scraping, juga dataset pertandingan sepak bola yang sudah pernah dimainkan oleh tim nasional Indonesia.
+
 ## Role Pengguna
 *User*
 - Melakukan registrasi sebagai user untuk menggunakan Trophy Threads.
