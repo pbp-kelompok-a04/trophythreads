@@ -67,13 +67,10 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 - Fitur Utama
   a. Create = menambahkan produk item ke favorit.
   b. Read = menampilkan halaman yang isinya semua produk item di favorit.
-  c. Update = // TODO 
+  c. Update = mengupdate halaman dimana jika terjadi penambahan/penghapusan produk di favorit   
   d. Delete = hapus produk item dari favorit.
 - Hak akses: User 
-- UI/UX:
-  a. Tombol "added to fav" muncul di detail_product.html.
-  b. Halaman "Favorit" yang menyimpan dan menampilkan daftar semua produk yang disukai user.
-- Edge cases: Jika produk dihapus oleh user (seller) maka di halaman "Favorit" produk otomatis hilang atau tidak dapat ditemukan.
+- Edge cases: Jika produk dihapus oleh seller, maka di halaman "Favorit" produk otomatis hilang atau tidak dapat ditemukan.
 
 ## Dataset
 Link Dataset 
