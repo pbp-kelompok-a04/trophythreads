@@ -16,7 +16,7 @@ Link Design Website &rarr; https://www.figma.com/design/PEssCNAbaWalAbCoNzPkmj/T
 Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola agar dapat mengikuti informasi pertandingan. Tidak hanya menyajikan jadwal dan hasil pertandingan, aplikasi ini juga memudahkan pengguna untuk membeli merchandise dari tim sepak bola favorit mereka dan penggunanya juga dapat mereview produk. Trophy Threads turut menyediakan ruang interaktif bagi komunitas penggemar sepak bola untuk berdiskusi dan berbagi pandangan seputar pertandingan. Melalui forum diskusi, pengguna dapat terhubung satu sama lain dan ikut berpartisipasi dalam percakapan seputar dunia sepak bola. Kehadiran Trophy Threads membawa pengalaman baru bagi para penggemar untuk mendukung tim favorit mereka dengan cara yang lebih interaktif dan menyenangkan.
 
 ## Daftar Modul
-1. Modul Informasi Pertandingan (jadwal, hasil, forum diskusi):
+1. Modul Informasi Pertandingan (jadwal, hasil, forum diskusi) : Amelia Juliawati
 - Tujuannya Menyajikan informasi pertandingan (tempat, jadwal, tim, dan hasil) yang akurat dan realtime untuk penggemar serta menghubungkan konten pertandingan dengan merchandise dan forum diskusi untuk penggemar.
 - Fitur Utama:
   a. Create = Admin membuat jadwal pertandingan (tanggal, waktu, tempat, tim tuan/tamu, score akhir, dan jenis turnamen).
@@ -25,7 +25,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
   d. Delete = Untuk pertandingan yang dihapus karena duplikasi atau pembatalan, tampilkan alasan.
 - Hak akses: Admin dan User
    
-2. Modul Penjualan produk (merchandise)
+2. Modul Penjualan produk (merchandise) : Giselle Julia Reyna
 - Tujuannya dimana seller akan membuat produk untuk dijual, menampilkan, dan serta memproses pembelian merchandise.
 - Fitur Utama
   a. Create = Seller membuat/memposting suatu produk (merchandise).
@@ -35,7 +35,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 - Hak akses: Seller 
 - Edge cases: Pembatalan & refund akan revert stok dan mengembalikan saldo ke user.
   
-3. Modul Review Produk :
+3. Modul Review Produk : Elsa Mayora Sidabutar
 - Tujuannya memberi ruang bagi pembeli untuk memberi penilaian (rating) dan ulasan (review) terhadap merchandise tim.
 - Fitur Utama
   a. Create = Aktif user (hanya yang pernah membeli produk) dapat membuat review: rating (1–5), deskripsi, dan tanggal pembelian (otomatis jika terhubung ke order).
@@ -44,7 +44,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
   d. Delete = User dapat menghapus review sendiri.
 - Hak akses: User dan Seller
   
-4. Modul forum diskusi:
+4. Modul forum diskusi : Samuel Marcelino Tindaon
 - Tujuannya sebagai forum untuk diskusi umum dengan user lainnya mengenai topik seputar pertandingan, komunitas/fandom/general, thread, dan sebagainya yang dibagi menjadi dua jenis yaitu official forum (yang dibuat Admin) dan personal forum (yang dibuat user general).
 - Fitur Utama
   a. Create = membuat forum baru atau berkomentar/reply ke forum diskusi user lain yang sudah ada.
@@ -53,7 +53,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
   d. Delete = menghapus halaman forum diskusi ataupun komentar yang telah di posting.
 - Hak akses: User, Admin
   
-5. Modul keranjang :
+5. Modul keranjang : Gusti Niera Fitri Alifa
 - Menyediakan tempat sementara untuk menampung item (merchandise) sebelum checkout dan untuk memfasilitasi perubahan kuantitas, memilih variasi, dan perhitungan harga. 
 - Fitur Utama
   a. Create = Menambah item ke keranjang dan membuat pesanan
@@ -62,7 +62,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
   d. Delete = Menghapus produk yang ada di keranjang
 - Hak akses: User
 
-6. Modul favorit (semacam Wishlist):
+6. Modul favorit (semacam Wishlist) : Febriyanti
 - Tujuannya untuk menyimpan dan membuat halaman khusus yang menampilkan semua produk item yang disukai user.
 - Fitur Utama
   a. Create = menambahkan produk item ke favorit.
