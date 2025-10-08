@@ -2,7 +2,7 @@
 
 Link Trophy Threads &rarr; https://samuel-marcelino-trophythreads.pbp.cs.ui.ac.id/
 \
-Link Design Website &rarr;
+Link Design Website &rarr; https://www.figma.com/design/PEssCNAbaWalAbCoNzPkmj/TrophyThreads?node-id=0-1&t=w2I8nZc6TkE6BZre-1
 
 ## Nama Anggota Kelompok
 - 2406435830 - Samuel Marcelino Tindaon
