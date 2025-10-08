@@ -68,10 +68,12 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 ## Dataset
 Link Dataset 
 
-&rarr; https://www.kaggle.com/datasets/shouvikdey21/sports-ecommerce-products-dataset?resource=download
-Dari data set tersebut, kami melakukan filtering untuk mengambil produk dengan kata kunci "football" yang menghasilkan 354 produk sepak bola sebagai initial dataset aplikasi Trhopy Threads.
+&rarr; https://shopee.co.id/officialgarudastore
+
+Kami akan melakukan data scraping dari official store merchandise tim nasional Indonesia, yaitu Garuda. Dari informasi jumlah produk di web tersebut, terdapat 131 produk merchandise.
 
 &rarr; https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017
+
 Dari data set tersebut, kami melakukan filtering untuk mengambil matches dengan kata kunci "indonesia" yang menghasilkan 1169 pertandingan sepak bola yang dilakukan oleh Indonesia sebagai initial dataset aplikasi Trhopy Threads.
 
 ## Role Pengguna
