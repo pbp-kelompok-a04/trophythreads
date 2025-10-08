@@ -17,16 +17,16 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 
 ## Daftar Modul
 1. Modul Informasi Pertandingan (jadwal, hasil, forum diskusi)
-2. Modul Pembelian produk (merchandise) // TODO (2 POV/ROLE?)
-- Tujuannya dimana seller menawarkan, menampilkan, dan memproses pembelian merchandise sedangkan user melakukan checkout dan pembayaran.
+2. Modul Pembelian produk (merchandise) // TODO (User itu bisa jadi seller dan buyer atau seller itu role mandiri?)
+- Tujuannya dimana user (seller) menawarkan, menampilkan, dan memproses pembelian merchandise sedangkan user melakukan checkout dan pembayaran.
 - Fitur Utama
-  a. Create = seller membuat/memposting suatu produk (merchandise).
-  b. Read = menampilkan halaman detail dan lengkap dari produk yang dibuat/dijual seller.
-  c. Update = seller dapat mengupdate detail dari produk yang dibuat.
-  d. Delete = seller dapat menghapus produk yang sudah dibuat dari halaman.
-- Hak akses: Seller dan User
+  a. Create = user (seller) membuat/memposting suatu produk (merchandise).
+  b. Read = menampilkan halaman detail dan lengkap dari produk yang dibuat/dijual user (seller).
+  c. Update = user (seller) dapat mengupdate detail dari produk yang dibuat.
+  d. Delete = user (seller) dapat menghapus produk yang sudah dibuat dari halaman.
+- Hak akses: User (seller dan buyer)
 - UI/UX:
-  a. Seller
+  a. User (seller)
   > Halaman untuk menambah produk serta detailnya (nama, harga, upload gambar, stok, lihat pesanan yang di checkout, update status pesanan, dsb)
   > Halaman untuk mengedit/mengupdate detail dari produk yang sudah dibuat.
   b. User (buyer) 
@@ -44,7 +44,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
   b. Read = menampilkan halaman forum diskusi suatu topik beserta semua komentar/replies yang ada.
   c. Update = mengedit postingan ataupun komentar yang telah di posting ke forum.
   d. Delete = menghapus halaman forum diskusi ataupun komentar yang telah di posting.
-- Hak akses: User, Admin, Seller
+- Hak akses: User, Admin
 - UI/UX:
   a. Halaman forum diskusi (kategori: general/pertandingan/merchandise/dsb).
   b. Thread list yang di sort berdasrarkan latest/recent/pinned.
@@ -62,7 +62,7 @@ Trophy Threads adalah aplikasi yang dirancang untuk para penggemar sepak bola ag
 - UI/UX:
   a. Tombol "added to fav" muncul di detail_product.html.
   b. Halaman "Favorit" yang menyimpan dan menampilkan daftar semua produk yang disukai user.
-- Edge cases: Jika produk dihapus oleh seller maka di halaman "Favorit" produk otomatis hilang atau tidak dapat ditemukan.
+- Edge cases: Jika produk dihapus oleh user (seller) maka di halaman "Favorit" produk otomatis hilang atau tidak dapat ditemukan.
 
 ## Dataset
 Link Dataset &rarr; https://www.kaggle.com/datasets/shouvikdey21/sports-ecommerce-products-dataset?resource=download
