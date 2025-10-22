@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Match Detail - {{ match.title }}</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'header.html' %}
+<div class="w-full min-h-screen pt-24 pb-10" style="background-color: var(--color-background);">
+    <div class="mb-6 px-12">
+        <a href="{% url 'InformasiPertandingan:show_main' %}"
+            class="text-black hover:text-var(--color-primary) font-medium transition-colors">
+            ← Kembali ke Daftar Pertandingan
+        </a>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="flex flex-col items-center justify-center py-20 text-center hidden">
+        <svg class="animate-spin h-8 w-8 text-[var(--color-primary)] inline-block" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <p class="text-[var(--color-primary)]">Loading match details...</p>
+    </div>
+
+    <!-- Error -->
+    <div id="error" class="hidden bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 text-center"
+        style="display: none;">
+        <p>⚠️ Failed to load matches. Please try again later.</p>
+    </div>
+
+    <!-- Match Content -->
+    <div id="match-content" class="mx-auto bg-white shadow-md p-8 mb-8">
+        <h1 id="match-title" class="text-3xl font-bold text-gray-900 text-center mb-6"></h1>
+        <div id="scoreboard" class="flex items-center justify-center gap-6 text-gray-800 mb-6">
+            <!-- Home Team -->
+            <div id="home-team" class="flex flex-row items-center gap-3">
+                <span id="home-name" class="font-medium"></span>
+                <img id="home-flag" class="w-12 h-8 object-cover rounded-sm border border-gray-300" alt="">
+            </div>
+
+            <!-- Score -->
+            <div id="score" class="flex items-center gap-2 font-semibold text-xl">
+                <span id="score-home"></span>
+                <span>-</span>
+                <span id="score-away"></span>
+            </div>
+
+            <!-- Away Team -->
+            <div id="away-team" class="flex flex-row items-center gap-3">
+                <img id="away-flag" class="w-12 h-8 object-cover rounded-sm border border-gray-300" alt="">
+                <span id="away-name" class="font-medium"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diskusi -->
+    <div id="discussion-section" class="mx-auto items-center justify-between px-12 py-3 text-center mb-4">
+        <a id="discussion-link"
+            class="inline-block w-full border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] font-h1 font-bold py-3 rounded-md hover:bg-opacity-90 transition-colors"
+            href="#"> Jump To Discussion </a>
+    </div>
+
+    <!-- Match Info -->
+    <div id="match-info-container" class="hidden"></div>
+</div>
+
+
+<script>
+    const MATCH_ID = "{{ match.id }}";
+    const MATCH_ENDPOINT = `{% url 'InformasiPertandingan:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', MATCH_ID);
+
+    const iconCalendarURL = "{% static 'icons/calendar.png' %}";
+    const iconFootballURL = "{% static 'icons/football.png' %}";
+    const iconLocationURL = "{% static 'icons/location.png' %}";
+    const discussionURLTemplate = `/' '00000000-0000-0000-0000-000000000000' %}`;
+    const loginURL = "/";
+
+    const loadingState = document.getElementById('loading');
+    const errorState = document.getElementById('error');
+    const matchContent = document.getElementById('match-content');
+    const matchInfoContainer = document.getElementById('match-info-container');
+
+    const matchTitle = document.getElementById('match-title');
+    const homeFlag = document.getElementById('home-flag');
+    const homeName = document.getElementById('home-name');
+    const scoreHome = document.getElementById('score-home');
+    const scoreAway = document.getElementById('score-away');
+    const awayFlag = document.getElementById('away-flag');
+    const awayName = document.getElementById('away-name');
+
+    const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}";
+
+    function showState(state) {
+        loadingState.classList.toggle('hidden', state !== 'loading');
+        errorState.classList.toggle('hidden', state !== 'error');
+        matchContent.classList.toggle('hidden', state !== 'ready');
+        matchContent.classList.toggle('hidden', state !== 'ready');
+        matchInfoContainer.classList.toggle('hidden', state !== 'ready');
+    }
+
+    function renderMatch(data) {
+        matchTitle.textContent = data.title;
+        homeFlag.src = data.home_team.flag;
+        homeFlag.alt = data.home_team.name;
+        homeName.textContent = data.home_team.name;
+        scoreHome.textContent = data.score_home_team;
+        scoreAway.textContent = data.score_away_team;
+        awayFlag.src = data.away_team.flag;
+        awayFlag.alt = data.away_team.name;
+        awayName.textContent = data.away_team.name;
+
+        let html = '';
+        const formattedDate = new Date(data.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const discussionURL = discussionURLTemplate.replace('00000000-0000-0000-0000-000000000000', data.id);
+
+        const discussionLink = document.getElementById('discussion-link');
+
+        if (discussionLink) {
+            discussionLink.href = discussionURLTemplate.replace('00000000-0000-0000-0000-000000000000', data.id);
+        }
+
+        if (isAuthenticated === 'false') {
+            html = `
+            <div class="bg-white mx-12 rounded-xl shadow-md p-6 mb-6"> 
+                <h2 class="text-xl font-bold text-black mb-6 text-center">Informasi Pertandingan</h2>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-6 px-6">
+                    <div class="flex items-center gap-2">
+                        <img src="${iconCalendarURL}" class="w-6 h-7" alt="Tanggal">
+                        <div class="flex flex-col items-start">
+                            <span class="font-semibold text-black">Tanggal</span>
+                            <span class="text-sm text-black">${formattedDate}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <img src="${iconFootballURL}" class="w-6 h-6" alt="Kompetisi">
+                        <div class="flex flex-col items-start">
+                            <span class="font-semibold text-black">Kompetisi</span>
+                            <span class="text-sm text-black">${data.title}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <img src="${iconLocationURL}" class="w-6 h-7" alt="Lokasi">
+                        <div class="flex flex-col items-start">
+                            <span class="font-semibold text-black">Lokasi</span>
+                            <span class="text-sm text-black">${data.city}, ${data.country}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        } else {
+            // Jika sudah login, tampilkan tombol diskusi
+            html = `
+            <div class="mt-4 mx-12 text-left">
+                <p class="text-gray-700 text-sm">Ingin melihat informasi lebih lengkap?
+                    <a href="${loginURL}" class="text-[var(--color-secondary)] font-bold underline">Login sekarang!</a>
+                </p>
+            </div>
+            `;
+        }
+        matchInfoContainer.innerHTML = html;
+    }
+
+    async function loadMatchDetail() {
+        try {
+            showState('loading');
+            const response = await fetch(MATCH_ENDPOINT, { headers: { 'Accept': 'application/json' } });
+            if (!response.ok) throw new Error('Failed to fetch match');
+
+            const matchData = await response.json();
+            renderMatch(matchData);
+            showState('ready');
+        } catch (err) {
+            console.error(err);
+            showState('error');
+        }
+    }
+
+    loadMatchDetail();
+</script>
+
+{% endblock content %}
