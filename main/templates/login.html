@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Login - Trophy Threads</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="bg-gray-50 w-full min-h-screen flex items-center justify-center p-8">
+  <div class="max-w-md w-full">
+    <div class="bg-white rounded-lg border border-gray-200 p-6 sm:p-8 form-style">
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Sign In</h1>
+        <p class="text-gray-600">Welcome back to Trophy Threads</p>
+      </div>
+
+      <div id="form-errors-container" class="mb-6">
+        </div>
+      <div id="form-messages-container" class="mt-6">
+        </div>
+
+      {% if form.non_field_errors or form.errors %}
+        <div class="mb-6">
+          {% for error in form.non_field_errors %}
+            <div class="px-4 py-3 rounded-md text-sm border bg-red-50 border-red-200 text-red-700">
+              {{ error }}
+            </div>
+          {% endfor %}
+          {% for field, errors in form.errors.items %}
+            {% if field != '__all__' %}
+              {% for error in errors %}
+                <div class="px-4 py-3 rounded-md text-sm border bg-red-50 border-red-200 text-red-700 mb-2">
+                  <strong>{{ field|title }}:</strong> {{ error }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'main:login' %}" class="space-y-6" id="login-form">
+        {% csrf_token %}
+        
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+          <input 
+            id="username" 
+            name="username" 
+            type="text" 
+            required 
+            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 transition-colors" 
+            placeholder="Enter your username">
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+          <input 
+            id="password" 
+            name="password" 
+            type="password" 
+            required 
+            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 transition-colors" 
+            placeholder="Enter your password">
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full bg-green-600 text-white font-medium py-3 px-4 rounded-md hover:bg-green-700 transition-colors"
+          id="submit-btn">
+          Sign In
+        </button>
+      </form>
+
+      {% if messages %}
+        <div class="mt-6">
+          {% for message in messages %}
+            <div 
+              class="
+                px-4 py-3 rounded-md text-sm border
+                {% if message.tags == 'success' %}
+                  bg-green-50 border-green-200 text-green-700
+                {% elif message.tags == 'error' %}
+                  bg-red-50 border-red-200 text-red-700
+                {% else %}
+                  bg-gray-50 border-gray-200 text-gray-700
+                {% endif %}
+              ">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="mt-6 text-center pt-6 border-t border-gray-200">
+        <p class="text-gray-500 text-sm">
+          Don't have an account? 
+          <a href="{% url 'main:register' %}" class="text-green-600 hover:text-green-700 font-medium">
+            Register Now
+          </a>
+          <span> or </span>
+        </p>
+        <form method="POST" action="{% url 'main:guest_login' %}" class="inline-block">
+          {% csrf_token %}
+          <button 
+            type="submit"
+            class="
+              text-sm font-medium 
+              text-green-600 hover:text-green-700 
+              hover:underline 
+              p-0 bg-transparent border-none cursor-pointer 
+              focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+            Continue as guest
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('login-form');
+    const errorsContainer = document.getElementById('form-errors-container');
+    const messagesContainer = document.getElementById('form-messages-container');
+    const submitButton = document.getElementById('submit-btn');
+
+    // Function to clear errors and messages
+    const clearFeedback = () => {
+        errorsContainer.innerHTML = '';
+        messagesContainer.innerHTML = '';
+    };
+
+    // Function to render messages
+    const renderMessage = (message, tag) => {
+        clearFeedback();
+        let messageClass = 'bg-gray-50 border-gray-200 text-gray-700';
+        if (tag === 'success') {
+            messageClass = 'bg-green-50 border-green-200 text-green-700';
+        } else if (tag === 'error') {
+            messageClass = 'bg-red-50 border-red-200 text-red-700';
+        }
+
+        messagesContainer.innerHTML = `
+            <div class="px-4 py-3 rounded-md text-sm border ${messageClass}">
+                ${message}
+            </div>
+        `;
+    };
+
+    // Function to render errors
+    const renderErrors = (errors) => {
+        clearFeedback();
+        let errorHtml = '';
+
+        // Non-field errors
+        if (errors.non_field_errors && errors.non_field_errors.length > 0) {
+            errors.non_field_errors.forEach(error => {
+                errorHtml += `
+                    <div class="px-4 py-3 rounded-md text-sm border bg-red-50 border-red-200 text-red-700">
+                        ${error}
+                    </div>
+                `;
+            });
+        }
+        
+        errorsContainer.innerHTML = errorHtml;
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Stop default form submission
+
+        clearFeedback();
+        const originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Signing In...';
+
+        const formData = new FormData(form);
+        // Add the AJAX flag for the Django view
+        formData.append('is_ajax', 'true'); 
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast('Login successful!','success',1000)
+                // tambah delay
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 2000); 
+            } else {
+                renderErrors(data.errors);
+                renderMessage('Login failed. Please check your credentials.', 'error');
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
+
+        } catch (error) {
+            console.error('Error during AJAX login:', error);
+            renderMessage('An unexpected error occurred. Please try again.', 'error');
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
+    });
+});
+</script>
+{% endblock content %}
