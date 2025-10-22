@@ -1,0 +1,280 @@
+{# templates/cartApp/cart.html #}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen bg-[#fff5f5] p-6">
+  {% include 'header.html' %}
+
+  <main class="max-w-4xl mx-auto mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-4">
+      <a href="{% url 'merchandise:landing' %}" class="inline-flex items-center text-red-600 mb-3">
+        ← My Cart ({{ cart_items.count }})
+      </a>
+
+      {% if not cart_items.exists %}
+      <!-- empty cart -->
+      <div class="bg-gray-50 rounded-md p-10 text-center text-gray-500">
+        <h3 class="text-2xl text-red-300 mb-6">Belum ada produk di Keranjang</h3>
+        <img src="{% static 'no-product.png' %}" alt="no product" class="mx-auto w-40 h-40 object-cover rounded-md shadow" />
+        <p class="mt-6 text-sm text-gray-400">Silahkan tambahkan produk terlebih dahulu...</p>
+      </div>
+      {% else %}
+      <!-- cart items -->
+      <div id="cart-list" class="space-y-4">
+        {% for item in cart_items %}
+        <div class="flex bg-white rounded-md border p-4 items-center" data-item-id="{{ item.id }}" data-price="{{ item.merchandise.price }}" data-qty="{{ item.quantity }}">
+          <div class="w-12">
+            <input type="checkbox" class="cart-select-checkbox h-5 w-5 text-red-600" {% if item.selected %}checked{% endif %}>
+          </div>
+
+          <div class="w-28 h-28 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden mr-4">
+            <img src="{{ item.merchandise.thumbnail }}" alt="{{ item.merchandise.name }}" class="object-cover w-full h-full">
+          </div>
+
+          <div class="flex-1">
+            <div class="flex justify-between">
+              <h4 class="font-semibold text-gray-800">{{ item.merchandise.name|truncatechars:40 }}</h4>
+              <button class="text-sm text-gray-400 delete-btn">Delete</button>
+            </div>
+            <div class="mt-2">
+              {% if item.variant %}
+                <span class="text-xs bg-gray-100 px-2 py-1 rounded-md mr-1">{{ item.variant }}</span>
+              {% endif %}
+              <!-- placeholders for other badges -->
+            </div>
+
+            <div class="mt-3 flex items-center justify-between">
+              <div>
+                <div class="text-red-600 font-bold text-lg price-display">Rp <span class="price-num">{{ item.merchandise.price }}</span></div>
+                <div class="text-xs text-gray-400">Stok: {{ item.merchandise.stock }}</div>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <button class="qty-decr px-2 py-1 border rounded-md" title="Decrease">-</button>
+                <input type="number" class="w-12 text-center qty-input border rounded-md" min="1" value="{{ item.quantity }}">
+                <button class="qty-incr px-2 py-1 border rounded-md" title="Increase">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- footer bar -->
+      <div class="fixed left-0 right-0 bottom-0 bg-red-600 text-white p-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <input type="checkbox" id="select-all" class="h-5 w-5" />
+            <label for="select-all" class="ml-1">Semua</label>
+          </div>
+
+          <div class="text-right">
+            <div class="text-sm">Rp <span id="total-price">0</span></div>
+            <button id="checkout-btn" class="ml-4 bg-white text-red-600 px-4 py-2 rounded-md font-semibold">Checkout (<span id="selected-count">0</span>)</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+</div>
+
+<!-- loading overlay & script -->
+<div id="loading-overlay" class="fixed inset-0 bg-black/30 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-4 rounded-md shadow">Loading...</div>
+</div>
+
+<script>
+(function(){
+  // fallback helper if toast/showLoading not provided by global toast.js
+  function _getCSRF() {
+    const name = 'csrftoken';
+    const match = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+    return match ? decodeURIComponent(match.split('=')[1]) : '';
+  }
+  const csrftoken = _getCSRF();
+
+  function showLoading(){ document.getElementById('loading-overlay').classList.remove('hidden'); }
+  function hideLoading(){ document.getElementById('loading-overlay').classList.add('hidden'); }
+  function showToast(msg, isError=false, duration=1500){
+    if (typeof showToast === 'function' && showToast !== arguments.callee) {
+      // if global showToast exists (toast.js), use it
+      try { window.showToast(msg, isError? 'error':'success', duration); return; } catch(e){}
+    }
+    // fallback simple
+    alert(msg);
+  }
+
+  // price formatter (Rupiah)
+  function formatRupiah(num){
+    return Number(num).toLocaleString('id-ID');
+  }
+
+  // initial compute
+  function updateTotals(){
+    const items = document.querySelectorAll('[data-item-id]');
+    let total = 0;
+    let selectedCount = 0;
+    items.forEach(div => {
+      const checkbox = div.querySelector('.cart-select-checkbox');
+      const price = Number(div.dataset.price || 0);
+      const qty = Number(div.querySelector('.qty-input').value || 0);
+      if (checkbox && checkbox.checked) {
+        total += price * qty;
+        selectedCount += 1;
+      }
+    });
+    document.getElementById('total-price').innerText = formatRupiah(total);
+    document.getElementById('selected-count').innerText = selectedCount;
+  }
+
+  // hookup price number formatting in DOM
+  document.querySelectorAll('.price-num').forEach(el => {
+    el.innerText = formatRupiah(el.innerText);
+  });
+
+  // select all toggle
+  const selectAll = document.getElementById('select-all');
+  if (selectAll) {
+    selectAll.addEventListener('change', async function(){
+      const targetState = this.checked;
+      showLoading();
+      const checkboxes = document.querySelectorAll('.cart-select-checkbox');
+      for (const cb of checkboxes) {
+        const row = cb.closest('[data-item-id]');
+        const itemId = row.dataset.itemId;
+        // call toggle endpoint for each to keep server in sync
+        const form = new FormData();
+        form.append('cart_item_id', itemId);
+        form.append('selected', targetState ? '1' : '0');
+        await fetch("{% url 'cartApp:toggle_select' %}", {
+          method: 'POST',
+          headers: {'X-CSRFToken': csrftoken},
+          body: form
+        }).then(r => r.json()).catch(()=>{});
+        cb.checked = targetState;
+      }
+      hideLoading();
+      updateTotals();
+    });
+  }
+
+  // per-item checkbox
+  document.querySelectorAll('.cart-select-checkbox').forEach(cb => {
+    cb.addEventListener('change', async function(){
+      const row = this.closest('[data-item-id]');
+      const itemId = row.dataset.itemId;
+      showLoading();
+      const form = new FormData();
+      form.append('cart_item_id', itemId);
+      form.append('selected', this.checked ? '1' : '0');
+      const res = await fetch("{% url 'cartApp:toggle_select' %}", {
+        method: 'POST', headers: {'X-CSRFToken': csrftoken}, body: form
+      }).then(r => r.json()).catch(()=>({success:false}));
+      hideLoading();
+      if (!res.success) {
+        showToast(res.message || 'Gagal update', true);
+        // revert
+        this.checked = !this.checked;
+      }
+      updateTotals();
+    });
+  });
+
+  // quantity controls
+  async function changeQty(row, newQty) {
+    const itemId = row.dataset.itemId;
+    const merchStock = Number(row.querySelector('.qty-input').max || 99999);
+    if (newQty <= 0) {
+      // confirm delete
+      if (!confirm('Apakah anda yakin untuk menghapus?')) return;
+      // delete via endpoint
+      showLoading();
+      const form = new FormData(); form.append('cart_item_id', itemId);
+      const res = await fetch("{% url 'cartApp:delete_item' %}", {method:'POST', headers:{'X-CSRFToken':csrftoken}, body: form})
+        .then(r=>r.json()).catch(()=>({success:false}));
+      hideLoading();
+      if (res.success) {
+        showToast(res.message || 'produk berhasil dihapus dari keranjang');
+        row.remove();
+        updateTotals();
+      } else {
+        showToast(res.message || 'Gagal hapus', true);
+      }
+      return;
+    }
+    if (newQty > merchStock){
+      newQty = merchStock;
+    }
+
+    showLoading();
+    const form = new FormData();
+    form.append('cart_item_id', itemId);
+    form.append('quantity', newQty);
+    const res = await fetch("{% url 'cartApp:update_qty' %}", {method:'POST', headers:{'X-CSRFToken':csrftoken}, body: form})
+      .then(r=>r.json()).catch(()=>({success:false}));
+    hideLoading();
+    if (res.success) {
+      row.querySelector('.qty-input').value = res.quantity;
+      showToast('Quantity updated');
+      updateTotals();
+    } else {
+      showToast(res.message || 'Gagal update quantity', true);
+    }
+  }
+
+  document.querySelectorAll('.qty-incr').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const row = this.closest('[data-item-id]');
+      const input = row.querySelector('.qty-input');
+      const newQty = Number(input.value||0) + 1;
+      changeQty(row, newQty);
+    });
+  });
+  document.querySelectorAll('.qty-decr').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const row = this.closest('[data-item-id]');
+      const input = row.querySelector('.qty-input');
+      const newQty = Number(input.value||0) - 1;
+      changeQty(row, newQty);
+    });
+  });
+  // manual input change
+  document.querySelectorAll('.qty-input').forEach(inp=>{
+    inp.addEventListener('change', function(){
+      const row = this.closest('[data-item-id]');
+      let newQty = Number(this.value||0);
+      changeQty(row, newQty);
+    });
+  });
+
+  // delete button
+  document.querySelectorAll('.delete-btn').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const row = this.closest('[data-item-id]');
+      changeQty(row, 0);
+    });
+  });
+
+  // checkout button click
+  const checkoutBtn = document.getElementById('checkout-btn');
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', function(){
+      // count selected
+      const selectedCount = Number(document.getElementById('selected-count').innerText || 0);
+      if (selectedCount === 0) {
+        showToast('Anda belum memilih produk apapun', false, 1200);
+        return;
+      }
+      // redirect to checkout
+      window.location.href = "{% url 'cartApp:checkout' %}";
+    });
+  }
+
+  // initial totals compute
+  updateTotals();
+})();
+</script>
+{% endblock %}

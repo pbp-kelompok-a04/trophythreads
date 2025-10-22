@@ -1,0 +1,162 @@
+{# templates/cartApp/checkout.html #}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen bg-[#fff5f5] p-6">
+  {% include 'header.html' %}
+
+  <main class="max-w-3xl mx-auto mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-4">
+      <a href="{% url 'cartApp:cart' %}" class="inline-flex items-center text-red-600 mb-3">← Checkout</a>
+
+      <form id="checkout-form" class="space-y-4">
+        <div class="bg-gray-50 rounded-md p-4">
+          <label class="text-sm text-gray-600 font-semibold">Nama</label>
+          <input type="text" name="buyer_name" id="buyer_name" value="{{ buyer_name }}" class="w-full mt-2 p-2 border rounded-md" placeholder="Nama penerima">
+          <label class="text-sm text-gray-600 font-semibold mt-3">Alamat <span class="text-red-500">*</span></label>
+          <textarea name="address" id="address" required class="w-full mt-2 p-2 border rounded-md" placeholder="Alamat pengiriman lengkap"></textarea>
+        </div>
+
+        <div class="bg-white border rounded-md p-4">
+          <h3 class="font-semibold mb-3">Ringkasan Produk</h3>
+          {% for item in cart_items %}
+          <div class="flex items-center gap-4 border rounded-md p-3 mb-3">
+            <img src="{{ item.merchandise.thumbnail }}" alt="" class="w-20 h-20 object-cover rounded-md">
+            <div class="flex-1">
+              <div class="text-sm font-semibold">{{ item.merchandise.name|truncatechars:40 }}</div>
+              {% if item.variant %}
+                <div class="text-xs text-gray-500">{{ item.variant }}</div>
+              {% endif %}
+              <div class="text-red-600 font-bold mt-2">Rp {{ item.merchandise.price|intcomma }}</div>
+              {% if item.quantity %}
+                <div class="text-xs text-gray-400">Jumlah: {{ item.quantity }}</div>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          <label class="text-sm text-gray-600 font-semibold">Notes for delivery</label>
+          <textarea name="notes" id="notes" class="w-full mt-2 p-2 border rounded-md" placeholder="(opsional) ex: Tinggalkan paket depan rumah"></textarea>
+        </div>
+
+        <div class="bg-white border rounded-md p-4">
+          <h3 class="font-semibold mb-3">Metode Pembayaran</h3>
+          <div class="flex gap-3 mb-3">
+            <button type="button" class="payment-tab px-3 py-1 border rounded-md active" data-method="ewallet">Ewallet</button>
+            <button type="button" class="payment-tab px-3 py-1 border rounded-md" data-method="bca_oneklik">BCA Oneklik</button>
+            <button type="button" class="payment-tab px-3 py-1 border rounded-md" data-method="bri_oneklik">BRI Oneklik</button>
+          </div>
+
+          <div id="ewallet-options" class="pl-3">
+            <label class="inline-flex items-center"><input type="radio" name="payment_method" value="ewallet_gopay" checked class="mr-2"> Gopay</label><br>
+            <label class="inline-flex items-center"><input type="radio" name="payment_method" value="ewallet_ovo" class="mr-2"> OVO</label><br>
+            <label class="inline-flex items-center"><input type="radio" name="payment_method" value="ewallet_flip" class="mr-2"> Flip</label>
+          </div>
+        </div>
+
+        <div class="bg-white border rounded-md p-4">
+          <h3 class="font-semibold">Rincian Pembayaran</h3>
+          <div class="mt-2">
+            <div class="flex justify-between text-sm"><div>Subtotal Pesanan</div><div>Rp <span id="subtotal">{{ subtotal|intcomma }}</span></div></div>
+            <div class="flex justify-between text-sm"><div>Subtotal Pengiriman</div><div>Rp <span id="shipping">{{ shipping|intcomma }}</span></div></div>
+            <div class="flex justify-between text-sm"><div>Biaya Layanan</div><div>Rp <span id="service">{{ service|intcomma }}</span></div></div>
+            <hr class="my-3">
+            <div class="flex justify-between font-bold text-lg"><div>Total Pembayaran</div><div>Rp <span id="grand-total">{{ total|intcomma }}</span></div></div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center mt-6">
+          <a href="{% url 'cartApp:cart' %}" class="text-sm text-gray-600">Kembali ke keranjang</a>
+          <button id="place-order-btn" class="bg-red-600 text-white px-4 py-2 rounded-md font-semibold">Buat Pesanan</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+</div>
+
+<div id="loading-overlay" class="fixed inset-0 bg-black/30 flex items-center justify-center hidden z-50">
+  <div class="bg-white p-4 rounded-md shadow">Processing...</div>
+</div>
+
+<script>
+(function(){
+  const csrftoken = (document.cookie.split('; ').find(r=>r.startsWith('csrftoken='))||'').split('=')[1] || '';
+
+  function showLoading(){ document.getElementById('loading-overlay').classList.remove('hidden'); }
+  function hideLoading(){ document.getElementById('loading-overlay').classList.add('hidden'); }
+  function showToast(msg, isError=false, duration=1500){
+    if (typeof window.showToast === 'function') { try { window.showToast(msg, isError? 'error':'success', duration); return; } catch(e){} }
+    alert(msg);
+  }
+
+  // payment tab switching
+  document.querySelectorAll('.payment-tab').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.payment-tab').forEach(b=>b.classList.remove('active','bg-red-100'));
+      this.classList.add('active','bg-red-100');
+      const method = this.dataset.method;
+      // show/hide ewallet options
+      document.getElementById('ewallet-options').style.display = method==='ewallet' ? 'block' : 'none';
+      if (method !== 'ewallet') {
+        // set radio to corresponding
+        const v = method === 'bca_oneklik' ? 'bca_oneklik' : 'bri_oneklik';
+        // append a hidden input or set radio programmatically
+        // remove other radio selections
+        document.querySelectorAll('input[name="payment_method"]').forEach(i=>i.checked=false);
+        // create hidden input
+        let existing = document.getElementById('hidden-payment');
+        if (existing) existing.value = v;
+        else {
+          const h = document.createElement('input'); h.type='hidden'; h.id='hidden-payment'; h.name='payment_method'; h.value=v;
+          document.getElementById('checkout-form').appendChild(h);
+        }
+      } else {
+        const existing = document.getElementById('hidden-payment'); if (existing) existing.remove();
+        // default to first ewallet radio
+        document.querySelector('input[name="payment_method"][value="ewallet_gopay"]').checked = true;
+      }
+    });
+  });
+
+  // place order
+  document.getElementById('place-order-btn').addEventListener('click', async function(e){
+    e.preventDefault();
+    const address = document.getElementById('address').value.trim();
+    if (!address) {
+      showToast('Address wajib diisi', true, 1200);
+      return;
+    }
+
+    // collect payment method
+    let payment = document.querySelector('input[name="payment_method"]:checked');
+    if (!payment) {
+      const hidden = document.getElementById('hidden-payment');
+      if (hidden) payment = hidden;
+    }
+    if (!payment) { showToast('Pilih metode pembayaran', true); return; }
+
+    const form = new FormData();
+    form.append('buyer_name', document.getElementById('buyer_name').value || '');
+    form.append('address', address);
+    form.append('notes', document.getElementById('notes').value || '');
+    form.append('payment_method', payment.value);
+
+    showLoading();
+    const res = await fetch("{% url 'cartApp:place_order' %}", {
+      method: 'POST',
+      headers: {'X-CSRFToken': csrftoken},
+      body: form
+    }).then(r=>r.json()).catch(()=>({success:false}));
+    hideLoading();
+
+    if (res.success) {
+      // redirect to after checkout
+      window.location.href = res.redirect_url || "{% url 'cartApp:after_checkout' %}";
+    } else {
+      showToast(res.message || 'Gagal melakukan pesanan', true);
+    }
+  });
+})();
+</script>
+{% endblock %}

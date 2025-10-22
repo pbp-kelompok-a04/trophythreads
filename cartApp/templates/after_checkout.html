@@ -1,0 +1,61 @@
+{# templates/cartApp/after_checkout.html #}
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="min-h-screen bg-[#fff5f5] p-6">
+  {% include 'header.html' %}
+
+  <main class="max-w-4xl mx-auto mt-6">
+    <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+      <a href="{% url 'merchandise:landing' %}" class="inline-flex items-center text-red-600 mb-3">← Home</a>
+
+      {% if order %}
+      <h2 class="text-2xl text-red-500 font-bold mb-2">PEMBAYARAN BERHASIL ✨</h2>
+      <p class="text-gray-600 mb-6">Pesanan akan segera diproses...</p>
+
+      <div class="mb-4">
+        <div class="text-left max-w-3xl mx-auto">
+          <div class="bg-gray-50 p-4 rounded-md mb-3">
+            <div class="font-semibold">Order ID</div>
+            <div class="text-sm text-gray-500 break-all">{{ order.id }}</div>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-md mb-3">
+            <div class="font-semibold">Detail Pesanan</div>
+            {% for it in order.items.all %}
+            <div class="flex items-center gap-3 border rounded-md p-3 mt-3">
+              {% if it.merchandise and it.merchandise.thumbnail %}
+              <img src="{{ it.merchandise.thumbnail }}" class="w-20 h-20 object-cover rounded-md" />
+              {% endif %}
+              <div class="text-left">
+                <div class="font-semibold">{{ it.merchandise.name if it.merchandise else 'Produk' }}</div>
+                {% if it.variant %}<div class="text-xs text-gray-500">{{ it.variant }}</div>{% endif %}
+                <div class="text-sm text-gray-600">Jumlah: {{ it.quantity }}</div>
+                <div class="text-red-600 font-bold">Rp {{ it.price_at_purchase|intcomma }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-md">
+            <div class="flex justify-between"><div>Subtotal</div><div>Rp {{ order.subtotal|intcomma }}</div></div>
+            <div class="flex justify-between"><div>Ongkir</div><div>Rp {{ order.shipping_fee|intcomma }}</div></div>
+            <div class="flex justify-between"><div>Biaya Layanan</div><div>Rp {{ order.service_fee|intcomma }}</div></div>
+            <hr class="my-3">
+            <div class="flex justify-between font-bold"><div>Total</div><div>Rp {{ order.total|intcomma }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <a href="{% url 'merchandise:landing' %}" class="inline-block bg-red-600 text-white px-6 py-2 rounded-md">Kembali ke Merchandise</a>
+
+      {% else %}
+      <h3 class="text-lg text-gray-600">Tidak ada pesanan terbaru.</h3>
+      <a href="{% url 'merchandise:landing' %}" class="inline-block mt-4 bg-red-600 text-white px-6 py-2 rounded-md">Ke Halaman Merchandise</a>
+      {% endif %}
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+</div>
+{% endblock %}
