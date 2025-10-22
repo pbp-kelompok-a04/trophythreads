@@ -1,0 +1,129 @@
+<div id="editMatchModal"
+    class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div id="editMatchModalContent"
+        class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 max-h-[90vh] overflow-y-auto p-6">
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+            <h3 class="text-xl font-semibold text-gray-900">Edit Match</h3>
+            <button onclick="hideEditMatchModal()" class="text-gray-400 hover:text-gray-700">&times;</button>
+        </div>
+
+        <form id="editMatchForm">
+            <input type="hidden" id="edit_match_id">
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" id="edit_title"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Date</label>
+                <input type="date" id="edit_date" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">City</label>
+                <input type="text" id="edit_city" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Country</label>
+                <input type="text" id="edit_country"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" value="Indonesia">
+            </div>
+
+            <div class="mb-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
+                <!-- Home Team -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Home Team</label>
+                    <input type="text" id="edit_home_team" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                </div>
+
+                <!-- Home Score -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Home Score</label>
+                    <input type="number" id="edit_score_home" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" min="0">
+                </div>
+
+                <!-- Away Team -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Away Team</label>
+                    <input type="text" id="edit_away_team" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                </div>
+
+                <!-- Away Score -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Away Score</label>
+                    <input type="number" id="edit_score_away" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" min="0">
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <button type="button" onclick="hideEditMatchModal()"
+                    class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="submit" class="px-4 py-2 w-full bg-var(--color-secondary) text-white rounded hover:bg-var(--color-primary)">Save
+                    Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+
+    function showEditModal(match) {
+        const modal = document.getElementById('editMatchModal');
+
+        document.getElementById('edit_match_id').value = match.id;
+        document.getElementById('edit_title').value = match.title;
+        document.getElementById('edit_date').value = new Date(match.date).toISOString().split('T')[0];
+        document.getElementById('edit_city').value = match.city;
+        document.getElementById('edit_country').value = match.country;
+        document.getElementById('edit_score_home').value = match.score_home;
+        document.getElementById('edit_score_away').value = match.score_away;
+        modal.classList.remove('hidden');
+    }
+
+    function hideEditMatchModal() {
+        const modal = document.getElementById('editMatchModal');
+        const content = document.getElementById('editMatchModalContent');
+
+        content.classList.remove('opacity-100', 'scale-100');
+        content.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 150);
+    }
+
+    // submit form via AJAX
+    document.getElementById('editMatchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const matchId = document.getElementById('edit_match_id').value;
+
+        const payload = {
+            title: document.getElementById('edit_title').value,
+            date: document.getElementById('edit_date').value,
+            city: document.getElementById('edit_city').value,
+            country: document.getElementById('edit_country').value,
+            home_team: document.getElementById('edit_home_team').value,
+            away_team: document.getElementById('edit_away_team').value,
+            score_home_team: document.getElementById('edit_score_home').value,
+            score_away_team: document.getElementById('edit_score_away').value
+        };
+
+        try {
+            const response = await fetch(`/matches/${matchId}/update/`, {
+                method: 'POST',  // atau 'PATCH' sesuai view
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                showToast('Match updated successfully!', 'success');
+                hideEditMatchModal();
+                // reload atau update table
+            } else {
+                showToast('Failed to update match', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Error occurred', 'error');
+        }
+    });
+</script>
