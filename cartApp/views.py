@@ -30,30 +30,6 @@ def _get_cart_for_request(request):
     return cart
 
 @login_required
-def cart_json(request):
-    cart = _get_cart_for_request(request)
-    items = []
-    for item in cart.items.select_related('product'):
-        items.append({
-            'id': item.id,
-            'product_id': str(item.product.id),
-            'name': item.product.name,
-            'price': item.product.price,
-            'quantity': item.quantity,
-            'selected': item.selected,
-            'thumbnail': getattr(item.product, 'thumbnail', None),
-            'line_total': item.line_total(),
-            'stock': item.product.stock,
-        })
-    return JsonResponse({
-        'items': items,
-        'subtotal': cart.subtotal(),
-        'shipping': SHIPPING_FEE,
-        'service_fee': SERVICE_FEE,
-        'total': cart.subtotal() + SHIPPING_FEE + SERVICE_FEE
-    })
-
-@login_required
 @require_POST
 def add_to_cart_ajax(request):
 

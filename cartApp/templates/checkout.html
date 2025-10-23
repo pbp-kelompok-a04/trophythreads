@@ -198,7 +198,10 @@ document.getElementById('checkout-btn').addEventListener('click', async () => {
     showToast('Alamat wajib diisi', 'error');
     return;
   }
-  const selected = document.querySelector('input[name="payment_method"]:checked')?.value;
+
+  const paymentSub = document.querySelector('input[name="payment_method"]:checked')?.value;
+  const paymentMain = document.querySelector('input[name="main_payment"]:checked')?.value;
+  const selected = paymentSub || paymentMain;
   if (!selected) {
     showToast('Pilih metode pembayaran terlebih dahulu', 'error');
     return;
