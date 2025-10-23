@@ -4,8 +4,8 @@
         <div class="flex items-center justify-between h-16">
             <div class="flex items-center space-x-10">
                 <div class="flex items-center space-x-2">
-                    <img src="{% static 'image/placeholder.png' %}" alt="TrophyThreads Logo" class="h-8 w-8">
-                    <span class="text-white text-xl font-extrabold tracking-tight"
+                    <img src="{% static 'image/logo.png' %}" alt="TrophyThreads Logo" class="h-8">
+                    <span class="px-2 text-white text-xl font-extrabold tracking-tight"
                         style="font-family: var(--font-title);">TrophyThreads</span>
                 </div>
 
@@ -37,7 +37,7 @@
 
                     <div id="profileDropdown"
                         class="absolute right-0 mt-2 w-32 bg-white text-gray-800 rounded-lg shadow-lg hidden">
-                        <a href="/" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg">
+                        <a href="{% url 'main:login' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg">
                             Logout
                         </a>
                     </div>
