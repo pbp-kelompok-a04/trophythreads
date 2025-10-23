@@ -1,107 +1,281 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
-{% include 'header.html' %}
-<div class="container mx-auto p-6">
-  <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
-  <div id="cart-container">
-    {% if cart.items.count == 0 %}
-      <div class="text-center">
-        <img src="{% static 'image/no-merch.png' %}" alt="no merch" class="mx-auto w-64">
-        <p class="mt-4">Your cart is empty</p>
-      </div>
-    {% else %}
-      <table class="w-full">
-        <thead>...</thead>
-        <tbody>
-          {% for item in cart.items.all %}
-          <tr data-item-id="{{ item.id }}">
-            <td><input type="checkbox" class="select-item" data-item-id="{{ item.id }}" {% if item.selected %}checked{% endif %}></td>
-            <td><img src="{{ item.product.thumbnail }}" class="w-20 h-20 object-cover"></td>
-            <td>{{ item.product.name }}</td>
-            <td>{{ item.variant }}</td>
-            <td>Rp {{ item.product.price }}</td>
-            <td>
-              <button class="qty-dec" data-id="{{ item.id }}">-</button>
-              <span class="qty" id="qty-{{ item.id }}">{{ item.quantity }}</span>
-              <button class="qty-inc" data-id="{{ item.id }}">+</button>
-            </td>
-            <td><button class="delete-item" data-id="{{ item.id }}">Delete</button></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
 
-      <div class="mt-6">
-        <a href="{% url 'cartApp:checkout' %}" id="checkout-btn" class="btn">Checkout</a>
+{% block meta %}
+  <title>My Cart - TrophyThreads</title>
+{% endblock meta %}
+
+{% static 'image/no-merch.png' as NO_MERCH_IMAGE %}
+{% static 'image/placeholder.png' as FALLBACK_IMAGE %}
+
+{% block content %}
+<div class="min-h-screen bg-[#FFF1F1]">
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="max-w-4xl mx-auto">
+
+      <div class="rounded-lg bg-[#FFFFFF] p-4 mb-6 shadow-sm">
+        <div class="flex items-center gap-4">
+          <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" class="text-[#] text-xl font-bold flex items-center gap-3">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            My Cart {% if cart.total_items %}({{ cart.total_items }}){% endif %}
+          </a>
+        </div>
       </div>
-    {% endif %}
+
+      <div id="cart-list" class="space-y-6">
+
+        {% if cart and cart.items.count %}
+          {% for item in cart.items.all %}
+          <div class="cart-row flex gap-6 items-start rounded-lg bg-white p-6 border border-[#EEEDED] shadow-sm"
+            data-item-id="{{ item.id }}"
+            data-price="{{ item.product.price|default:item.product_price }}">
+            <div class="flex-shrink-0">
+              <input type="checkbox" class="cart-checkbox h-5 w-5 rounded-md border-[#990B29] text-[#ED3F27]" {% if item.selected %}checked{% endif %}/>
+            </div>
+
+            <div class="w-32 h-32 flex items-center justify-center bg-[#FFF1F1] rounded-md overflow-hidden shadow-inner">
+              {% if item.product and item.product.thumbnail %}
+                <img src="{{ item.product.thumbnail }}" alt="{{ item.product.name }}" class="object-cover w-full h-full" />
+              {% elif item.product_thumbnail %}
+                <img src="{{ item.product_thumbnail }}" alt="{{ item.product_name }}" class="object-cover w-full h-full" />
+              {% else %}
+                <!-- FIXED: jangan buat nested .cart-row di sini! -->
+                <div class="flex flex-col items-center justify-center gap-2 p-2">
+                  <img src="{{ NO_MERCH_IMAGE }}" alt="no merch" class="w-20 h-20 object-contain" />
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-[#333] leading-tight">
+                    {{ item.product.name|default:item.product_name }}
+                  </h3>
+                  <!-- {% if item.variant %}
+                    <div class="mt-2 text-sm text-gray-600">{{ item.variant }}</div>
+                  {% endif %} -->
+                </div>
+                <button type="button" class="delete-item text-sm text-gray-400 hover:text-[#990B29]" data-id="{{ item.id }}">Delete</button>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between">
+                <div>
+                  <div class="text-[#ED3F27] font-semibold text-lg">
+                    Rp <span class="item-price">{{ item.product.price|default:item.product_price }}</span>
+                  </div>
+                  <div class="text-sm text-gray-500 mt-1">
+                    Stock: <span class="item-stock">{{ item.product.stock|default:item.product_stock}}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button type="button" class="qty-minus px-3 py-1 border rounded-md text-lg select-none" data-id="{{ item.id }}">−</button>
+                  <input type="number" min="1" value="{{ item.quantity }}" class="qty-input w-16 text-center border rounded-md py-1" data-id="{{ item.id }}" />
+                  <button type="button" class="qty-plus px-3 py-1 border rounded-md text-lg select-none" data-id="{{ item.id }}">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="cart-row flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-6 border border-[#EEEDED] shadow-sm text-center">
+            <img src="{{ NO_MERCH_IMAGE }}" alt="no merch" class="mx-auto w-64">
+            <p class="mt-4 text-gray-700 font-medium">Your cart is empty</p>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
   </div>
+
+  <div class="fixed left-0 right-0 bottom-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-[#ED3F27] rounded-t-lg p-5 flex items-center justify-between shadow-lg">
+        <label class="inline-flex items-center text-white text-lg gap-3">
+          <input type="checkbox" id="select-all" class="h-5 w-5 text-[#990B29]" />
+          <span class="font-semibold">Semua</span>
+        </label>
+
+        <div class="flex items-center gap-6">
+          <div class="text-white">
+            <div class="text-sm">Rp <span id="total-price">{{ cart.subtotal }}</span></div>
+          </div>
+
+          <a id="checkout-btn" href="{% url 'cartApp:checkout' %}" class="bg-white text-[#ED3F27] font-semibold px-6 py-3 rounded-md shadow hover:opacity-95">
+            Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="h-28"></div>
 </div>
-{% include 'footer.html' %}
 
 <script>
-/* Basic event handlers using fetch + CSRF cookie (use getCookie helper from main templates) */
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-              break;
-          }
-      }
-  }
-  return cookieValue;
-}
-const csrftoken = getCookie('csrftoken');
+document.addEventListener("DOMContentLoaded", () => {
+  const csrftoken = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop();
 
-document.addEventListener('click', async (e) => {
-  if (e.target.matches('.qty-inc')) {
-    const id = e.target.dataset.id;
-    await fetch('{% url "cartApp:update_cart_item" 0 %}'.replace('0', id), {
-      method: 'POST',
-      headers: {'X-CSRFToken': csrftoken},
-      body: new URLSearchParams({action: 'inc'})
-    }).then(r => r.json()).then(console.log);
-    location.reload();
+  const post = (url, data) =>
+    fetch(url, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken, "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data),
+    });
+
+  const formatIDR = (n) => n.toLocaleString("id-ID");
+
+  function showToast(msg, type = "info") {
+    const toast = document.createElement("div");
+    toast.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-white font-medium shadow-lg z-50 transition-all duration-500 ${
+      type === "error" ? "bg-[#ED3F27]" : type === "success" ? "bg-green-500" : "bg-gray-800"
+    }`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => (toast.style.opacity = "0"), 2000);
+    setTimeout(() => toast.remove(), 2500);
   }
-  if (e.target.matches('.qty-dec')) {
-    const id = e.target.dataset.id;
-    await fetch('{% url "cartApp:update_cart_item" 0 %}'.replace('0', id), {
-      method: 'POST',
-      headers: {'X-CSRFToken': csrftoken},
-      body: new URLSearchParams({action: 'dec'})
-    }).then(r => r.json()).then(data => {
-      if (data.confirm_delete) {
-        if (confirm('Quantity will be removed. Delete item?')) {
-          fetch('{% url "cartApp:delete_item" 0 %}'.replace('0', id), {
-            method: 'POST',
-            headers: {'X-CSRFToken': csrftoken}
-          }).then(()=>location.reload());
+
+  function confirmModal(message, confirmText = "Delete", cancelText = "Cancel") {
+    return new Promise((resolve) => {
+      const overlay = document.createElement("div");
+      overlay.className = "fixed inset-0 bg-black/40 flex items-center justify-center z-50";
+      const modal = document.createElement("div");
+      modal.className = "bg-white rounded-lg shadow-xl p-6 max-w-sm text-center animate-fadeIn";
+      modal.innerHTML = `
+        <h3 class="text-lg font-semibold mb-3">Delete Confirmation</h3>
+        <p class="text-gray-600 mb-6">${message}</p>
+        <div class="flex justify-center gap-4">
+          <button id="cancel" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">${cancelText}</button>
+          <button id="confirm" class="px-4 py-2 rounded-md bg-[#ED3F27] text-white hover:opacity-90">${confirmText}</button>
+        </div>`;
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target.id === "cancel" || e.target === overlay) {
+          overlay.remove();
+          resolve(false);
+        } else if (e.target.id === "confirm") {
+          overlay.remove();
+          resolve(true);
         }
-      } else location.reload();
+      });
     });
   }
-  if (e.target.matches('.delete-item')) {
+
+  const updateTotals = () => {
+    let total = 0;
+    document.querySelectorAll(".cart-row").forEach((row) => {
+      const price = Number(row.dataset.price || 0);
+      const qty = Number(row.querySelector(".qty-input")?.value || 0);
+      const checkbox = row.querySelector(".cart-checkbox");
+      if (checkbox && checkbox.checked) total += price * qty;
+    });
+    document.getElementById("total-price").textContent = formatIDR(total);
+  };
+
+  async function handleDelete(row) {
+    const id = row.dataset.itemId;
+    const name = row.querySelector("h3")?.textContent || "this product";
+    const confirmDelete = await confirmModal(
+      `Are you sure you want to remove product <strong>${name}</strong>?`
+    );
+    if (!confirmDelete) return;
+
+    const res = await post("{% url 'cartApp:delete_item' 0 %}".replace("0", id), {});
+    if (!res.ok) return showToast("Failed to delete product", "error");
+
+    row.remove();
+    updateTotals();
+    showToast("Product deleted from cart", "success");
+  }
+
+  document.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("delete-item")) {
+      const row = e.target.closest(".cart-row");
+      await handleDelete(row);
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("qty-plus")) return;
     const id = e.target.dataset.id;
-    if (!confirm('Are you sure delete?')) return;
-    await fetch('{% url "cartApp:delete_item" 0 %}'.replace('0', id), {
-      method: 'POST',
-      headers: {'X-CSRFToken': csrftoken}
+    const input = document.querySelector(`.qty-input[data-id="${id}"]`);
+    const res = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "inc" });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      input.value = data.quantity ?? +input.value + 1;
+      updateTotals();
+    } else showToast(data.error || "Stock not enough", "error");
+  });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("qty-minus")) return;
+    const row = e.target.closest(".cart-row");
+    const id = row.dataset.itemId;
+    const input = row.querySelector(`.qty-input[data-id="${id}"]`);
+    const qty = +input.value;
+
+    // kalau quantity = 1, langsung pakai confirmModal + delete
+    if (qty <= 1) {
+      await handleDelete(row);
+      return;
+    }
+
+    const r = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "dec" });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) input.value = data.quantity ?? qty - 1;
+    updateTotals();
+  });
+
+  const selectAll = document.getElementById("select-all");
+  if (selectAll) {
+    selectAll.addEventListener("change", async (e) => {
+      const checked = e.target.checked;
+      document.querySelectorAll(".cart-checkbox").forEach(cb => cb.checked = checked);
+      updateTotals();
+      await post("{% url 'cartApp:toggle_select_all' %}", { selected: checked });
     });
-    location.reload();
   }
-  if (e.target.matches('.select-item')) {
-    const id = e.target.dataset.itemId;
-    await fetch('{% url "cartApp:toggle_select" 0 %}'.replace('0', id), {
-      method: 'POST',
-      headers: {'X-CSRFToken': csrftoken}
+
+  // === CEKLIST INDIVIDU UPDATE TOTAL ===
+  // document.addEventListener("change", (e) => {
+  //   if (e.target.classList.contains("cart-checkbox")) updateTotals();
+  // });
+    // === CEKLIST INDIVIDU UPDATE TOTAL + SYNC KE SERVER ===
+  document.addEventListener("change", async (e) => {
+    if (!e.target.classList.contains("cart-checkbox")) return;
+    const row = e.target.closest(".cart-row");
+    const id = row?.dataset.itemId;
+    if (!id) return;
+
+    // update server biar selected status ke-sync
+    try {
+      await post("{% url 'cartApp:toggle_select' 0 %}".replace("0", id), {});
+    } catch (err) {
+      console.error("Toggle select gagal:", err);
+    }
+
+    updateTotals(); // update tampilan total harga
+  });
+
+
+  const checkoutBtn = document.getElementById("checkout-btn");
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", (e) => {
+      const checkedItems = document.querySelectorAll(".cart-checkbox:checked");
+      if (checkedItems.length === 0) {
+        e.preventDefault();
+        showToast("Anda harus pilih produk terlebih dahulu!", "error");
+      }
     });
-    location.reload();
   }
+
+  updateTotals();
 });
 </script>
+
 {% endblock content %}

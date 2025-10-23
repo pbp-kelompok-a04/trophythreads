@@ -1,62 +1,198 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Checkout - TrophyThreads</title>
+{% endblock meta %}
+
 {% block content %}
-{% include 'header.html' %}
-<div class="container mx-auto p-6">
-  <h2 class="text-2xl mb-4">Checkout</h2>
+<div class="min-h-screen bg-[#FFF1F1] pb-32">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
 
-  <form id="checkout-form" method="POST" action="{% url 'cartApp:checkout' %}">
-    {% csrf_token %}
-    <div>
-      <label>Nama</label>
-      <input type="text" value="{{ request.user.username if request.user.is_authenticated else request.session.guest_name }}" disabled>
-    </div>
-    <div>
-      <label>Address (required)</label>
-      <input name="address" required>
+    <!-- Header -->
+    <div class="rounded-lg bg-white p-4 mb-6 shadow-sm flex items-center gap-3">
+      <a href="{% url 'cartApp:cart_page' %}" class="flex items-center gap-2 text-[#000]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 18L9 12L15 6"></path>
+        </svg>
+        <span class="text-lg font-semibold">Checkout</span>
+      </a>
     </div>
 
-    <h3>Items</h3>
-    <ul>
-      {% for item in items %}
-        <li>{{ item.product.name }} ({{ item.variant }}) x{{ item.quantity }} - Rp {{ item.line_total }}</li>
-      {% endfor %}
-    </ul>
-
-    <div>
-      <label>Notes (optional)</label>
-      <textarea name="notes"></textarea>
+    <!-- Info User -->
+    <div class="bg-white p-5 rounded-lg border border-[#EEEDED] shadow-sm mb-5">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-[#ED3F27]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21C12 21 4 13.941 4 9.5C4 6.462 6.462 4 9.5 4C12.538 4 15 6.462 15 9.5C15 13.941 7 21 7 21"/>
+        </svg>
+        <div class="flex-1">
+          <p class="text-[#ED3F27] font-semibold text-lg">{{ user.username }}</p>
+          <label class="text-sm text-gray-600 font-medium mt-2 block">Alamat Pengiriman</label>
+          <textarea id="address" rows="2" required class="w-full border border-gray-300 rounded-md mt-1 p-2 text-sm focus:ring-[#ED3F27] focus:border-[#ED3F27]" placeholder="Masukkan alamat lengkap">{{ user.profile.address|default_if_none:"" }}</textarea>
+        </div>
+      </div>
     </div>
 
-    <div>
-      <h4>Payment method</h4>
-      <label><input type="radio" name="payment_method" value="gopay" checked> Gopay</label>
-      <label><input type="radio" name="payment_method" value="bca_oneclick"> BCA OneClick</label>
-      <label><input type="radio" name="payment_method" value="bri_oneclick"> BRI OneClick</label>
+    <!-- Produk -->
+     {% for item in items %}
+    <div class="cart-item flex flex-col sm:flex-row gap-4 p-4 border rounded-lg bg-white shadow-sm">
+      <!-- ===== TOP ROW: gambar + detail produk (sejajar) ===== -->
+      <div class="flex items-start gap-4 w-full">
+        <div class="w-24 h-24 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
+          <img src="{{ item.product.thumbnail|default:item.product_thumbnail }}" 
+              alt="{{ item.product.name|default:item.product_name }}" 
+              class="object-cover w-full h-full" />
+        </div>
+
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-800">
+            {{ item.product.name|default:item.product_name }}
+          </h3>
+
+          {% if item.variant %}
+          <div class="text-sm text-gray-600 mt-1">{{ item.variant }}</div>
+          {% endif %}
+
+          <p class="text-sm text-gray-600 mt-2">
+            Rp {{ item.product.price|default:item.product_price }}
+          </p>
+
+          <!-- kalau mau info lain (stock, qty) taro sini -->
+          <div class="mt-3 text-sm text-gray-500">
+            Stock: <span>{{ item.product.stock|default:item.product_stock }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Total Produk -->
+    <div class="bg-white p-4 rounded-lg border border-[#EEEDED] shadow-sm flex justify-between text-sm font-medium mb-5">
+      <span>Total {{ items.count }} Produk</span>
+      <span>Rp {{ total_before_fee }}</span>
     </div>
 
-    <div>
-      <p>Subtotal: Rp {{ total_before_fee }}</p>
-      <p>Shipping: Rp {{ shipping_fee }}</p>
-      <p>Service: Rp {{ service_fee }}</p>
-      <p>Total: Rp {{ total_before_fee|add:shipping_fee|add:service_fee }}</p>
+    <!-- Metode Pembayaran -->
+    <div class="bg-white p-5 rounded-lg border border-[#EEEDED] shadow-sm mb-5">
+      <p class="font-semibold mb-3">Metode Pembayaran</p>
+
+      <div class="space-y-3">
+        <!-- Ewallet -->
+        <div>
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="main_payment" value="ewallet" class="text-[#ED3F27] focus:ring-[#ED3F27]">
+            <span>E-Wallet</span>
+          </label>
+          <div id="ewallet-options" class="hidden ml-6 mt-2 space-y-2">
+            <label class="flex items-center gap-2">
+              <input type="radio" name="payment_method" value="gopay" class="text-[#ED3F27] focus:ring-[#ED3F27]">
+              <span>GoPay</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="payment_method" value="ovo" class="text-[#ED3F27] focus:ring-[#ED3F27]">
+              <span>OVO</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="radio" name="payment_method" value="flip" class="text-[#ED3F27] focus:ring-[#ED3F27]">
+              <span>Flip</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Bank -->
+        <label class="inline-flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="payment_method" value="bca_oneklik" class="text-[#ED3F27] focus:ring-[#ED3F27]">
+          <span>BCA OneKlik</span>
+        </label>
+        <label class="inline-flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="payment_method" value="bri_oneklik" class="text-[#ED3F27] focus:ring-[#ED3F27]">
+          <span>BRI OneKlik</span>
+        </label>
+      </div>
     </div>
 
-    <button type="submit" id="place-order">Place Order</button>
-    <a href="{% url 'cartApp:cart_page' %}">Return to cart</a>
-  </form>
+    <!-- Rincian Pembayaran -->
+    <div class="bg-white p-5 rounded-lg border border-[#EEEDED] shadow-sm mb-20">
+      <p class="font-semibold mb-3">Rincian Pembayaran</p>
+      <div class="text-sm text-gray-700 space-y-1">
+        <div class="flex justify-between">
+          <span>Subtotal Pesanan</span><span>Rp {{ total_before_fee }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Subtotal Pengiriman</span><span>Rp {{ shipping_fee }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Biaya Layanan</span><span>Rp {{ service_fee }}</span>
+        </div>
+      </div>
+      <div class="border-t border-gray-300 mt-3 pt-3 flex justify-between font-semibold text-[#ED3F27] text-lg">
+        <span>Total Pembayaran</span>
+        <span id="grand-total">Rp {{ total_before_fee|add:shipping_fee|add:service_fee }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="fixed bottom-0 left-0 right-0 bg-[#ED3F27] text-white shadow-lg">
+    <div class="max-w-3xl mx-auto flex justify-between items-center px-6 py-4">
+      <div>
+        <p class="font-semibold">
+          Total Rp {{ total_before_fee|add:shipping_fee|add:service_fee }}
+        </p>
+        <p class="text-xs opacity-90">Hemat Rp 0</p>
+      </div>
+      <button id="checkout-btn" class="bg-white text-[#ED3F27] font-semibold px-6 py-3 rounded-md hover:opacity-95 transition">
+        Buat Pesanan
+      </button>
+    </div>
+  </div>
 </div>
 
+<!-- Toast -->
 <script>
-const form = document.getElementById('checkout-form');
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const data = new FormData(form);
-  data.append('is_ajax', 'true');
-  const res = await fetch(form.action, {method:'POST', body: data, headers: {'X-CSRFToken': getCookie('csrftoken')}});
-  const json = await res.json();
-  if (json.redirect_url) window.location.href = json.redirect_url;
-  else alert(json.error || 'Unknown error');
+function showToast(msg, type='info') {
+  const toast = document.createElement('div');
+  toast.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-white font-medium shadow-lg z-50 transition-opacity duration-500 ${
+    type==='success'?'bg-green-500':type==='error'?'bg-[#ED3F27]':'bg-gray-800'
+  }`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.style.opacity='0',2000);
+  setTimeout(()=>toast.remove(),2500);
+}
+
+// Show e-wallet sub options
+document.querySelectorAll('input[name="main_payment"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    document.getElementById('ewallet-options').classList.toggle('hidden', radio.value !== 'ewallet');
+  });
+});
+
+document.getElementById('checkout-btn').addEventListener('click', async () => {
+  const address = document.getElementById('address').value.trim();
+  if (!address) {
+    showToast('Alamat wajib diisi', 'error');
+    return;
+  }
+  const selected = document.querySelector('input[name="payment_method"]:checked')?.value;
+  if (!selected) {
+    showToast('Pilih metode pembayaran terlebih dahulu', 'error');
+    return;
+  }
+
+  const res = await fetch("{% url 'cartApp:checkout' %}", {
+    method: 'POST',
+    headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({ address, payment_method: selected })
+  });
+  const data = await res.json().catch(()=>({}));
+  if (res.ok && data.message) {
+    showToast('Pesanan berhasil dibuat!', 'success');
+    setTimeout(()=>window.location.href=data.redirect_url,1200);
+  } else {
+    showToast(data.error || 'Gagal membuat pesanan', 'error');
+  }
 });
 </script>
-{% include 'footer.html' %}
+
 {% endblock content %}
