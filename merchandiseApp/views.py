@@ -18,8 +18,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-@login_required(login_url='/login')
-def show_mainMerchandise(request):
+def show_main_merchandise(request):
     merchandise_list = Merchandise.objects.all()
 
     context = {
@@ -40,7 +39,7 @@ def show_merchandise(request, id):
     return render(request, "merchandise_detail.html", context)
    
 @csrf_exempt
-@login_required(login_url='/login')
+#@login_required(login_url='login/')
 def create_merchandise_ajax(request):
     if request.method == 'POST':
         name = request.POST.get("name")
@@ -76,7 +75,7 @@ def create_merchandise_ajax(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
-@login_required(login_url='/login')
+#@login_required(login_url='')
 def edit_merchandise_ajax(request, id):
     merchandise = get_object_or_404(Merchandise, pk=id)
     
@@ -102,7 +101,7 @@ def edit_merchandise_ajax(request, id):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
-@login_required(login_url='/login')
+#@login_required(login_url='')
 def delete_merchandise_ajax(request, id):
     merchandise = get_object_or_404(Merchandise, pk=id)
 
@@ -119,11 +118,8 @@ def delete_merchandise_ajax(request, id):
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-@login_required(login_url='/login')
 def get_merchandise_json(request):
-    print(f"DEBUG: Current user = {request.user} (ID: {request.user.id})")
-
-    merchandise = Merchandise.objects.filter(user=request.user)
+    merchandise = Merchandise.objects.all()
     print(f"DEBUG: My merchandise count = {merchandise.count()}")
 
     return HttpResponse(serializers.serialize('json', merchandise), content_type='application/json')

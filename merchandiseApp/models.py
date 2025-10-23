@@ -1,5 +1,5 @@
 import uuid
-from django.contrib.auth.models import User
+from main.models import User
 from django.db import models
 
 class Merchandise(models.Model):
@@ -42,3 +42,6 @@ class Merchandise(models.Model):
     def increment_views(self):
         self.product_views += 1
         self.save()
+
+    class Meta:
+        app_label = 'merchandiseApp'
