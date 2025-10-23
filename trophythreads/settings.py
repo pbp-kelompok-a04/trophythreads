@@ -45,8 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'InformasiPertandingan',
-    'forumApp',
+    # 'InformasiPertandingan',
+    # 'forumApp',
+    'merchandiseApp',
     'favoritesApp',
 ]
 
