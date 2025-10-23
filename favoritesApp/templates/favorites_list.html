@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Simple styling — ubah sesuai desainmu */
+  .favorites-container { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+  .page-title { font-size: 24px; margin-bottom: 12px; color:#8b1d2f; }
+  .favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+  .favorite-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .favorite-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; display:block; }
+  .meta { padding: 8px 4px 4px 4px; font-family: sans-serif; }
+  .meta .title { font-size: 14px; font-weight: 600; margin-bottom: 6px; color:#333; min-height:38px; }
+  .meta .price { font-size: 13px; color:#b02a37; margin-bottom:6px; }
+  .meta .small { font-size:12px; color:#666; }
+
+  /* Heart button */
+  .fav-heart {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.95);
+    border-radius: 999px;
+    width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    border: 1px solid rgba(0,0,0,0.06);
+    cursor: pointer;
+    padding:0;
+  }
+  .fav-heart:disabled { opacity: 0.6; cursor: default; }
+  .fav-heart .heart-icon { width:20px; height:20px; display:block; }
+  .heart-path {
+    fill: white;   /* default = white (not favorited) */
+    stroke: #b02a37;
+    stroke-width: 0.6;
+    transition: fill .18s ease, transform .12s ease;
+  }
+  .fav-heart.is-fav .heart-path {
+    fill: #e3342f; /* merah saat sudah favorit */
+    transform: scale(1.02);
+  }
+
+  .fav-heart:hover { transform: translateY(-2px); }
+
+  .empty-state {
+    text-align:center;
+    padding: 40px 16px;
+    color:#8b1d2f;
+  }
+  .empty-state img { max-width: 220px; display:block; margin: 12px auto; border-radius:8px; }
+  .toast {
+    position: fixed; right: 20px; bottom: 20px;
+    background: #f7dede; color:#8b1d2f; padding:10px 14px; border-radius:8px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08); display:none;
+  }
+  @media (max-width:560px) {
+    .meta .title { min-height: 50px; }
+  }
+</style>
+
+<div class="favorites-container">
+  <div class="page-title">Favorites</div>
+
+  {% if favorites %}
+    <div id="favoritesGrid" class="favorites-grid">
+      {% for fav in favorites %}
+      <div class="favorite-card" data-favorite-id="{{ fav.id }}" data-product-id="{{ fav.product.pk }}">
+        <a href="{{ fav.product.get_absolute_url|default:'#' }}">
+          {% if fav.product.image %}
+            <img src="{{ fav.product.image.url }}" alt="{{ fav.product.name }}">
+          {% else %}
+            <img src="{% static 'images/product-placeholder.png' %}" alt="No image">
+          {% endif %}
+        </a>
+
+        <div class="meta">
+          <div class="title">
+            <a href="{{ fav.product.get_absolute_url|default:'#' }}" style="text-decoration:none;color:inherit;">
+              {{ fav.product.name|default:"(Product name)" }}
+            </a>
+          </div>
+          <div class="price">
+            {% if fav.product.price %}{{ fav.product.price }}{% else %} - {% endif %}
+          </div>
+          <div class="small">Added: {{ fav.created_at|date:"d M Y H:i" }}</div>
+        </div>
+
+        <!-- Heart button: beri kelas is-fav karena ini halaman favorites -->
+        <button
+          class="fav-heart is-fav"
+          title="Hapus dari favorites"
+          aria-pressed="true"
+          data-favorite-id="{{ fav.id }}"
+          data-product-id="{{ fav.product.pk }}"
+        >
+          <!-- SVG heart -->
+          <svg class="heart-icon" viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path class="heart-path" d="M12 21s-7-4.6-9-7.2C1.8 11.6 3 7 6 5.4 8 4.2 10.4 5 12 6.6 13.6 5 16 4.2 18 5.4c3 1.6 4.2 6.2 3 8.4C19 16.4 12 21 12 21z"/>
+          </svg>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div id="emptyState" class="empty-state">
+      <h3>Belum ada produk di Favorites</h3>
+      <p>Silakan tambahkan produk terlebih dahulu...</p>
+      <!-- replace with your empty-state illustration -->
+      <img src="{% static 'images/empty-favorites.png' %}" alt="Empty favorites">
+    </div>
+  {% endif %}
+
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // CSRF helper: read csrftoken cookie (Django default)
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  function showToast(msg, timeout=2200){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(t._hideTimer);
+    t._hideTimer = setTimeout(()=> t.style.display = 'none', timeout);
+  }
+
+  function setHeartUI(button, favorited, favoriteId=null) {
+    if (favorited) {
+      button.classList.add('is-fav');
+      button.setAttribute('aria-pressed', 'true');
+      button.title = 'Hapus dari favorites';
+      if (favoriteId) button.dataset.favoriteId = favoriteId;
+    } else {
+      button.classList.remove('is-fav');
+      button.setAttribute('aria-pressed', 'false');
+      button.title = 'Tambah ke favorites';
+      // remove favorite_id attribute if we no longer have it
+      if (button.dataset.favoriteId) delete button.dataset.favoriteId;
+    }
+  }
+
+  // Toggle handler: if is-fav -> call remove, else call add
+  document.addEventListener('click', async function(e){
+    const btn = e.target.closest('.fav-heart');
+    if (!btn) return;
+
+    // optional: if user not logged in, redirect to login
+    // if (!{{ user.is_authenticated|yesno:"true,false" }}) { window.location = '/accounts/login/?next=' + location.pathname; return; }
+
+    const productId = btn.dataset.productId;
+    const favoriteId = btn.dataset.favoriteId;
+    const isFav = btn.classList.contains('is-fav');
+
+    btn.disabled = true;
+
+    try {
+      if (isFav) {
+        // remove favorite: prefer using favorite_id if available
+        const form = new FormData();
+        if (favoriteId) form.append('favorite_id', favoriteId);
+        else form.append('product_id', productId);
+
+        const resp = await fetch("{% url 'favoritesApp:remove' %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrftoken },
+          body: form,
+          credentials: 'same-origin'
+        });
+        if (!resp.ok) throw new Error('Server error');
+
+        const data = await resp.json();
+        if (data.status === 'ok' && data.action === 'removed') {
+          // remove card from DOM
+          const card = btn.closest('.favorite-card');
+          if (card) card.remove();
+          showToast('Produk dihapus dari Favorites');
+
+          // if grid now empty, replace with empty-state
+          const grid = document.getElementById('favoritesGrid');
+          if (!grid || (grid && grid.children.length === 0)) {
+            const container = document.querySelector('.favorites-container');
+            if (container) {
+              container.innerHTML = `
+                <div class="empty-state">
+                  <h3>Belum ada produk di Favorites</h3>
+                  <p>Silakan tambahkan produk terlebih dahulu...</p>
+                  <img src="{% static 'images/empty-favorites.png' %}" alt="Empty favorites">
+                </div>
+              `;
+            }
+          }
+        } else {
+          showToast('Gagal menghapus favorite');
+          btn.disabled = false;
+        }
+      } else {
+        // add favorite
+        const form = new FormData();
+        form.append('product_id', productId);
+
+        const resp = await fetch("{% url 'favoritesApp:add' %}", {
+          method: 'POST',
+          headers: { 'X-CSRFToken': csrftoken },
+          body: form,
+          credentials: 'same-origin'
+        });
+        if (!resp.ok) throw new Error('Server error');
+
+        const data = await resp.json();
+        if (data.status === 'ok' && (data.action === 'added' || data.action === 'exists')) {
+          // set UI to favorited; if server returned favorite_id, keep it
+          setHeartUI(btn, true, data.favorite_id || null);
+          showToast('Ditambahkan ke Favorites');
+        } else {
+          showToast('Gagal menambahkan favorite');
+        }
+        btn.disabled = false;
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Terjadi kesalahan. Coba lagi.');
+      btn.disabled = false;
+    }
+  });
+</script>
+
+{% endblock %}
