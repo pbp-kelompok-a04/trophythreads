@@ -257,11 +257,6 @@ def checkout_view(request):
         return render(request, 'checkout.html', context)
     
     address = request.POST.get('address')
-    notes_raw = request.POST.get('notes', '')  # could be JSON
-    try:
-        notes_map = json.loads(notes_raw) if notes_raw else {}
-    except Exception:
-        notes_map = {}
 
     payment_method = request.POST.get('payment_method')
 
@@ -325,8 +320,6 @@ def checkout_view(request):
             }
             request.session['last_order_time'] = timezone.now().isoformat()
 
-            request.session['last_order_notes'] = notes_map
-
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -338,13 +331,11 @@ def after_checkout(request):
     last_order_token = request.session.pop('last_order_token', None)
     last_order_summary = request.session.pop('last_order_summary', None)
     last_order_products = request.session.pop('last_order_products', None)
-    last_order_notes = request.session.pop('last_order_notes', None)
 
     context = {
         'just_ordered': just_ordered,
         'last_order_token': last_order_token,
         'last_order_summary': last_order_summary,
         'last_order_products': last_order_products,
-        'last_order_notes': last_order_notes,
     }
     return render(request, 'after_checkout.html', context)
