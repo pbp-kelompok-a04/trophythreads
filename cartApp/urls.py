@@ -5,12 +5,12 @@ from . import views
 app_name = 'cartApp'
 
 urlpatterns = [
-    path('cart/', views.cart_view, name='cart'),
-    path('cart/add/', views.add_to_cart, name='add_to_cart'),                # POST AJAX
-    path('cart/update-quantity/', views.update_quantity, name='update_qty'),# POST AJAX
-    path('cart/toggle-select/', views.toggle_select, name='toggle_select'), # POST AJAX
-    path('cart/delete/', views.delete_item, name='delete_item'),            # POST AJAX
+    path('', views.cart_page, name='cart_page'),
+    path('add/', views.add_to_cart_ajax, name='add_to_cart'),
+    path('update/<int:item_id>/', views.update_cart_item_ajax, name='update_cart_item'),
+    path('toggle/<int:item_id>/', views.toggle_select_ajax, name='toggle_select'),
+    path('delete/<int:item_id>/', views.delete_item_ajax, name='delete_item'),
     path('checkout/', views.checkout_view, name='checkout'),
-    path('checkout/place-order/', views.place_order, name='place_order'),   # POST
-    path('after-checkout/', views.after_checkout_view, name='after_checkout'),
+    path('after/', views.after_checkout, name='after_checkout'),
+    path('json/', views.cart_json, name='cart_json'),  # helper: return cart JSON
 ]
