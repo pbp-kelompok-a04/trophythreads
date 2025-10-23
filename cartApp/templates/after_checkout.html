@@ -8,32 +8,54 @@
 {% block content %}
 {% include 'header.html' %}
 
-<div class="min-h-screen bg-[#FFF1F1]">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-[#FFECEC] via-[#FFF5F5] to-[#FFD8D8]">
+  <br></br>
+  <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex items-center justify-center">
+    <div class="mx-auto rounded-2xl p-10 shadow-[0_10px_40px_rgba(229,63,39,0.08)] w-full" 
+         style="max-width:760px; background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F5 100%);">
+      <div class="flex flex-col items-center text-center">
 
-    <br></br>
-    <!--Header-->
-    <div class="rounded-lg bg-white p-4 mb-6 shadow-sm flex items-center gap-3">
-      <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" class="flex items-center gap-2 text-[#ED3F27]">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 18L9 12L15 6"></path>
-        </svg>
-        <span class="text-lg font-semibold">Home</span>
-      </a>
-    </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-[#F36B4C] tracking-widest uppercase">
+          Pembayaran <span class="ml-2 text-[#FFBFBF]">Berhasil</span>
+        </h1>
 
-    <!-- Success card -->
-    <div class="bg-white rounded-lg border border-[#FFECEC] p-10 text-center shadow-sm" style="background: linear-gradient(180deg,#FFFFFF,#FFF1F1);">
-      <h1 class="text-4xl font-bold tracking-wider text-[#ED3F27] uppercase">Pembayaran&nbsp;<span class="ml-2">Berhasil</span></h1>
-      <div class="font-bold tracking-wider mt-4 text-3xl bg-gradient-to-b from-[#ED3F27] to-[#990B29] bg-clip-text text-transparent">
-        ⋆｡𖦹°⚽︎⋆｡𖦹°
+        <div class="rounded-full bg-gradient-to-tr from-[#FFBFBF] to-[#FFD6C9] p-8 mt-6 mb-4 animate-bounce-slow text-6xl shadow-lg">
+          ᕙ( •̀ ᗜ •́ )ᕗ
+        </div>
+
+        <p class="mt-2 bg-gradient-to-r from-[#FF7A5C] to-[#ED3F27] bg-clip-text text-transparent font-medium text-lg max-w-xl">
+          Terima kasih! Pesanan kamu akan segera diproses.
+        </p>
+
+        <div class="mt-6 flex gap-3">
+          <div class="w-10 h-10 bg-gradient-to-tr from-[#FFF0F0] to-[#FFE2E2] rounded-lg flex items-center justify-center text-[#ED3F27] shadow-sm">⭐</div>
+          <div class="w-10 h-10 bg-gradient-to-tr from-[#FFF0F0] to-[#FFE2E2] rounded-lg flex items-center justify-center text-[#ED3F27] shadow-sm">⚽</div>
+          <div class="w-10 h-10 bg-gradient-to-tr from-[#FFF0F0] to-[#FFE2E2] rounded-lg flex items-center justify-center text-[#ED3F27] shadow-sm">✦</div>
+        </div>
+
+        <!-- Button -->
+        <div class="mt-8">
+          <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" 
+             class="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF7A5C] to-[#FF5341] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:opacity-90 transition">
+            ← Kembali ke Home
+          </a>
+        </div>
+
       </div>
-    <br></br>
-      <p class="text-[#990B29] font-semibold mt-4">Pesanan akan segera diproses...</p>
     </div>
-    <div class="h-20"></div>
   </div>
+
+  {% include 'footer.html' %}
 </div>
 
-{% include 'footer.html' %}
+<style>
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 2.0s ease-in-out infinite;
+}
+</style>
+
 {% endblock content %}
