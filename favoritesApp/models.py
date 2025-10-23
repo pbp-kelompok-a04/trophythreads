@@ -7,7 +7,7 @@ class Favorite(models.Model):
         on_delete=models.CASCADE,
         related_name='favorites'
 )
-# update the following string if your product model lives in a different app
+
 product = models.ForeignKey('merchandise.Product', on_delete=models.CASCADE)
 created_at = models.DateTimeField(auto_now_add=True)
 
