@@ -1,6 +1,6 @@
 # cartApp/views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.urls import reverse
@@ -10,8 +10,7 @@ from merchandiseApp.models import Merchandise
 from .models import Cart, CartItem
 
 from django.conf import settings
-from django.db import IntegrityError
-import csv, os, uuid, json
+import csv, os, uuid
 from django.db.models import F
 
 SHIPPING_FEE = getattr(settings, 'SHIPPING_FEE', 10000)
@@ -43,7 +42,6 @@ def cart_json(request):
             'quantity': item.quantity,
             'selected': item.selected,
             'thumbnail': getattr(item.product, 'thumbnail', None),
-            # 'variant': item.variant,
             'line_total': item.line_total(),
             'stock': item.product.stock,
         })
@@ -61,7 +59,6 @@ def add_to_cart_ajax(request):
 
     product_id_raw = request.POST.get('product_id')
     qty = int(request.POST.get('quantity', 1))
-    # variant = request.POST.get('variant', '')
 
     if not product_id_raw:
         return JsonResponse({'error': 'product_id required'}, status=400)
@@ -88,10 +85,8 @@ def add_to_cart_ajax(request):
         })
 
     except (ValueError, Merchandise.DoesNotExist):
-        # UUID tidak valid berarti produk CSV
         pass
 
-    # Case produk dari CSV
     try:
         idx = str(product_id_raw)
         if idx.startswith("csv_"):
@@ -138,7 +133,6 @@ def add_to_cart_ajax(request):
             product_thumbnail=thumbnail,
             product_stock=stock,
             quantity=qty,
-            # variant=variant
         )
 
     return JsonResponse({
@@ -171,7 +165,6 @@ def update_cart_item_ajax(request, item_id):
 
             elif action == 'dec':
                 if item.quantity <= 1:
-                    # langsung hapus untuk fallback server-side
                     item.delete()
                     return JsonResponse({'message': 'Deleted', 'quantity': 0, 'cart_subtotal': cart.subtotal(), 'total_items': cart.total_items()})
                 CartItem.objects.filter(pk=item.pk).update(quantity=F('quantity') - 1)

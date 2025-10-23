@@ -1,10 +1,39 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+  <title>Pembayaran Berhasil - TrophyThreads</title>
+{% endblock meta %}
+
 {% block content %}
 {% include 'header.html' %}
-<div class="container mx-auto p-6 text-center">
-  <h2 class="text-2xl font-bold">Order Successful</h2>
-  <p>Thank you — your order was processed.</p>
-  <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" class="btn mt-4">Back to Merchandise</a>
+
+<div class="min-h-screen bg-[#FFF1F1]">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+
+    <br></br>
+    <!--Header-->
+    <div class="rounded-lg bg-white p-4 mb-6 shadow-sm flex items-center gap-3">
+      <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" class="flex items-center gap-2 text-[#ED3F27]">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 18L9 12L15 6"></path>
+        </svg>
+        <span class="text-lg font-semibold">Home</span>
+      </a>
+    </div>
+
+    <!-- Success card -->
+    <div class="bg-white rounded-lg border border-[#FFECEC] p-10 text-center shadow-sm" style="background: linear-gradient(180deg,#FFFFFF,#FFF1F1);">
+      <h1 class="text-4xl font-bold tracking-wider text-[#ED3F27] uppercase">Pembayaran&nbsp;<span class="ml-2">Berhasil</span></h1>
+      <div class="font-bold tracking-wider mt-4 text-3xl bg-gradient-to-b from-[#ED3F27] to-[#990B29] bg-clip-text text-transparent">
+        ⋆｡𖦹°⚽︎⋆｡𖦹°
+      </div>
+    <br></br>
+      <p class="text-[#990B29] font-semibold mt-4">Pesanan akan segera diproses...</p>
+    </div>
+    <div class="h-20"></div>
+  </div>
 </div>
+
 {% include 'footer.html' %}
 {% endblock content %}

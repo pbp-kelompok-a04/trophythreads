@@ -5,7 +5,6 @@
   <title>My Cart - TrophyThreads</title>
 {% endblock meta %}
 
-{% static 'image/no-merch.png' as NO_MERCH_IMAGE %}
 {% static 'image/placeholder.png' as FALLBACK_IMAGE %}
 
 {% block content %}
@@ -40,9 +39,17 @@
               {% elif item.product_thumbnail %}
                 <img src="{{ item.product_thumbnail }}" alt="{{ item.product_name }}" class="object-cover w-full h-full" />
               {% else %}
-                <!-- FIXED: jangan buat nested .cart-row di sini! -->
-                <div class="flex flex-col items-center justify-center gap-2 p-2">
-                  <img src="{{ NO_MERCH_IMAGE }}" alt="no merch" class="w-20 h-20 object-contain" />
+                <div class="cart-row flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-6 border border-[#EEEDED] shadow-sm text-center">
+                  <h2 class="text-3xl md:text-4xl font-bold tracking-wider text-center mb-4 bg-gradient-to-b from-[#F8A8A1] to-[#E36B6B] bg-clip-text text-transparent">
+                    Belum ada produk di Keranjang
+                  </h2>
+                  <div class="text-[#E36B6B] text-3xl md:text-4xl font-medium mb-6">(｡´︶`｡)</div>
+                  <div class="mx-auto w-32 h-32 md:w-40 md:h-40 rounded-md overflow-hidden shadow-md mb-6">
+                    <img src="{% static 'image/no-merch.png' %}" alt="no merch" class="w-full h-full object-cover" />
+                  </div>
+                  <p class="font-bold text-[#E36B6B] text-sm md:text-base">
+                    Silahkan tambahkan produk terlebih dahulu...
+                  </p>
                 </div>
               {% endif %}
             </div>
@@ -53,9 +60,6 @@
                   <h3 class="text-lg font-semibold text-[#333] leading-tight">
                     {{ item.product.name|default:item.product_name }}
                   </h3>
-                  <!-- {% if item.variant %}
-                    <div class="mt-2 text-sm text-gray-600">{{ item.variant }}</div>
-                  {% endif %} -->
                 </div>
                 <button type="button" class="delete-item text-sm text-gray-400 hover:text-[#990B29]" data-id="{{ item.id }}">Delete</button>
               </div>
@@ -81,8 +85,16 @@
           {% endfor %}
         {% else %}
           <div class="cart-row flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-6 border border-[#EEEDED] shadow-sm text-center">
-            <img src="{{ NO_MERCH_IMAGE }}" alt="no merch" class="mx-auto w-64">
-            <p class="mt-4 text-gray-700 font-medium">Your cart is empty</p>
+            <h2 class="text-3xl md:text-4xl font-bold tracking-wider text-center mb-4 bg-gradient-to-b from-[#F8A8A1] to-[#E36B6B] bg-clip-text text-transparent">
+            Belum ada produk di Keranjang
+          </h2>
+            <div class="text-[#E36B6B] text-3xl md:text-4xl font-medium mb-6">(｡´︶`｡)</div>
+            <div class="mx-auto w-32 h-32 md:w-40 md:h-40 rounded-md overflow-hidden shadow-md mb-6">
+              <img src="{% static 'image/no-merch.png' %}" alt="no merch" class="w-full h-full object-cover" />
+            </div>
+            <p class="font-bold text-[#E36B6B] text-sm md:text-base">
+              Silahkan tambahkan produk terlebih dahulu...
+            </p>
           </div>
         {% endif %}
 
@@ -241,11 +253,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === CEKLIST INDIVIDU UPDATE TOTAL ===
-  // document.addEventListener("change", (e) => {
-  //   if (e.target.classList.contains("cart-checkbox")) updateTotals();
-  // });
-    // === CEKLIST INDIVIDU UPDATE TOTAL + SYNC KE SERVER ===
   document.addEventListener("change", async (e) => {
     if (!e.target.classList.contains("cart-checkbox")) return;
     const row = e.target.closest(".cart-row");
@@ -261,7 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateTotals(); // update tampilan total harga
   });
-
 
   const checkoutBtn = document.getElementById("checkout-btn");
   if (checkoutBtn) {

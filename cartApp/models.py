@@ -49,7 +49,6 @@ class CartItem(models.Model):
     product_stock = models.IntegerField(null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     selected = models.BooleanField(default=True)
-    # variant = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
