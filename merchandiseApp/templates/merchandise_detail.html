@@ -1,159 +1,296 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>{{ merchandise.name }}</title>
+{% endblock meta %}
+
 {% block content %}
-<div class="container mx-auto p-6">
-  <div class="flex flex-col lg:flex-row gap-6">
-    {% if merchandise.thumbnail %}
-    <img src="{{ merchandise.thumbnail }}" alt="{{ merchandise.name }}" class="w-full lg:w-1/3 rounded-lg shadow">
-    {% endif %}
+{% include 'header.html' %}
 
-    <div class="flex-1">
-      <h2 class="text-3xl font-bold mb-2">{{ merchandise.name }}</h2>
-      <p class="text-xl text-gray-700 mb-2">Rp {{ merchandise.price }}</p>
-      <p class="text-gray-600 mb-2">Category: {{ merchandise.category }}</p>
-      <p class="text-gray-700 mb-4">{{ merchandise.description }}</p>
-      <p class="text-sm font-semibold mb-4">Stock: <span id="stock-count">{{ merchandise.stock }}</span></p>
+<div class="min-h-screen" style="background-color: var(--color-background);">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        
+         <!-- spacer to avoid fixed header overlapping content -->
+        <div class="h-14 sm:h-14" aria-hidden="true"></div>
 
-      <!-- Add to cart form (JS will post) -->
-      <form id="add-to-cart-form" onsubmit="return false;">
-        {% csrf_token %}
-        <!-- <input type="hidden" name="product_id" id="product_id" value="{{ merchandise.id }}"> -->
-        <input type="hidden" name="product_id" id="product_id" value="csv_{{ product_index }}">
-
-        <!-- quantity control -->
-        <div class="flex items-center gap-2 mb-4">
-          <button type="button" id="qty-decrease" class="px-3 py-1 bg-gray-200 rounded">-</button>
-          <input id="quantity_input" name="quantity" type="number" value="1" min="1" class="w-16 text-center border rounded px-2 py-1" />
-          <button type="button" id="qty-increase" class="px-3 py-1 bg-gray-200 rounded">+</button>
-          <span class="text-sm text-gray-500 ml-3">/ {{ merchandise.stock }} available</span>
+        <div class="mb-4">
+            <a href="{% url 'merchandiseApp:show_main' %}" class="text-orange-600 hover:text-orange-900 flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i>
+                <span class="text-sm font-medium" style="font-family: var(--font-title);">Back to Merchandise</span>
+            </a>
         </div>
 
-        <div class="flex gap-3">
-          <button id="add-to-cart-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add to Cart</button>
+       <!-- Product Details -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 transform hover:shadow-2xl transition-all duration-300">
+            <div class="flex">
+            <style>
+            .merch-image .image-wrap { width:100%; max-width:500; max-height:500; display:block; }
+            .merch-image .image-wrap img,
+            .merch-image .image-wrap .placeholder {
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                transition: transform .45s ease, filter .3s ease;
+            }
 
-          <!-- View Cart: gunakan named URL agar tidak jadi relative path -->
-          <a id="view-cart-btn" href="{% url 'cartApp:cart_page' %}" class="btn-outline ml-3 px-4 py-2 border rounded text-gray-700">View Cart</a>
+            /* Slight hover scale on desktop only (less aggressive than before) */
+            @media (min-width: 1024px) {
+                .merch-image .image-wrap img { max-height:330px; }
+                .merch-image:hover .image-wrap img { transform: scale(1.03); } /* small zoom */
+            }
+            </style>
 
-          <button id="buy-now-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Buy Now</button>
+            <!-- Product Image -->
+            <div class="w-1/2 p-8 relative merch-image">
+                    <div class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-2xl overflow-hidden group flex items-center justify-center image-wrap">
+                    {% if merchandise.thumbnail %}
+                            <img src="{{ merchandise.thumbnail }}" alt="{{ merchandise.name }}" 
+                             class="mx-auto w-auto h-auto object-cover rounded-lg transition-transform duration-500">
+                    {% else %}
+                            <div class="w-auto h-48 sm:w-56 sm:h-56 flex items-center justify-center text-gray-400 group-hover:text-pink-400 transition-colors duration-300 placeholder">
+                            <i class="fas fa-shopping-bag text-6xl opacity-50"></i>
+                            </div>
+                    {% endif %}
+                
+                <!-- Hot Badge -->
+                {% if merchandise.product_views > 100 %}
+                <div class="absolute top-6 left-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg animate-pulse">
+                    <i class="fas fa-fire mr-1"></i> HOT
+                    </span>
+                </div>
+                {% endif %}
+                
+                <!-- Featured Badge -->
+                {% if merchandise.is_featured %}
+                <div class="absolute top-4 right-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-400 text-white shadow-lg">
+                    <i class="fas fa-star mr-1"></i> FEATURED
+                    </span>
+                </div>
+                {% endif %}
+                </div>
+                {% if user.is_authenticated %}
+                    <div class="absolute left-4 right-4 bottom-14">
+                        <button class="w-full bg-red-700 text-white py-3 px-4 rounded-xl font-bold text-md hover:bg-red-800 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
+                            <i class="fas fa-heart mr-2"></i>
+                            <span>Add to Favorite</span>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div class="w-1/2 p-8">
+                <div class="">
+                <!-- Category -->
+                <span class="inline-block px-4 py-2 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-full text-xs font-bold mb-4 shadow-lg">
+                    <i class="fas fa-tag mr-2"></i>{{ merchandise.get_category_display }}
+                </span>
+                
+                <!-- Product Name -->
+                <h1 class="text-xl font-bold text-gray-900 mb-4 leading-tight">{{ merchandise.name }}</h1>
+                
+                <!-- Price -->
+                <div class="mb-6">
+                    <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-800 mb-2">
+                    <span id="price-display" class="price">Rp <span id="price-value">{{ merchandise.price|floatformat:0 }}</span></span>
+                    <script>
+                    (function(){
+                        var el = document.getElementById('price-value');
+                        if(!el) return;
+                        var v = el.textContent.trim();
+                        var f = v.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+                        el.textContent = f;
+                    })();
+                    </script>
+                    </p>
+                </div>
+
+                <!-- Stock & Rating Status -->
+                <div class="mb-6">
+                   <p class="text-gray-600">
+                    <i class="fas fa-boxes mr-2 text-blue-400"></i>
+                    <span class="text-gray-600 font-semibold">{{ merchandise.stock }} in stock</span>
+                    <span class="mx-4">|</span>
+                    <i class="fas fa-star mr-2 text-yellow-300"></i><span class="text-grey-500 font-semibold">0.0</span>
+                    </p>
+                </div>
+            </div>
+
+                <!-- Add to Cart Section -->
+                {% if merchandise.stock > 0 %}
+                {% if user.is_authenticated %}
+                <div class="mb-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                    <!-- Quantity Selector -->
+                    <div id="quantity-selector" class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden hover:border-pink-400 transition-colors duration-200">
+                        <button type="button" data-action="decrement" aria-label="Decrease quantity" class="px-4 py-3 text-gray-600 hover:bg-gray-100 transition-colors duration-200">
+                        <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" value="1" min="1" max="{{ merchandise.stock }}" 
+                           class="w-16 text-center border-x py-3 font-semibold focus:outline-none" aria-label="Quantity">
+                        <button type="button" data-action="increment" aria-label="Increase quantity" class="px-4 py-3 text-gray-600 hover:bg-gray-100 transition-colors duration-200">
+                        <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    </div>
+
+                    <script>
+                    (function(){
+                        var sel = document.getElementById('quantity-selector');
+                        if (!sel) return;
+                        var input = sel.querySelector('input[type="number"]');
+                        var btnDec = sel.querySelector('button[data-action="decrement"]');
+                        var btnInc = sel.querySelector('button[data-action="increment"]');
+                        if (!input) return;
+                        var min = parseInt(input.getAttribute('min')) || 1;
+                        var max = parseInt(input.getAttribute('max')) || Infinity;
+
+                        btnDec && btnDec.addEventListener('click', function(e){
+                            e.preventDefault();
+                            var v = parseInt(input.value, 10) || min;
+                            if (v > min) input.value = v - 1;
+                        });
+
+                        btnInc && btnInc.addEventListener('click', function(e){
+                            e.preventDefault();
+                            var v = parseInt(input.value, 10) || min;
+                            if (v < max) input.value = v + 1;
+                        });
+
+                        // sanitize manual input and enforce bounds
+                        input.addEventListener('input', function(){
+                            var v = parseInt(this.value, 10);
+                            if (isNaN(v) || v < min) this.value = min;
+                            else if (v > max) this.value = max;
+                        });
+                    })();
+                    </script>
+
+                    <div class="flex space-x-3 mb-4">
+                    <!-- Add to Cart Button -->
+                    <button class="flex-1 bg-gradient-to-r from-orange-500 to-red-700 text-white py-3 px-4 rounded-xl font-bold text-md hover:from-orange-600 hover:to-red-800 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                    </div>
+                    
+                    <!-- Buy Now -->
+                    <div class="flex space-x-3">
+                    <button class="flex-1 border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-semibold hover:border-pink-400 hover:text-pink-600 transition-all duration-200 flex items-center justify-center space-x-2">
+                        <i class="fas fa-bolt text-yellow-400"></i>
+                        <span>Buy Now</span>
+                    </button>
+                    </div>
+
+                    {% else %}
+                    <div class="mb-6">
+                        <p class="text-gray-600">
+                            Ingin melakukan transaksi? <span class="text-orange-700 font-semibold hover:underline">Login sekarang!</span>
+                        </p>
+                </div>
+                {% endif %}
+                {% endif %}
+                
+                </div>
+            </div>
         </div>
-      </form>
-    </div>
-  </div>
-</div>
 
-<script>
-/* Utility: ambil CSRF dari cookie */
-function getCookie(name){
-  const cookies = document.cookie ? document.cookie.split('; ') : [];
-  for (let i=0;i<cookies.length;i++){
-    const parts = cookies[i].split('=');
-    const key = parts.shift();
-    const val = parts.join('=');
-    if (key === name) return decodeURIComponent(val);
-  }
-  return null;
-}
+        <!-- Description & Review -->
+        <div class="mb-8">
+            <!-- Description -->
+            <div class="mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-file-alt text-red-500 mr-3"></i>
+                        Product Description── .✦:
+                    </h2>
+                    <div class="prose prose-lg max-w-none text-gray-700">
+                        {{ merchandise.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
 
-/* Elements */
-const addBtn = document.getElementById('add-to-cart-btn');
-const buyBtn = document.getElementById('buy-now-btn');
-const qtyInput = document.getElementById('quantity_input');
-const qtyInc = document.getElementById('qty-increase');
-const qtyDec = document.getElementById('qty-decrease');
-const productIdEl = document.getElementById('product_id');
-const stockCount = parseInt(document.getElementById('stock-count').textContent || '0', 10);
+            <!-- Rating Selection -->
+            <div class="mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        Reviews
+                        <i class="fas fa-star text-yellow-400 ml-3 mr-3"></i>
+                        <span class="bg-red-700 rounded-xl text-white p-3 mr-3">All</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">5</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">4</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">3</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">2</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5">1</span>
+                    </h2>
+                  
+            <!-- Reviews List -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <!-- Sample Review 1 -->
+                <div class="border-b border-gray-200 pb-6 last:border-b-0">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            A
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Ahmad Rizki</h4>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="flex text-yellow-400 mr-2">
+                                            {% for i in "12345" %}
+                                                <i class="fas fa-star text-sm"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span>2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Amazing quality! The material feels premium and the design is exactly as shown. 
+                                Fast shipping and excellent packaging. Will definitely order again!
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-/* Quantity handlers */
-qtyInc.addEventListener('click', () => {
-  let v = parseInt(qtyInput.value || '1', 10);
-  if (isNaN(v)) v = 1;
-  if (v < stockCount) qtyInput.value = v + 1;
-});
-qtyDec.addEventListener('click', () => {
-  let v = parseInt(qtyInput.value || '1', 10);
-  if (isNaN(v)) v = 1;
-  if (v > 1) qtyInput.value = v - 1;
-});
+                <!-- Sample Review 2 -->
+                <div class="border-b border-gray-200 pb-6 last:border-b-0 hover:bg-gray-50 mt-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            S
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Sari Dewi</h4>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="flex text-yellow-400 mr-2">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= 4 %}
+                                                    <i class="fas fa-star text-sm"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-sm"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span>1 week ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Good product overall. The size fits perfectly and the color is vibrant. 
+                The only downside is that it took a bit longer to arrive than expected.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-/* Shared add-to-cart function used by Add and  Buy Now */
-async function addToCart({quantity = 1} = {}) {
-  const url = "{% url 'cartApp:add_to_cart' %}"; // ganti jika nama url berbeda
-  const formData = new FormData();
-  formData.append('product_id', productIdEl.value);
-  formData.append('quantity', quantity);
+{% include 'footer.html' %}
 
-  const csrftoken = getCookie('csrftoken');
-
-  addBtn.disabled = true;
-  addBtn.textContent = 'Adding...';
-
-  try {
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'X-CSRFToken': csrftoken },
-      body: formData
-    });
-    const data = await resp.json();
-
-    if (!resp.ok) {
-      const msg = data.error || data.message || 'Gagal menambah ke keranjang';
-      if (typeof showToast === 'function') showToast(msg, 'error', 2000);
-      return { ok: false, data };
-    }
-
-    // sukses
-    if (typeof showToast === 'function') showToast(data.message || 'Ditambahkan ke keranjang', 'success', 1200);
-
-    // update header/cart badge jika ada elemen dengan id cart-count
-    try {
-      const badge = document.getElementById('cart-count');
-      if (badge && data.total_items !== undefined) badge.textContent = data.total_items;
-    } catch (e) { /* ignore */ }
-
-    return { ok: true, data };
-  } catch (err) {
-    console.error(err);
-    if (typeof showToast === 'function') showToast('Terjadi error saat menambah cart', 'error', 2000);
-    return { ok: false, data: null };
-  } finally {
-    addBtn.disabled = false;
-    addBtn.textContent = 'Add to Cart';
-  }
-}
-
-/* Add to Cart click */
-addBtn.addEventListener('click', async (e) => {
-  e.preventDefault();
-  const q = parseInt(qtyInput.value || '1', 10) || 1;
-  if (q > stockCount) {
-    if (typeof showToast === 'function') showToast('Jumlah melebihi stock', 'error', 2000);
-    qtyInput.value = stockCount > 0 ? stockCount : 1;
-    return;
-  }
-  await addToCart({quantity: q});
-});
-
-/* Buy Now: tambah ke cart lalu redirect ke checkout */
-buyBtn.addEventListener('click', async (e) => {
-  e.preventDefault();
-  buyBtn.disabled = true;
-  buyBtn.textContent = 'Processing...';
-  const q = parseInt(qtyInput.value || '1', 10) || 1;
-  if (q > stockCount) {
-    if (typeof showToast === 'function') showToast('Jumlah melebihi stock', 'error', 2000);
-    buyBtn.disabled = false;
-    buyBtn.textContent = 'Buy Now';
-    return;
-  }
-
-  const result = await addToCart({quantity: q});
-  if (result.ok) {
-    // redirect ke checkout page (ganti nama url jika perlu)
-    const checkoutUrl = "{% url 'cartApp:checkout' %}";
-    window.location.href = checkoutUrl;
-  } else {
-    buyBtn.disabled = false;
-    buyBtn.textContent = 'Buy Now';
-  }
-});
-</script>
-{% endblock %}
+{% endblock content %}
