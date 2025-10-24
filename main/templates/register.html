@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+<title>Register - Trophy Threads</title>
+{% endblock meta %}
+
+{% block content %}
+<div class="form-style">
+  <div class="min-h-screen bg-[#FFF1F1] flex items-center justify-center p-8">
+    <div class="max-w-md w-full relative z-10">
+      <div class="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">Join Us</h2>
+        <p class="text-gray-500">Create your Trophy Threads account</p>
+      </div>
+
+      <div id="form-errors-container" class="mb-6">
+        </div>
+      <div id="form-messages-container" class="mt-6">
+        </div>
+
+      {% if form.non_field_errors or form.errors %}
+        <div class="mb-6">
+          {% for error in form.non_field_errors %}
+            <div class="px-4 py-3 rounded text-sm border bg-red-50 border-red-200 text-red-700">
+              {{ error }}
+            </div>
+          {% endfor %}
+          {% for field, errors in form.errors.items %}
+            {% if field != '__all__' %}
+              {% for error in errors %}
+                <div class="px-4 py-3 rounded text-sm border bg-red-50 border-red-200 text-red-700 mb-2">
+                  <strong>{{ field|title }}:</strong> {{ error }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'main:register' %}" class="space-y-5" id="register-form">
+        {% csrf_token %}
+    
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+          <input 
+            id="username" 
+            name="username" 
+            type="text" 
+            required 
+            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-red-300 transition duration-200" 
+            placeholder="Choose a username">
+        </div>
+
+        <div>
+          <label for="password1" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+          <input 
+            id="password1" 
+            name="password1" 
+            type="password" 
+            required 
+            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-red-300 transition duration-200" 
+            placeholder="Create a password">
+        </div>
+
+        <div>
+          <label for="password2" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+          <input 
+            id="password2" 
+            name="password2" 
+            type="password" 
+            required 
+            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-red-300 transition duration-200" 
+            placeholder="Confirm your password">
+        </div>
+
+        <div>
+        <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+        <select 
+            id="role" 
+            name="role" 
+            required 
+            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:border-red-300 transition duration-200">
+            <option value="">Select role</option>
+            <option value="admin">Admin</option>
+            <option value="seller">Seller</option>
+            <option value="user">User</option>
+        </select>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full bg-red-500 text-white font-medium py-3 px-4 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200"
+          id="submit-btn">
+          Create Account
+        </button>
+      </form>
+
+      {% if messages %}
+        <div class="mt-6">
+          {% for message in messages %}
+            <div 
+              class="
+                px-4 py-3 rounded text-sm border
+                {% if message.tags == 'success' %}
+                  bg-red-50 border-red-200 text-red-700
+                {% elif message.tags == 'error' %}
+                  bg-red-50 border-red-200 text-red-700
+                {% else %}
+                  bg-gray-50 border-gray-200 text-gray-700
+                {% endif %}
+              ">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="mt-6 text-center">
+        <p class="text-gray-500 text-sm">
+          Already have an account? 
+          <a href="{% url 'main:login' %}" class="text-red-500 hover:text-red-700 font-medium">
+            Sign In
+          </a>
+        </p>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('register-form');
+    const errorsContainer = document.getElementById('form-errors-container');
+    const messagesContainer = document.getElementById('form-messages-container');
+    const submitButton = document.getElementById('submit-btn');
+
+    // Function to clear errors and messages
+    const clearFeedback = () => {
+        errorsContainer.innerHTML = '';
+        messagesContainer.innerHTML = '';
+    };
+
+    // Function to render messages
+    const renderMessage = (message, tag) => {
+        clearFeedback();
+        let messageClass = 'bg-gray-50 border-gray-200 text-gray-700';
+        if (tag === 'success') {
+            messageClass = 'bg-red-50 border-red-200 text-red-700';
+        } else if (tag === 'error') {
+            messageClass = 'bg-red-50 border-red-200 text-red-700';
+        }
+
+        messagesContainer.innerHTML = `
+            <div class="mt-6 px-4 py-3 rounded text-sm border ${messageClass}">
+                ${message}
+            </div>
+        `;
+    };
+
+    // Function to render errors
+    const renderErrors = (errors) => {
+        clearFeedback();
+        let errorHtml = '';
+
+        // Non-field errors
+        if (errors.non_field_errors && errors.non_field_errors.length > 0) {
+            errors.non_field_errors.forEach(error => {
+                errorHtml += `
+                    <div class="px-4 py-3 rounded text-sm border bg-red-50 border-red-200 text-red-700">
+                        ${error}
+                    </div>
+                `;
+            });
+        }
+        
+        // Field errors
+        for (const field in errors.field_errors) {
+            errors.field_errors[field].forEach(error => {
+                // Skip '__all__' errors as they are handled by non_field_errors for UserCreationForm
+                if (field !== '__all__') {
+                    const title = field.charAt(0).toUpperCase() + field.slice(1).replace('1', '').replace('2', ''); // Simple capitalization
+                    errorHtml += `
+                        <div class="px-4 py-3 rounded text-sm border bg-red-50 border-red-200 text-red-700 mb-2">
+                            <strong>${title}:</strong> ${error}
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        errorsContainer.innerHTML = errorHtml;
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Stop the default form submission
+
+        clearFeedback();
+        const originalButtonText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creating Account...';
+
+        const formData = new FormData(form);
+        // Add the AJAX flag for the Django view
+        formData.append('is_ajax', 'true'); 
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showToast('Registration successful!','success',1500)
+                form.reset();
+                // tambah delay
+                setTimeout(() => {
+                    window.location.href = data.redirect_url;
+                }, 2000); 
+            } else {
+                renderErrors(data.errors);
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            }
+
+        } catch (error) {
+            console.error('Error during AJAX registration:', error);
+            renderMessage('An unexpected error occurred. Please try again.', 'error');
+            submitButton.disabled = false;
+            submitButton.textContent = originalButtonText;
+        }
+    });
+});
+</script>
+{% endblock content %}

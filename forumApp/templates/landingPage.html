@@ -1,17 +1,306 @@
-{% {% extends "base.html" %}%}
+{% extends 'base.html' %}
 {% load static %}
+
+{% block meta %}
+<title>Forum - Trophy Threads</title>
+{% endblock meta %}
+
 {% block content %}
-<body>
+{% include 'header.html' %}
+{% include 'createModal.html' %}
+{% include 'editModal.html' %}
+{% include 'deleteThreadModal.html' %}
+
+<div class="bg-[#FFF1F1] min-h-screen pt-16">
+  <div class="max-w-5xl mx-auto px-10 py-20 bg-white shadow-xl border border-gray-200">
     
-    this is the landing page
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-5xl font-extrabold text-gray-900">Discussions</h1>
+    </div>
     
-</body>
+    <div class="flex flex-wrap gap-2 justify-between items-center mb-8">
+      <div class="flex flex-wrap gap-2">
+        <button id="filter-all"
+            class="filter-btn px-4 py-2 rounded-md border text-sm font-medium transition">
+            All Threads
+        </button>
+        <button id="filter-official"
+            class="filter-btn px-4 py-2 rounded-md border text-sm font-medium transition">
+            Official
+        </button>
+        <button id="filter-personal"
+            class="filter-btn px-4 py-2 rounded-md border text-sm font-medium transition">
+            Community
+        </button>
+      </div>
+      
+      <!-- Button calls the authentication check function -->
+      <button onclick="handleCreateThreadClick()" 
+          class="inline-flex items-center px-4 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition-colors">
+          Create Thread
+      </button>
+    </div>
+
+    <div id="loading" class="hidden text-center py-10">
+      <svg class="animate-spin h-8 w-8 text-red-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <p class="text-gray-600 mt-2">Loading threads...</p>
+    </div>
+
+    <div id="error" class="hidden bg-red-100 text-red-700 px-4 py-3 rounded mb-6"></div>
+
+    <div id="empty" class="hidden text-center text-gray-500 py-10">
+      <img src="{% static 'image/no-thread.png' %}" class="w-32 h-32 mx-auto mb-4">
+      <p>No threads found for this filter.</p>
+    </div>
+
+    <div id="thread-list" class="flex flex-col gap-6"></div>
+  </div>
+  </div>
 
 <script>
+// --- AUTHENTICATION VARIABLES (Defined locally) ---
+const IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
+
+const API_URL = "{% url 'forumApp:show_json' %}";
+const DETAIL_URL_TEMPLATE = "{% url 'forumApp:show_thread_detail' '00000000-0000-0000-0000-000000000000' %}";
+// API URL template for deletion
+const DELETE_URL_TEMPLATE = "{% url 'forumApp:delete_thread' 'REPLACE_ID' %}";
+
+const threadList = document.getElementById("thread-list");
+const loading = document.getElementById("loading");
+const errorDiv = document.getElementById("error");
+const empty = document.getElementById("empty");
+const filterButtons = document.querySelectorAll(".filter-btn");
+
+let activeFilter = "all";
+let threads = [];
+let threadIdToDelete = null; // Store ID for modal confirmation
+
+// --- MODAL FUNCTIONS (Thread Deletion) ---
+function showThreadConfirmModal(threadId) {
+    threadIdToDelete = threadId;
+    document.getElementById("deleteThreadConfirmModal").classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+}
+
+function hideThreadConfirmModal() {
+    threadIdToDelete = null;
+    document.getElementById("deleteThreadConfirmModal").classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+}
+
+// Attach the actual delete logic to the modal's confirm button
+document.getElementById('confirmDeleteThreadBtn').addEventListener('click', () => {
+    if (threadIdToDelete) {
+        // Call the private AJAX function
+        performDeleteThread(threadIdToDelete); 
+        hideThreadConfirmModal();
+    }
+});
+// ----------------------------------------
 
 
+// --- HANDLE AUTHENTICATION CHECK ---
+function handleCreateThreadClick() {
+  if (IS_AUTHENTICATED === false) {
+    if (typeof showToast === 'function') {
+        showToast("You must be logged in to create a thread.", "info");
+    } else {
+        console.log("GUEST ACTION BLOCKED: Must be logged in to create a thread. (showToast function missing)");
+        showToast("You must be logged in to create a thread.", "info");
+    }
+    return;
+  } else {
+    showCreateThreadModal();
+  }
+}
+
+// Fetch threads 
+async function fetchThreads() {
+  try {
+    displayState({ loading: true });
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error("Failed to load data");
+    const data = await response.json();
+    threads = data; 
+    filterThreads();
+  } catch (err) {
+    displayState({ error: true, errorMessage: err.message });
+  }
+}
+
+// Display different UI states
+function displayState({ loading = false, error = false, emptyState = false, errorMessage = "" }) {
+  loading ? loadingDiv(true) : loadingDiv(false);
+  errorDiv.classList.toggle("hidden", !error);
+  empty.classList.toggle("hidden", !emptyState);
+  threadList.classList.toggle("hidden", loading || error || emptyState);
+  if (error) errorDiv.textContent = errorMessage;
+}
+
+function loadingDiv(show) {
+  loading.classList.toggle("hidden", !show);
+}
 
 
+function renderThreads(list) {
+  threadList.innerHTML = "";
+
+  list.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow";
+
+    const author = item.author || "Unknown";
+    const createdAt = new Date(item.created_at).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    const replies = item.replies !== undefined ? item.replies : (item.comment_count || 0); 
+    const views = item.views || 0;
+    
+    const detailUrl = DETAIL_URL_TEMPLATE.replace('00000000-0000-0000-0000-000000000000', item.id);
+    const hasLatestPostSection = item.latest_post || (replies > 0);
+    
+    div.innerHTML = `
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+          <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 text-sm text-gray-600 mb-1">
+            <span class="font-medium">Thread by: ${author}</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs text-gray-500">
+            <span>views: ${views}</span>
+            <span>replies: ${replies}</span> 
+            <span>${createdAt}</span>
+          </div>
+        </div>
+        <span class="px-3 py-1 text-xs font-medium rounded-full ${item.post_type === 'official' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}">
+          ${item.post_type}
+        </span>
+      </div>
+
+      <h2 class="text-2xl font-bold text-gray-900 mb-3">${item.title}</h2>
+
+      <p class="text-gray-700 mb-4 line-clamp-3">${item.content}</p>
+
+      ${item.latest_post ? `
+        <div class="mt-4 pt-4 border-t border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-900 mb-2">Latest Post</h3>
+          <p class="text-sm text-gray-600 line-clamp-2">${item.latest_post}</p>
+        </div>
+      ` : ''}
+      
+      <div class="flex gap-3 mt-4 ${hasLatestPostSection ? 'justify-end' : ''}">
+        <a href="${detailUrl}" 
+           class="px-4 py-2 bg-red-500 text-white text-sm font-medium rounded hover:bg-red-600 transition-colors">
+          Read More
+        </a>
+        ${item.is_author ? `
+          <button onclick="showEditThreadModal('${item.id}')" class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded hover:bg-gray-100 transition-colors">
+            Edit
+          </button>
+          <!-- UPDATED: Call showThreadConfirmModal -->
+          <button onclick="showThreadConfirmModal('${item.id}')" class="px-4 py-2 border border-red-300 text-red-700 text-sm font-medium rounded hover:bg-red-100 transition-colors">
+            Delete
+          </button>
+        ` : ''}
+      </div>
+    `;
+    threadList.appendChild(div);
+  });
+}
+
+// Filter and display
+function filterThreads() {
+  const filtered = activeFilter === "all" ? threads : threads.filter(t => t.post_type === activeFilter);
+  if (filtered.length === 0) {
+    displayState({ emptyState: true });
+  } else {
+    displayState({});
+    renderThreads(filtered);
+  }
+}
+
+// Handle filter buttons
+filterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    activeFilter = btn.id.replace("filter-", "");
+    updateFilterStyles();
+    filterThreads();
+  });
+});
+
+// Update filter styles to match the simpler button style in image 2
+function updateFilterStyles() {
+  filterButtons.forEach(btn => {
+    if (btn.id === `filter-${activeFilter}`) {
+      btn.className = "filter-btn px-4 py-2 rounded-md border text-sm font-medium bg-red-500 text-white border-red-500 transition";
+    } else {
+      btn.className = "filter-btn px-4 py-2 rounded-md border text-sm font-medium bg-white text-gray-700 border-gray-300 hover:border-red-500 transition";
+    }
+  });
+}
+
+/**
+ * Handles the AJAX DELETE request to delete a thread.
+ * @param {string} threadId The ID of the thread to delete.
+ */
+async function performDeleteThread(threadId) {
+    
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const deleteUrl = DELETE_URL_TEMPLATE.replace('REPLACE_ID', threadId);
+
+        displayState({ loading: true });
+
+        const response = await fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log(data.message || 'Thread deleted successfully!');
+            fetchThreads(); 
+        } else {
+            console.error('Deletion Error:', data.error || 'Failed to delete thread.');
+            displayState({ error: true, errorMessage: data.error || 'Failed to delete thread.' });
+            fetchThreads(); 
+        }
+
+    } catch (err) {
+        console.error('Network Error during deletion:', err);
+        displayState({ error: true, errorMessage: 'Network error. Could not delete thread.' });
+    }
+}
+
+// The function called by the render button is now the modal function
+function deleteThread(threadId) {
+    showThreadConfirmModal(threadId);
+}
+
+
+function showCreateThreadModal() {
+  const modal = document.getElementById("createThreadModal");
+  modal.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
+}
+
+function hideCreateThreadModal() {
+  const modal = document.getElementById("createThreadModal");
+  modal.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
+}
+
+// Initialize
+fetchThreads();
+updateFilterStyles();
 </script>
-
 {% endblock content %}
