@@ -19,13 +19,31 @@
     --shadow:0 6px 18px rgba(0,0,0,.06);
   }
 
-  html,body {margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  /* background halaman */
+  html, body {
+    margin:0;
+    background: var(--bg) !important;
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+
+  /* warna khusus untuk header dari header.html */
+  nav.fixed {
+    background-color: #7a0e22 !important; /* maroon */
+  }
+
+  nav.fixed a,
+  nav.fixed span {
+    color: #ffffff !important; /* teks header putih */
+  }
+
   .page {
-  width: 100%;
-  max-width: none;
-  margin: 0 auto 56px;
-  padding-top: 64px; 
-}
+    width: 100%;
+    max-width: none;
+    margin: 0 auto 56px;
+    padding-top: 64px;
+  }
+
   .panel {width: 100%;background:#ffffff;border-radius:var(--radius);box-shadow:var(--shadow);}
   .panel.header {padding:18px 24px;margin-bottom:18px;--radius:0px;}
   .header-bar {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
@@ -108,8 +126,10 @@
     {% empty %}
       <div class="review-card">Belum ada review.</div>
     {% endfor %}
+    
   </section>
 </div>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
