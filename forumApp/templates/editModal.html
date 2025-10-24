@@ -1,0 +1,179 @@
+<div id="editThreadModal"
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div id="editThreadModalContent"
+        class="bg-white rounded-lg shadow-lg w-11/12 sm:w-3/5 md:w-1/2 max-h-[90vh] overflow-y-auto p-6">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">Edit Thread</h3>
+                <p class="text-sm text-gray-600">Perbarui judul dan konten thread Anda.</p>
+            </div>
+            <button onclick="hideEditThreadModal()" class="text-gray-600 hover:text-gray-900 text-xl">&times;</button>
+        </div>
+
+        <!-- Form -->
+        <form id="editThreadForm">
+            {% csrf_token %}
+            
+            <!-- Hidden Thread ID to track which thread is being edited -->
+            <input type="hidden" id="edit_thread_id" name="thread_id">
+            
+            <!-- Title -->
+            <div class="mb-4">
+                <label for="edit_thread_title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input type="text" id="edit_thread_title" name="title" required
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none">
+            </div>
+
+            <!-- Content -->
+            <div class="mb-6">
+                <label for="edit_thread_content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                <textarea id="edit_thread_content" name="content" rows="7" required
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none"></textarea>
+            </div>
+
+            <!-- Error Message -->
+            <div id="editThreadError" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded"></div>
+
+            <!-- Buttons -->
+            <div class="flex justify-between sm:justify-end gap-3">
+                <button type="button" onclick="hideEditThreadModal()"
+                    class="px-5 py-2 border border-red-300 text-red-600 rounded hover:bg-red-50 transition">
+                    Cancel
+                </button>
+                <button type="submit" id="submitEditThreadBtn"
+                    class="px-5 py-2 bg-[#E63946] text-white rounded hover:bg-[#D62828] transition font-semibold">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// URL templates for fetching data and submitting the edit
+const DETAIL_JSON_URL_TEMPLATE = "{% url 'forumApp:show_json_by_id' 'REPLACE_ID' %}";
+const EDIT_URL_TEMPLATE = "{% url 'forumApp:edit_thread' 'REPLACE_ID' %}";
+
+function hideEditThreadModal() {
+    const modal = document.getElementById("editThreadModal");
+    modal.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+    document.getElementById('editThreadError').classList.add('hidden');
+    // Clear the form data
+    document.getElementById('edit_thread_title').value = '';
+    document.getElementById('edit_thread_content').value = '';
+    document.getElementById('edit_thread_id').value = '';
+}
+
+
+async function showEditThreadModal(threadId) {
+    const modal = document.getElementById("editThreadModal");
+    const titleInput = document.getElementById('edit_thread_title');
+    const contentInput = document.getElementById('edit_thread_content');
+    const idInput = document.getElementById('edit_thread_id');
+    const errorDiv = document.getElementById('editThreadError');
+
+    // Show initial loading state and modal
+    titleInput.value = 'Loading...';
+    contentInput.value = 'Loading thread content...';
+    errorDiv.classList.add('hidden');
+    modal.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+
+    try {
+        // 1. Fetch thread data
+        const fetchUrl = DETAIL_JSON_URL_TEMPLATE.replace('REPLACE_ID', threadId);
+        const response = await fetch(fetchUrl);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to fetch thread details.');
+        }
+
+        const threadData = await response.json();
+        
+        // 2. Populate the modal fields
+        idInput.value = threadData.id;
+        titleInput.value = threadData.title;
+        contentInput.value = threadData.content;
+
+        // Update modal header
+        const header = document.querySelector('#editThreadModalContent h3');
+        header.textContent = `Edit Thread: ${threadData.title.substring(0, 30)}${threadData.title.length > 30 ? '...' : ''}`;
+
+    } catch (error) {
+        console.error('Error fetching thread for edit:', error);
+        errorDiv.textContent = error.message || 'An unexpected error occurred while loading thread data.';
+        errorDiv.classList.remove('hidden');
+        titleInput.value = '';
+        contentInput.value = '';
+    }
+}
+
+
+document.getElementById('editThreadForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const threadId = document.getElementById('edit_thread_id').value;
+    const title = document.getElementById('edit_thread_title').value.trim();
+    const content = document.getElementById('edit_thread_content').value.trim();
+    const errorDiv = document.getElementById('editThreadError');
+    const submitBtn = document.getElementById('submitEditThreadBtn');
+
+    // Validation
+    if (!title || !content || !threadId) {
+        errorDiv.textContent = 'Thread ID, Title, and content are required.';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    // Hide previous errors
+    errorDiv.classList.add('hidden');
+
+    // Disable button during submission
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const submitUrl = EDIT_URL_TEMPLATE.replace('REPLACE_ID', threadId);
+
+        const response = await fetch(submitUrl, {
+            method: 'POST', // Use POST for update endpoint
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                'title': title,
+                'content': content
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Success: refresh the thread list to show changes without full page reload
+            if (typeof fetchThreads === 'function') {
+                fetchThreads();
+            }
+            hideEditThreadModal();
+            console.log(data.message || 'Thread updated successfully!'); 
+        } else {
+            // Error from server
+            errorDiv.textContent = data.error || 'Failed to update thread.';
+            errorDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        errorDiv.textContent = 'Error. Please check your connection and try again.';
+        errorDiv.classList.remove('hidden');
+    } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Changes';
+    }
+});
+</script>
