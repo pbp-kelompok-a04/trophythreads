@@ -23,6 +23,12 @@ def show_merchandise(request, id):
     merchandise = get_object_or_404(Merchandise, pk=id)
     merchandise.increment_views()
 
+    if merchandise.description:
+        merchandise.description = merchandise.description.replace('<br>', '\n')
+        merchandise.description = merchandise.description.replace('br>', '\n')
+        merchandise.description = merchandise.description.replace('<br', '\n')
+    
+
     # Get reviews for this merchandise
     try:        
         rating_filter = request.GET.get('filter')

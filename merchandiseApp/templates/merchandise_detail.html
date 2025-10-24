@@ -201,6 +201,7 @@
                 </div>
             </div>
         </div>
+        </div>
 
         <!-- Description & Review -->
         <div class="mb-8">
@@ -212,7 +213,7 @@
                         Product Description── .✦:
                     </h2>
                     <div class="prose prose-lg max-w-none text-gray-700">
-                        {{ merchandise.description|linebreaks }}
+                        {{ merchandise.description|linebreaksbr }}
                     </div>
                 </div>
             </div>
@@ -276,24 +277,7 @@
                                     {{ review.body }}
                                 </p>
                                 
-                                <!-- Review Metadata -->
-                                <div class="mt-3 flex items-center text-xs text-gray-500">
-                                    {% if review.is_positive %}
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-800 mr-2">
-                                        <i class="fas fa-thumbs-up mr-1"></i>Positive
-                                    </span>
-                                    {% elif review.is_critical %}
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-red-100 text-red-800 mr-2">
-                                        <i class="fas fa-exclamation-triangle mr-1"></i>Critical
-                                    </span>
-                                    {% endif %}
-                                    
-                                    {% if review.updated_at != review.created_at %}
-                                    <span class="text-gray-400">
-                                        <i class="fas fa-edit mr-1"></i>Edited
-                                    </span>
-                                    {% endif %}
-                                </div>
+                               
                             </div>
                         </div>
                     </div>
@@ -309,7 +293,7 @@
                             Be the first to share your thoughts about this product!
                         </p>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'reviewproduct:product_reviews' merchandise.id %}" 
+                        <a href="{% url 'reviewproduct:add_review' merchandise.id %}" 
                         class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200">
                             <i class="fas fa-pen mr-2"></i>
                             Write a Review
@@ -323,6 +307,10 @@
                     </div>
                 {% endif %}
             </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% include 'footer.html' %}
-
 {% endblock content %}
