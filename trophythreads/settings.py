@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'InformasiPertandingan',
     'forumApp',
     'cartApp',
-    'merchandiseApp'
+    'reviewproduct'
 ]
 
 MIDDLEWARE = [
