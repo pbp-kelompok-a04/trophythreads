@@ -1,0 +1,390 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title id="thread-title">Loading Thread...</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'header.html' %}
+{% include 'editCommentModal.html' %}
+{% include 'deleteCommentModal.html' %}
+
+
+
+
+<!-- Main Content Area -->
+<div class="bg-[#FFF1F1] min-h-screen pt-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-white shadow-xl border border-gray-200">
+        
+        <!-- Back Link -->
+        <div class="mb-4">
+            <a href="{% url 'forumApp:show_landing_page' %}" 
+               class="inline-flex items-center text-red-600 hover:text-red-700 font-medium transition duration-150 ease-in-out">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back to Discussions
+            </a>
+        </div>
+        
+        <!-- Thread Detail Section -->
+        <div id="thread-detail" class="mb-10 p-6 border-b border-gray-200">
+            <h1 id="detail-title" class="text-3xl font-bold text-gray-900 mb-2">Loading...</h1>
+            <div class="text-sm text-gray-500 mb-6">
+                <span id="detail-author"></span> | <span id="detail-created"></span>
+            </div>
+            <p id="detail-content" class="text-gray-700 leading-relaxed"></p>
+        </div>
+
+        <!-- Create Comment Form -->
+        <div class="mb-10 p-6 border border-gray-200 rounded-lg bg-gray-50">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Post a Comment</h2>
+            <form id="createCommentForm">
+                {% csrf_token %}
+                <textarea id="comment_content" rows="4" placeholder="Type your comment here..." required
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none"></textarea>
+                <div id="createCommentError" class="hidden mb-4 mt-2 p-3 bg-red-100 text-red-700 rounded"></div>
+                <div class="flex justify-end mt-4">
+                    <button type="submit" id="submitCommentBtn"
+                        class="px-5 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 transition-colors">
+                        Submit Comment
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Comments Section -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Comments (<span id="comment-count">0</span>)</h2>
+        <div id="comments-list" class="flex flex-col gap-6">
+            <p class="text-center text-gray-500" id="comments-loading">Loading comments...</p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
+
+// Extract thread ID from Django context
+const threadId = "{{ thread_id }}"; 
+
+// URL Templates
+const THREAD_DETAIL_URL = `{% url 'forumApp:show_json_by_id' 'REPLACE_ID' %}`.replace('REPLACE_ID', threadId);
+const COMMENTS_URL = `{% url 'forumApp:get_comments' 'REPLACE_ID' %}`.replace('REPLACE_ID', threadId);
+const CREATE_COMMENT_URL = `{% url 'forumApp:create_comment' 'REPLACE_ID' %}`.replace('REPLACE_ID', threadId);
+const EDIT_COMMENT_URL_TEMPLATE = `{% url 'forumApp:edit_comment' 'REPLACE_ID' %}`;
+const DELETE_COMMENT_URL_TEMPLATE = `{% url 'forumApp:delete_comment' 'REPLACE_ID' %}`;
+const INCREMENT_VIEWS_URL = `{% url 'forumApp:increment_views' 'REPLACE_ID' %}`.replace('REPLACE_ID', threadId);
+
+const commentList = document.getElementById('comments-list');
+const commentCountSpan = document.getElementById('comment-count');
+const commentsLoading = document.getElementById('comments-loading');
+
+let commentIdToDelete = null; // Store ID for modal confirmation
+
+// --- MODAL FUNCTIONS (Comment Deletion) ---
+function showCommentConfirmModal(commentId) {
+    commentIdToDelete = commentId;
+    document.getElementById("deleteCommentConfirmModal").classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+}
+
+function hideCommentConfirmModal() {
+    commentIdToDelete = null;
+    document.getElementById("deleteCommentConfirmModal").classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+}
+
+document.getElementById('confirmDeleteCommentBtn').addEventListener('click', () => {
+    if (commentIdToDelete) {
+        // Call the private AJAX function
+        performDeleteComment(commentIdToDelete); 
+        hideCommentConfirmModal();
+    }
+});
+
+// --- Comment Edit Modal ---
+function showEditCommentModal(commentId, currentContent) {
+    const modal = document.getElementById("editCommentModal");
+    document.getElementById('edit_comment_id').value = commentId;
+    document.getElementById('edit_comment_content').value = currentContent;
+    document.getElementById('editCommentError').classList.add('hidden');
+    modal.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+}
+
+function hideEditCommentModal() {
+    document.getElementById("editCommentModal").classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+}
+
+async function incrementThreadViews() {
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        await fetch(INCREMENT_VIEWS_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            }
+        });
+        console.log("Thread view count incremented.");
+    } catch (err) {
+        console.error("Failed to increment views:", err);
+    }
+}
+
+// --- Fetch & Render Logic ---
+async function fetchThreadDetail() {
+    try {
+        const response = await fetch(THREAD_DETAIL_URL);
+        if (!response.ok) throw new Error("Failed to load thread details.");
+        const data = await response.json();
+        
+        const threadTitleEl = document.getElementById('thread-title');
+        if (threadTitleEl) threadTitleEl.textContent = data.title;
+        
+        const detailTitleEl = document.getElementById('detail-title');
+        if (detailTitleEl) detailTitleEl.textContent = data.title;
+        
+        const detailAuthorEl = document.getElementById('detail-author');
+        if (detailAuthorEl) detailAuthorEl.textContent = `Author: ${data.author}`;
+        
+        const date = new Date(data.created_at).toLocaleDateString();
+        const detailCreatedEl = document.getElementById('detail-created');
+        if (detailCreatedEl) detailCreatedEl.textContent = `Created: ${date}`;
+        
+        const detailViewsEl = document.getElementById('detail-views');
+        if (detailViewsEl) detailViewsEl.textContent = `Views: ${data.views}`; 
+
+        const detailContentEl = document.getElementById('detail-content');
+        if (detailContentEl) detailContentEl.textContent = data.content;
+        
+        incrementThreadViews();
+
+    } catch (err) {
+        document.getElementById('thread-detail').innerHTML = `<p class="text-red-500">${err.message}</p>`;
+        console.error(err);
+    }
+}
+
+async function fetchComments() {
+    commentsLoading.classList.remove('hidden');
+    commentList.innerHTML = '';
+    
+    try {
+        const response = await fetch(COMMENTS_URL);
+        if (!response.ok) throw new Error("Failed to load comments.");
+        const data = await response.json();
+        
+        commentsLoading.classList.add('hidden');
+        commentCountSpan.textContent = data.length;
+        
+        if (data.length === 0) {
+            commentList.innerHTML = '<p class="text-center text-gray-500">No comments yet. Be the first to reply!</p>';
+            return;
+        }
+
+        data.forEach(comment => {
+            const commentElement = createCommentElement(comment);
+            commentList.appendChild(commentElement);
+        });
+
+    } catch (err) {
+        commentsLoading.classList.add('hidden');
+        commentList.innerHTML = `<p class="text-red-500">Error loading comments: ${err.message}</p>`;
+        console.error(err);
+    }
+}
+
+function createCommentElement(comment) {
+    const div = document.createElement("div");
+    div.id = `comment-${comment.id}`;
+    div.className = "bg-white p-5 border border-gray-200 rounded-lg shadow-sm";
+    
+    const date = new Date(comment.created_at).toLocaleString();
+
+    const isAuthor = comment.is_author; 
+
+    const actionsHtml = isAuthor ? `
+        <button onclick="showEditCommentModal('${comment.id}', \`${comment.content.replace(/`/g, '\\`')}\`)" 
+            class="text-xs text-blue-500 hover:text-blue-700 transition ml-3">
+            Edit
+        </button>
+        <!-- UPDATED: Call showCommentConfirmModal -->
+        <button onclick="showCommentConfirmModal('${comment.id}')" 
+            class="text-xs text-red-500 hover:text-red-700 transition ml-3">
+            Delete
+        </button>
+    ` : '';
+
+    div.innerHTML = `
+        <div class="flex items-center mb-3">
+            <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-semibold mr-3 flex-shrink-0">
+                ${comment.author[0].toUpperCase()}
+            </div>
+            <span class="font-semibold text-gray-900">${comment.author}</span>
+            <span class="text-gray-500 text-xs ml-3">${date}</span>
+            ${actionsHtml}
+        </div>
+        <p class="text-gray-700 whitespace-pre-wrap" id="comment-content-${comment.id}">${comment.content}</p>
+    `;
+
+    return div;
+}
+
+
+document.getElementById('createCommentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    
+    if (IS_AUTHENTICATED === false) {
+        showToast("You must be logged in to post a comment.","info")
+        console.log("GUEST ACTION BLOCKED: Must be logged in to post a comment. Showing toast.");
+
+        if (typeof showToast !== 'function') {
+            showToast("You must be logged in to post a comment.","info")
+        }
+        return; // Stop form submission
+    }
+
+    const content = document.getElementById('comment_content').value.trim();
+    const errorDiv = document.getElementById('createCommentError');
+    const submitBtn = document.getElementById('submitCommentBtn');
+
+    if (!content) {
+        errorDiv.textContent = 'Content is required.';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    errorDiv.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Posting...';
+
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const response = await fetch(CREATE_COMMENT_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 'content': content })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('comment_content').value = '';
+            fetchComments(); // Reload comments list
+            console.log(data.message);
+        } else {
+            errorDiv.textContent = data.error || 'Failed to post comment.';
+            errorDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        errorDiv.textContent = 'Error. Please try again.';
+        errorDiv.classList.remove('hidden');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Comment';
+    }
+});
+
+
+document.getElementById('editCommentForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const commentId = document.getElementById('edit_comment_id').value;
+    const content = document.getElementById('edit_comment_content').value.trim();
+    const errorDiv = document.getElementById('editCommentError');
+    const submitBtn = document.getElementById('submitEditCommentBtn');
+
+    if (!content) {
+        errorDiv.textContent = 'Content is required.';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    errorDiv.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const editUrl = EDIT_COMMENT_URL_TEMPLATE.replace('REPLACE_ID', commentId);
+
+        const response = await fetch(editUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 'content': content })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            hideEditCommentModal();
+            fetchComments(); // Reload comments list
+            console.log(data.message);
+        } else {
+            errorDiv.textContent = data.error || 'Failed to update comment.';
+            errorDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        errorDiv.textContent = 'Error. Please try again.';
+        errorDiv.classList.remove('hidden');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save Changes';
+    }
+});
+
+/**
+ * Executes the AJAX DELETE request for a comment.
+ * @param {string} commentId The ID of the comment to delete.
+ */
+async function performDeleteComment(commentId) {
+    
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const deleteUrl = DELETE_COMMENT_URL_TEMPLATE.replace('REPLACE_ID', commentId);
+
+        const response = await fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log(data.message || 'Comment deleted successfully!');
+            fetchComments(); // Reload comments list
+        } else {
+            console.error('Deletion Error:', data.error || 'Failed to delete comment.');
+            console.error(data.error || 'Failed to delete comment.'); 
+        }
+
+    } catch (err) {
+        console.error('Network Error during deletion:', err);
+        console.error('Network error. Could not delete comment.');
+    }
+}
+
+// The function called by the render button
+function deleteComment(commentId) {
+    showCommentConfirmModal(commentId);
+}
+
+
+// --- Initialization ---
+
+// Start fetching the data when the page loads
+fetchThreadDetail();
+fetchComments();
+
+</script>
+{% endblock content %}

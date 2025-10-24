@@ -77,7 +77,7 @@
     const iconCalendarURL = "{% static 'icons/calendar.png' %}";
     const iconFootballURL = "{% static 'icons/football.png' %}";
     const iconLocationURL = "{% static 'icons/location.png' %}";
-    const discussionURLTemplate = `{% url 'forumApp:show_landing_page' '00000000-0000-0000-0000-000000000000' %}`;
+    const discussionURLTemplate = `{% url 'forumApp:show_landing_page' %}`;
     const loginURL = "{% url 'main:login' %}";
     const editURLTemplate = `{% url 'InformasiPertandingan:edit_match' '00000000-0000-0000-0000-000000000000' %}`;
     const deleteURLTemplate = `{% url 'InformasiPertandingan:delete_match' '00000000-0000-0000-0000-000000000000' %}`;
@@ -104,7 +104,7 @@
     });
 
     const isAdmin = "{{ user.is_authenticated }}" === "True" && "{{ user.profile.role }}" === "admin";
-    const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}";
+    const isAuthenticated = "{{ user.is_authenticated }}" === "True";
 
     // toggle menu admin
     function toggleMenu(event, matchId) {
@@ -220,7 +220,7 @@
         }
 
         // jika sudah login (bukan sebagai guest), maka dapat melihat informasi tambahan
-        if (isAuthenticated === 'true') {
+        if (isAuthenticated) {
             html = `
             <div class="bg-white mx-12 rounded-xl shadow-md p-6 mb-6"> 
                 <h2 class="text-xl font-bold text-black mb-6 text-center">Informasi Pertandingan</h2>
