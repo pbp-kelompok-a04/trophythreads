@@ -1,129 +1,275 @@
-<div id="editMatchModal"
-    class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50">
-    <div id="editMatchModalContent"
-        class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 max-h-[90vh] overflow-y-auto p-6">
-        <div class="flex items-center justify-between border-b pb-4 mb-4">
-            <h3 class="text-xl font-semibold text-gray-900">Edit Match</h3>
-            <button onclick="hideEditMatchModal()" class="text-gray-400 hover:text-gray-700">&times;</button>
-        </div>
+{% load tz %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Ratings & Reviews</title>
+<style>
+  :root {
+    --font-title:'Montserrat', sans-serif;
+    --font-body:'Open Sans', sans-serif;
+    --maroon:#7a0e22;
+    --accent:#ED3F27;
+    --bg:#FFF1F1;
+    --text:#222;
+    --muted:#6b6b6b;
+    --line:#ead6da;
+  }
 
-        <form id="editMatchForm">
-            <input type="hidden" id="edit_match_id">
+  html,body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+  }
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Title</label>
-                <input type="text" id="edit_title"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-            </div>
+  /* Header */
+  .panel.header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    padding:18px 40px;
+  }
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Date</label>
-                <input type="date" id="edit_date" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-            </div>
+  .header-title {
+    font-family:var(--font-title);
+    font-size:22px;
+    font-weight:800;
+    color:var(--maroon);
+  }
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">City</label>
-                <input type="text" id="edit_city" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-            </div>
+  .header-center {
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Country</label>
-                <input type="text" id="edit_country"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" value="Indonesia">
-            </div>
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    border-radius:12px;
+    text-decoration:none;
+    background:#7a0e22;
+    color:#fff;
+    font-weight:700;
+  }
+  .pill.active { background:#ED3F27; }
 
-            <div class="mb-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-                <!-- Home Team -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Home Team</label>
-                    <input type="text" id="edit_home_team" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                </div>
+  .btn-primary {
+    background:var(--accent);
+    color:#fff;
+    text-decoration:none;
+    padding:10px 20px;
+    border-radius:10px;
+    font-weight:800;
+    border:none;
+  }
 
-                <!-- Home Score -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Home Score</label>
-                    <input type="number" id="edit_score_home" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" min="0">
-                </div>
+  /* Review List */
+  .panel.list {
+    padding:20px 40px;
+  }
 
-                <!-- Away Team -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Away Team</label>
-                    <input type="text" id="edit_away_team" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                </div>
+  .review-card {
+    background:#fff;
+    border:1px solid #efdddd;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.05);
+    padding:14px 16px;
+    margin:10px 0;
+    position:relative;
+  }
 
-                <!-- Away Score -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Away Score</label>
-                    <input type="number" id="edit_score_away" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" min="0">
-                </div>
-            </div>
+  .actions {
+    display:flex;
+    gap:8px;
+    justify-content:flex-end;
+    margin-top:8px;
+  }
 
-            <div class="flex gap-2 mt-4">
-                <button type="button" onclick="hideEditMatchModal()"
-                    class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">Cancel</button>
-                <button type="submit" class="px-4 py-2 w-full bg-var(--color-secondary) text-white rounded hover:bg-var(--color-primary)">Save
-                    Changes</button>
-            </div>
-        </form>
+  .btn-outline {
+    background:#fff;
+    border:1px solid #d9898d;
+    color:#a2333b;
+    padding:6px 12px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  /* Modal */
+  .modal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.3);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .modal-content {
+    background:#fff;
+    border-radius:8px;
+    padding:20px 26px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.2);
+    text-align:center;
+    animation:fadeIn .25s ease;
+  }
+
+  .modal-content h4 {
+    margin:0 0 20px;
+    color:var(--maroon);
+  }
+
+  .modal-buttons {
+    display:flex;
+    justify-content:center;
+    gap:10px;
+  }
+
+  .modal-buttons button {
+    border:none;
+    border-radius:6px;
+    padding:8px 16px;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.2s;
+  }
+
+  .ok-btn {
+    background:var(--accent);
+    color:#fff;
+  }
+
+  .ok-btn:hover { background:#c42b1c; }
+
+  .cancel-btn {
+    background:#fff;
+    border:1px solid var(--accent);
+    color:var(--maroon);
+  }
+
+  .cancel-btn:hover {
+    background:#fde4e1;
+  }
+
+  @keyframes fadeIn {
+    from {opacity:0; transform:translateY(-10px);}
+    to {opacity:1; transform:translateY(0);}
+  }
+</style>
+</head>
+
+<body>
+{% include "navbar.html" %}
+
+<section class="panel header">
+  <h2 class="header-title">Ratings and Reviews</h2>
+
+  <div class="header-center">
+    <a class="pill {% if stars == 'all' %}active{% endif %}" href="?stars=all">All {{ total|default:0 }}</a>
+    <a class="pill {% if stars == '5' %}active{% endif %}" href="?stars=5">★5 {{ counts.5|default:0 }}</a>
+    <a class="pill {% if stars == '4' %}active{% endif %}" href="?stars=4">★4 {{ counts.4|default:0 }}</a>
+    <a class="pill {% if stars == '3' %}active{% endif %}" href="?stars=3">★3 {{ counts.3|default:0 }}</a>
+    <a class="pill {% if stars == '2' %}active{% endif %}" href="?stars=2">★2 {{ counts.2|default:0 }}</a>
+    <a class="pill {% if stars == '1' %}active{% endif %}" href="?stars=1">★1 {{ counts.1|default:0 }}</a>
+  </div>
+
+  {% if can_review %}
+  <a href="{% url 'reviewproduct:add_review' product.id %}" class="btn-primary">Add Review</a>
+  {% endif %}
+</section>
+
+<section class="panel list">
+  {% for r in reviews %}
+  <div class="review-card" data-id="{{ r.id }}">
+    <div><b>{{ r.user.username }}</b> <small>{{ r.date|date:"d/m/y" }}</small></div>
+    <div class="stars">
+      {% for i in "12345"|slice:":" %}
+        {% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}
+      {% endfor %}
     </div>
+    <div class="body">{{ r.comment }}</div>
+    <div class="actions">
+      <a href="{% url 'reviewproduct:edit_review' r.id %}" class="btn-outline">Edit</a>
+      <button class="btn-outline btn-delete" data-url="{% url 'reviewproduct:delete_review' r.id %}">Delete</button>
+    </div>
+  </div>
+  {% empty %}
+  <div class="review-card">Belum ada review.</div>
+  {% endfor %}
+</section>
+
+<!-- Modal kecil -->
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h4>Are you sure you want to delete this review?</h4>
+    <div class="modal-buttons">
+      <button class="ok-btn" id="confirmYes">OK</button>
+      <button class="cancel-btn" id="confirmNo">Cancel</button>
+    </div>
+  </div>
 </div>
+
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('confirmModal');
+  const yesBtn = document.getElementById('confirmYes');
+  const noBtn = document.getElementById('confirmNo');
+  let targetCard = null;
+  let deleteUrl = null;
 
-    function showEditModal(match) {
-        const modal = document.getElementById('editMatchModal');
-
-        document.getElementById('edit_match_id').value = match.id;
-        document.getElementById('edit_title').value = match.title;
-        document.getElementById('edit_date').value = new Date(match.date).toISOString().split('T')[0];
-        document.getElementById('edit_city').value = match.city;
-        document.getElementById('edit_country').value = match.country;
-        document.getElementById('edit_score_home').value = match.score_home;
-        document.getElementById('edit_score_away').value = match.score_away;
-        modal.classList.remove('hidden');
-    }
-
-    function hideEditMatchModal() {
-        const modal = document.getElementById('editMatchModal');
-        const content = document.getElementById('editMatchModalContent');
-
-        content.classList.remove('opacity-100', 'scale-100');
-        content.classList.add('opacity-0', 'scale-95');
-        setTimeout(() => modal.classList.add('hidden'), 150);
-    }
-
-    // submit form via AJAX
-    document.getElementById('editMatchForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const matchId = document.getElementById('edit_match_id').value;
-
-        const payload = {
-            title: document.getElementById('edit_title').value,
-            date: document.getElementById('edit_date').value,
-            city: document.getElementById('edit_city').value,
-            country: document.getElementById('edit_country').value,
-            home_team: document.getElementById('edit_home_team').value,
-            away_team: document.getElementById('edit_away_team').value,
-            score_home_team: document.getElementById('edit_score_home').value,
-            score_away_team: document.getElementById('edit_score_away').value
-        };
-
-        try {
-            const response = await fetch(`/matches/${matchId}/update/`, {
-                method: 'POST',  // atau 'PATCH' sesuai view
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                showToast('Match updated successfully!', 'success');
-                hideEditMatchModal();
-                // reload atau update table
-            } else {
-                showToast('Failed to update match', 'error');
-            }
-        } catch (err) {
-            console.error(err);
-            showToast('Error occurred', 'error');
-        }
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      modal.style.display = 'flex';
+      deleteUrl = btn.dataset.url;
+      targetCard = btn.closest('.review-card');
     });
+  });
+
+  noBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  yesBtn.addEventListener('click', () => {
+    fetch(deleteUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    }).then(res => {
+      if (res.ok) {
+        targetCard.remove();
+        modal.style.display = 'none';
+      } else {
+        alert('Failed to delete review');
+      }
+    });
+  });
+
+  window.addEventListener('click', e => {
+    if (e.target === modal) modal.style.display = 'none';
+  });
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+});
 </script>
+</body>
+</html>

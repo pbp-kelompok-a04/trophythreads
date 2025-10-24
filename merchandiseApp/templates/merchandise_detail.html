@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto p-6">
+  <div class="flex flex-col lg:flex-row gap-6">
+    {% if merchandise.thumbnail %}
+    <img src="{{ merchandise.thumbnail }}" alt="{{ merchandise.name }}" class="w-full lg:w-1/3 rounded-lg shadow">
+    {% endif %}
+
+    <div class="flex-1">
+      <h2 class="text-3xl font-bold mb-2">{{ merchandise.name }}</h2>
+      <p class="text-xl text-gray-700 mb-2">Rp {{ merchandise.price }}</p>
+      <p class="text-gray-600 mb-2">Category: {{ merchandise.category }}</p>
+      <p class="text-gray-700 mb-4">{{ merchandise.description }}</p>
+      <p class="text-sm font-semibold mb-4">Stock: <span id="stock-count">{{ merchandise.stock }}</span></p>
+
+      <!-- Add to cart form (JS will post) -->
+      <form id="add-to-cart-form" onsubmit="return false;">
+        {% csrf_token %}
+        <!-- <input type="hidden" name="product_id" id="product_id" value="{{ merchandise.id }}"> -->
+        <input type="hidden" name="product_id" id="product_id" value="csv_{{ product_index }}">
+
+        <!-- quantity control -->
+        <div class="flex items-center gap-2 mb-4">
+          <button type="button" id="qty-decrease" class="px-3 py-1 bg-gray-200 rounded">-</button>
+          <input id="quantity_input" name="quantity" type="number" value="1" min="1" class="w-16 text-center border rounded px-2 py-1" />
+          <button type="button" id="qty-increase" class="px-3 py-1 bg-gray-200 rounded">+</button>
+          <span class="text-sm text-gray-500 ml-3">/ {{ merchandise.stock }} available</span>
+        </div>
+
+        <div class="flex gap-3">
+          <button id="add-to-cart-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add to Cart</button>
+
+          <!-- View Cart: gunakan named URL agar tidak jadi relative path -->
+          <a id="view-cart-btn" href="{% url 'cartApp:cart_page' %}" class="btn-outline ml-3 px-4 py-2 border rounded text-gray-700">View Cart</a>
+
+          <button id="buy-now-btn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Buy Now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Utility: ambil CSRF dari cookie */
+function getCookie(name){
+  const cookies = document.cookie ? document.cookie.split('; ') : [];
+  for (let i=0;i<cookies.length;i++){
+    const parts = cookies[i].split('=');
+    const key = parts.shift();
+    const val = parts.join('=');
+    if (key === name) return decodeURIComponent(val);
+  }
+  return null;
+}
+
+/* Elements */
+const addBtn = document.getElementById('add-to-cart-btn');
+const buyBtn = document.getElementById('buy-now-btn');
+const qtyInput = document.getElementById('quantity_input');
+const qtyInc = document.getElementById('qty-increase');
+const qtyDec = document.getElementById('qty-decrease');
+const productIdEl = document.getElementById('product_id');
+const stockCount = parseInt(document.getElementById('stock-count').textContent || '0', 10);
+
+/* Quantity handlers */
+qtyInc.addEventListener('click', () => {
+  let v = parseInt(qtyInput.value || '1', 10);
+  if (isNaN(v)) v = 1;
+  if (v < stockCount) qtyInput.value = v + 1;
+});
+qtyDec.addEventListener('click', () => {
+  let v = parseInt(qtyInput.value || '1', 10);
+  if (isNaN(v)) v = 1;
+  if (v > 1) qtyInput.value = v - 1;
+});
+
+/* Shared add-to-cart function used by Add and  Buy Now */
+async function addToCart({quantity = 1} = {}) {
+  const url = "{% url 'cartApp:add_to_cart' %}"; // ganti jika nama url berbeda
+  const formData = new FormData();
+  formData.append('product_id', productIdEl.value);
+  formData.append('quantity', quantity);
+
+  const csrftoken = getCookie('csrftoken');
+
+  addBtn.disabled = true;
+  addBtn.textContent = 'Adding...';
+
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrftoken },
+      body: formData
+    });
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      const msg = data.error || data.message || 'Gagal menambah ke keranjang';
+      if (typeof showToast === 'function') showToast(msg, 'error', 2000);
+      return { ok: false, data };
+    }
+
+    // sukses
+    if (typeof showToast === 'function') showToast(data.message || 'Ditambahkan ke keranjang', 'success', 1200);
+
+    // update header/cart badge jika ada elemen dengan id cart-count
+    try {
+      const badge = document.getElementById('cart-count');
+      if (badge && data.total_items !== undefined) badge.textContent = data.total_items;
+    } catch (e) { /* ignore */ }
+
+    return { ok: true, data };
+  } catch (err) {
+    console.error(err);
+    if (typeof showToast === 'function') showToast('Terjadi error saat menambah cart', 'error', 2000);
+    return { ok: false, data: null };
+  } finally {
+    addBtn.disabled = false;
+    addBtn.textContent = 'Add to Cart';
+  }
+}
+
+/* Add to Cart click */
+addBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const q = parseInt(qtyInput.value || '1', 10) || 1;
+  if (q > stockCount) {
+    if (typeof showToast === 'function') showToast('Jumlah melebihi stock', 'error', 2000);
+    qtyInput.value = stockCount > 0 ? stockCount : 1;
+    return;
+  }
+  await addToCart({quantity: q});
+});
+
+/* Buy Now: tambah ke cart lalu redirect ke checkout */
+buyBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  buyBtn.disabled = true;
+  buyBtn.textContent = 'Processing...';
+  const q = parseInt(qtyInput.value || '1', 10) || 1;
+  if (q > stockCount) {
+    if (typeof showToast === 'function') showToast('Jumlah melebihi stock', 'error', 2000);
+    buyBtn.disabled = false;
+    buyBtn.textContent = 'Buy Now';
+    return;
+  }
+
+  const result = await addToCart({quantity: q});
+  if (result.ok) {
+    // redirect ke checkout page (ganti nama url jika perlu)
+    const checkoutUrl = "{% url 'cartApp:checkout' %}";
+    window.location.href = checkoutUrl;
+  } else {
+    buyBtn.disabled = false;
+    buyBtn.textContent = 'Buy Now';
+  }
+});
+</script>
+{% endblock %}

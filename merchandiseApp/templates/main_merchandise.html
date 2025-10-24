@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto p-6">
+  <h2 class="text-2xl font-bold mb-4">Available Merchandise</h2>
+
+  {% if merchandise_list %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for item in merchandise_list %}
+    <div class="bg-white rounded-lg shadow p-4">
+      {% if item.thumbnail %}
+      <img src="{{ item.thumbnail }}" alt="{{ item.name }}" class="w-full h-48 object-cover rounded-md mb-2">
+      {% endif %}
+      <!-- <h3 class="font-semibold text-lg">{{ item.name }}</h3> -->
+      <a href="{% url 'merchandiseApp:show_merchandise' forloop.counter0 %}">
+        {{ item.name }}
+      </a>
+      <p class="text-gray-700">Rp {{ item.price }}</p>
+      <p class="text-sm text-gray-500">{{ item.category }}</p>
+      <p class="text-sm mt-2">{{ item.description }}</p>
+      <p class="text-sm font-semibold mt-1">Stock: {{ item.stock }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>No merchandise available.</p>
+  {% endif %}
+</div>
+{% endblock %}
