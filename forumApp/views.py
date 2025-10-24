@@ -138,7 +138,7 @@ def show_json(request):
             'updated_at': forum.updated_at.isoformat() if forum.updated_at else None,
             'is_author': forum.author.id == user_id, 
             'replies': comment_count,
-            'latest_post': f"{latest_comment.author.username}: {latest_comment.content[:45]}" if latest_comment else None,
+            'latest_post': f"{latest_comment.author.username}: {latest_comment.content[:45]} ..." if latest_comment else None,
         })
 
     data.reverse()

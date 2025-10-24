@@ -174,15 +174,11 @@
 
                 <!-- Stock & Rating Status -->
                 <div class="mb-6">
-                    <p class="text-gray-600">
-                        <i class="fas fa-boxes mr-2 text-blue-400"></i>
-                        <span class="text-gray-600 font-semibold">{{ merchandise.stock }} in stock</span>
-                        <span class="mx-4">|</span>
-                        <i class="fas fa-star mr-2 text-yellow-300"></i>
-                        <span class="text-grey-500 font-semibold">
-                            {{ average_rating|default:"0.0" }} 
-                            ({{ total_reviews }} review{{ total_reviews|pluralize }})
-                        </span>
+                   <p class="text-gray-600">
+                    <i class="fas fa-boxes mr-2 text-blue-400"></i>
+                    <span class="text-gray-600 font-semibold">{{ merchandise.stock }} in stock</span>
+                    <span class="mx-4">|</span>
+                    <i class="fas fa-star mr-2 text-yellow-300"></i><span class="text-grey-500 font-semibold">0.0</span>
                     </p>
                 </div>
             </div>
@@ -271,7 +267,6 @@
                 </div>
             </div>
         </div>
-        </div>
 
         <!-- Description & Review -->
         <div class="mb-8">
@@ -283,7 +278,7 @@
                         Product Description── .✦:
                     </h2>
                     <div class="prose prose-lg max-w-none text-gray-700">
-                        {{ merchandise.description|linebreaksbr }}
+                        {{ merchandise.description|linebreaks }}
                     </div>
                 </div>
             </div>
@@ -294,89 +289,74 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                         Reviews
                         <i class="fas fa-star text-yellow-400 ml-3 mr-3"></i>
-                        <a href="?" class="{% if request.GET.filter == 'all' or not request.GET.filter %}bg-red-700 text-white {% else %}bg-gray-300 text-gray-600{% endif %} rounded-xl text-sm p-3 mr-3">All</a>
-                        <a href="?filter=5" class="{% if request.GET.filter == '5' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5 mr-3">5</a>
-                        <a href="?filter=4" class="{% if request.GET.filter == '4' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5 mr-3">4</a>
-                        <a href="?filter=3" class="{% if request.GET.filter == '3' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5 mr-3">3</a>
-                        <a href="?filter=2" class="{% if request.GET.filter == '2' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5 mr-3">2</a>
-                        <a href="?filter=1" class="{% if request.GET.filter == '1' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5">1</a>
+                        <span class="bg-red-700 rounded-xl text-white p-3 mr-3">All</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">5</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">4</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">3</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">2</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5">1</span>
                     </h2>
-                    <a href="{% url 'reviewproduct:product_reviews' merchandise.id %}" class="text-orange-600 font-bold hover:text-orange-900 flex items-center gap-2">
-                        <span class="text-xl mb-4" style="font-family: var(--font-title);">Rating and Review Details  </span>
-                        <i class="fas fa-arrow-right mb-4"></i>
-                    </a>
                   
             <!-- Reviews List -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
-                {% if reviews %}
-                    {% for review in reviews %}
-                    <div class="border-b border-gray-200 pb-6 last:border-b-0 {% if not forloop.first %}mt-4{% endif %} hover:bg-gray-50 transition-colors duration-200">
-                        <div class="flex items-start space-x-4">
-                            <!-- User Avatar dengan inisial -->
-                            <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                                {{ review.user.username|first|upper }}
-                            </div>
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">
-                                            {{ review.user.username }}
-                                        </h4>
-                                        <div class="flex items-center text-sm text-gray-600">
-                                            <!-- Star Rating -->
-                                            <div class="flex text-yellow-400 mr-2">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= review.rating %}
-                                                        <i class="fas fa-star text-sm"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star text-sm"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <span>{{ review.created_at|timesince }} ago</span>
-                                            {% if review.purchased_at %}
-                                            <span class="mx-2">•</span>
-                                            <span class="text-green-600">
-                                                <i class="fas fa-check-circle mr-1"></i>Purchased
-                                            </span>
-                                            {% endif %}
+                <!-- Sample Review 1 -->
+                <div class="border-b border-gray-200 pb-6 last:border-b-0">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            A
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Ahmad Rizki</h4>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="flex text-yellow-400 mr-2">
+                                            {% for i in "12345" %}
+                                                <i class="fas fa-star text-sm"></i>
+                                            {% endfor %}
                                         </div>
+                                        <span>2 days ago</span>
                                     </div>
                                 </div>
-                                <p class="text-gray-700 leading-relaxed">
-                                    {{ review.body }}
-                                </p>
-                                
-                               
                             </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Amazing quality! The material feels premium and the design is exactly as shown. 
+                                Fast shipping and excellent packaging. Will definitely order again!
+                            </p>
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <!-- Empty State -->
-                    <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-comment text-gray-400 text-xl"></i>
+                </div>
+
+                <!-- Sample Review 2 -->
+                <div class="border-b border-gray-200 pb-6 last:border-b-0 hover:bg-gray-50 mt-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            S
                         </div>
-                        <h4 class="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h4>
-                        <p class="text-gray-600 mb-4">
-                            Be the first to share your thoughts about this product!
-                        </p>
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'reviewproduct:add_review' merchandise.id %}" 
-                        class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200">
-                            <i class="fas fa-pen mr-2"></i>
-                            Write a Review
-                        </a>
-                        {% else %}
-                        <p class="text-sm text-gray-500">
-                            <a href="{% url 'main:login' %}" class="text-orange-600 hover:text-orange-700 font-semibold">Login</a> 
-                            to write a review
-                        </p>
-                        {% endif %}
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Sari Dewi</h4>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="flex text-yellow-400 mr-2">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= 4 %}
+                                                    <i class="fas fa-star text-sm"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-sm"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span>1 week ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Good product overall. The size fits perfectly and the color is vibrant. 
+                The only downside is that it took a bit longer to arrive than expected.
+                            </p>
+                        </div>
                     </div>
-                {% endif %}
-            </div>
                 </div>
             </div>
         </div>
@@ -444,7 +424,6 @@ async function updateCartBadge() {
     }
 }
 
-// ==================== FAVORITE FUNCTIONS ====================
 document.addEventListener('DOMContentLoaded', function() {
     const favoriteBtn = document.getElementById('favoriteBtn');
     if (favoriteBtn) {
@@ -557,7 +536,6 @@ async function removeFavorite(favoriteId) {
     }
 }
 
-// ==================== CART FUNCTIONS ====================
 // Add to Cart function
 async function addToCart(quantity, redirectToCheckout = false) {
     const merchandiseId = '{{ merchandise.id }}';
@@ -623,33 +601,47 @@ if (addToCartBtn) {
     });
 }
 
-// Buy Now button handler
 const buyNowBtn = document.getElementById('buy-now-btn');
 if (buyNowBtn) {
     buyNowBtn.addEventListener('click', async function(e) {
         e.preventDefault();
         const quantityInput = document.querySelector('#quantity-selector input[type="number"]');
         const quantity = parseInt(quantityInput.value) || 1;
-        
-        // Disable button during request
+
         const originalHTML = this.innerHTML;
         this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span>Processing...</span>';
-        
-        const success = await addToCart(quantity, true);
-        
-        if (success) {
-            showToast('Redirecting to checkout...', 'info');
-            setTimeout(() => {
-                window.location.href = '{% url "cartApp:checkout" %}';
-            }, 500);
-        } else {
-            // Re-enable button if failed
+
+        try {
+            const form = new URLSearchParams();
+            form.append('product_id', '{{ merchandise.id }}'); // atau csv index jika bukan DB
+            form.append('quantity', quantity);
+
+            const res = await fetch("{% url 'cartApp:buy_now' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrftoken, 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: form,
+                credentials: 'same-origin'
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.redirect_url) {
+                // langsung ke checkout (bukan loading)
+                window.location.href = data.redirect_url;
+            } else {
+                showToast(data.error || 'Gagal melakukan Buy Now', 'error');
+                this.disabled = false;
+                this.innerHTML = originalHTML;
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('Terjadi error. Coba lagi', 'error');
             this.disabled = false;
             this.innerHTML = originalHTML;
         }
     });
 }
+
 </script>
 
 {% endblock content %}
