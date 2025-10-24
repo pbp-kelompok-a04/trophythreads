@@ -47,12 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'merchandiseApp',
-    'favoritesApp',
     'InformasiPertandingan',
     'forumApp',
-    'cartApp',
-    'reviewproduct'
 ]
 
 MIDDLEWARE = [
