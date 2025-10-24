@@ -22,5 +22,6 @@ urlpatterns = [
     path('',include('main.urls')),
     path('informasi/', include('InformasiPertandingan.urls')),
     path('merchandise/', include('merchandiseApp.urls')),
-    path('forum/', include('forumApp.urls'))
+    path('forum/', include('forumApp.urls')),
+    path('favoritesApp/', include('favoritesApp.urls')),
 ]
