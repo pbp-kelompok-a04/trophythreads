@@ -34,7 +34,9 @@ ALLOWED_HOSTS = ["localhost",
                  "127.0.0.1", 
                  "samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",
+]
 # Application definition
 
 INSTALLED_APPS = [
