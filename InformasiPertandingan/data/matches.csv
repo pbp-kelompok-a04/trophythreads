@@ -1,6 +1,6 @@
 date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1934-05-13,Japan,Indonesia,1,7,Far Eastern Championship Games,Manila,Philippines,TRUE
-1934-05-14,China PR,Indonesia,2,0,Far Eastern Championship Games,Manila,Philippines,TRUE
+1934-05-14,China,Indonesia,2,0,Far Eastern Championship Games,Manila,Philippines,TRUE
 1934-05-19,Philippines,Indonesia,3,2,Far Eastern Championship Games,Manila,Philippines,FALSE
 1938-06-05,Hungary,Indonesia,6,0,FIFA World Cup,Reims,France,TRUE
 1938-06-26,Netherlands,Indonesia,9,2,Friendly,Amsterdam,Netherlands,FALSE
@@ -12,14 +12,14 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1954-05-08,Indonesia,Myanmar,4,5,Asian Games,Manila,Philippines,TRUE
 1956-09-09,Yugoslavia,Indonesia,4,2,Friendly,Belgrade,Yugoslavia,FALSE
 1956-09-12,Croatia,Indonesia,5,2,Friendly,Zagreb,Yugoslavia,FALSE
-1956-09-20,German DR,Indonesia,3,1,Friendly,Karl-Marx-Stadt,German DR,FALSE
+1956-09-20,Germany,Indonesia,3,1,Friendly,Karl-Marx-Stadt,Germany,FALSE
 1956-11-16,Indonesia,United States,7,5,Friendly,Jakarta,Indonesia,FALSE
 1956-12-23,Indonesia,Yugoslavia,1,5,Friendly,Jakarta,Indonesia,FALSE
-1957-05-12,Indonesia,China PR,2,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
-1957-06-02,China PR,Indonesia,4,3,FIFA World Cup qualification,Beijing,China PR,FALSE
-1957-06-23,China PR,Indonesia,0,0,FIFA World Cup qualification,Yangon,Burma,TRUE
+1957-05-12,Indonesia,China,2,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
+1957-06-02,China,Indonesia,4,3,FIFA World Cup qualification,Beijing,China,FALSE
+1957-06-23,China,Indonesia,0,0,FIFA World Cup qualification,Yangon,Burma,TRUE
 1957-08-31,Indonesia,Thailand,4,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
-1957-09-05,Indonesia,Vietnam Republic,3,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
+1957-09-05,Indonesia,Vietnam,3,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1957-09-07,Malaysia,Indonesia,4,2,Merdeka Tournament,Kuala Lumpur,Malaya,FALSE
 1958-05-09,Philippines,Indonesia,1,2,Friendly,Manila,Philippines,FALSE
 1958-05-13,Philippines,Indonesia,0,3,Friendly,Manila,Philippines,FALSE
@@ -32,55 +32,55 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1958-07-03,Malaysia,Indonesia,2,4,Friendly,Kallang,Singapore,TRUE
 1958-08-30,Malaysia,Indonesia,3,2,Merdeka Tournament,Kuala Lumpur,Malaya,FALSE
 1958-08-31,Indonesia,Singapore,2,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
-1958-09-02,Indonesia,Vietnam Republic,4,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
-1959-02-11,Indonesia,German DR,2,2,Friendly,Jakarta,Indonesia,FALSE
+1958-09-02,Indonesia,Vietnam,4,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
+1959-02-11,Indonesia,Germany,2,2,Friendly,Jakarta,Indonesia,FALSE
 1960-04-20,Indonesia,Malaysia,5,0,Friendly,Surakarta,Indonesia,FALSE
 1960-08-06,South Korea,Indonesia,2,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1960-08-08,Indonesia,Singapore,8,3,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
-1960-08-13,Indonesia,Vietnam Republic,5,3,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
+1960-08-13,Indonesia,Vietnam,5,3,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1960-08-14,Indonesia,Pakistan,4,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
-1960-08-17,Indonesia,Vietnam Republic,1,1,Friendly,Kallang,Singapore,TRUE
+1960-08-17,Indonesia,Vietnam,1,1,Friendly,Kallang,Singapore,TRUE
 1960-08-21,Indonesia,Pakistan,5,2,Friendly,Jakarta,Indonesia,FALSE
 1961-08-02,Indonesia,Singapore,1,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1961-08-09,Indonesia,Thailand,2,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1961-08-13,Malaysia,Indonesia,1,2,Merdeka Tournament,Kuala Lumpur,Malaya,FALSE
 1961-08-15,Indonesia,Japan,2,0,Friendly,Kallang,Singapore,TRUE
-1961-10-21,Vietnam Republic,Indonesia,4,1,Vietnam Independence Cup,Saigon,Vietnam Republic,FALSE
-1961-10-23,Indonesia,Malaysia,1,3,Vietnam Independence Cup,Saigon,Vietnam Republic,TRUE
+1961-10-21,Vietnam,Indonesia,4,1,Vietnam Independence Cup,Saigon,Vietnam,FALSE
+1961-10-23,Indonesia,Malaysia,1,3,Vietnam Independence Cup,Saigon,Vietnam,TRUE
 1961-12-07,Indonesia,Yugoslavia,1,5,Friendly,Jakarta,Indonesia,FALSE
-1962-02-19,Indonesia,Vietnam Republic,1,2,Friendly,Jakarta,Indonesia,FALSE
+1962-02-19,Indonesia,Vietnam,1,2,Friendly,Jakarta,Indonesia,FALSE
 1962-07-12,Singapore,Indonesia,1,2,Friendly,Kallang,Singapore,FALSE
-1962-08-25,Indonesia,Vietnam Republic,1,0,Asian Games,Jakarta,Indonesia,FALSE
+1962-08-25,Indonesia,Vietnam,1,0,Asian Games,Jakarta,Indonesia,FALSE
 1962-08-27,Indonesia,Philippines,6,0,Asian Games,Jakarta,Indonesia,FALSE
 1962-08-28,Indonesia,Malaysia,2,3,Asian Games,Jakarta,Indonesia,FALSE
 1962-09-11,Indonesia,Singapore,2,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1962-09-12,Indonesia,Philippines,9,0,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
-1962-09-14,Indonesia,Vietnam Republic,2,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
+1962-09-14,Indonesia,Vietnam,2,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1962-09-19,Indonesia,Pakistan,2,1,Merdeka Tournament,Kuala Lumpur,Malaya,TRUE
 1962-10-12,South Korea,Indonesia,2,0,Friendly,Seoul,South Korea,FALSE
 1962-10-14,South Korea,Indonesia,2,0,Friendly,Seoul,South Korea,FALSE
-1962-10-25,Vietnam Republic,Indonesia,4,0,Vietnam Independence Cup,Saigon,Vietnam Republic,FALSE
-1962-10-28,Indonesia,Malaysia,2,1,Vietnam Independence Cup,Saigon,Vietnam Republic,TRUE
-1962-10-30,Indonesia,Thailand,7,0,Vietnam Independence Cup,Saigon,Vietnam Republic,TRUE
-1962-10-31,Vietnam Republic,Indonesia,2,0,Vietnam Independence Cup,Saigon,Vietnam Republic,FALSE
+1962-10-25,Vietnam,Indonesia,4,0,Vietnam Independence Cup,Saigon,Vietnam,FALSE
+1962-10-28,Indonesia,Malaysia,2,1,Vietnam Independence Cup,Saigon,Vietnam,TRUE
+1962-10-30,Indonesia,Thailand,7,0,Vietnam Independence Cup,Saigon,Vietnam,TRUE
+1962-10-31,Vietnam,Indonesia,2,0,Vietnam Independence Cup,Saigon,Vietnam,FALSE
 1962-11-27,Indonesia,Sweden,0,3,Friendly,Jakarta,Indonesia,FALSE
 1963-04-26,Indonesia,Egypt,1,3,Friendly,Jakarta,Indonesia,FALSE
 1963-04-27,Indonesia,Egypt,2,2,Friendly,Jakarta,Indonesia,FALSE
 1963-04-30,Indonesia,North Vietnam,3,1,Friendly,Jakarta,Indonesia,FALSE
-1963-05-19,Indonesia,China PR,1,2,Friendly,Semarang,Indonesia,FALSE
+1963-05-19,Indonesia,China,1,2,Friendly,Semarang,Indonesia,FALSE
 1963-11-14,Indonesia,Mali,3,2,Friendly,Jakarta,Indonesia,FALSE
-1963-11-16,Indonesia,China PR,1,1,Friendly,Jakarta,Indonesia,FALSE
+1963-11-16,Indonesia,China,1,1,Friendly,Jakarta,Indonesia,FALSE
 1963-11-18,Indonesia,North Korea,1,5,Friendly,Jakarta,Indonesia,FALSE
 1964-02-23,Sri Lanka,Indonesia,3,9,Friendly,Colombo,Ceylon,FALSE
 1964-02-29,Sri Lanka,Indonesia,1,4,Friendly,Colombo,Ceylon,FALSE
 1965-04-29,Indonesia,Sri Lanka,5,0,Friendly,Jakarta,Indonesia,FALSE
-1965-08-02,China PR,Indonesia,3,0,Friendly,Pyongyang,North Korea,TRUE
+1965-08-02,China,Indonesia,3,0,Friendly,Pyongyang,North Korea,TRUE
 1965-08-03,Guinea,Indonesia,3,1,Friendly,Pyongyang,North Korea,TRUE
 1965-08-06,Cambodia,Indonesia,0,0,Friendly,Pyongyang,North Korea,TRUE
 1965-08-08,North Korea,Indonesia,3,0,Friendly,Pyongyang,North Korea,FALSE
 1965-08-11,Indonesia,North Vietnam,2,1,Friendly,Pyongyang,North Korea,TRUE
 1966-12-10,Indonesia,Singapore,3,0,Asian Games,Bangkok,Thailand,TRUE
-1966-12-11,Indonesia,Vietnam Republic,0,0,Asian Games,Bangkok,Thailand,TRUE
+1966-12-11,Indonesia,Vietnam,0,0,Asian Games,Bangkok,Thailand,TRUE
 1966-12-14,Taiwan,Indonesia,1,3,Asian Games,Bangkok,Thailand,TRUE
 1966-12-15,Myanmar,Indonesia,2,2,Asian Games,Bangkok,Thailand,TRUE
 1966-12-16,Iran,Indonesia,1,0,Asian Games,Bangkok,Thailand,TRUE
@@ -111,7 +111,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1969-11-06,Indonesia,Singapore,9,2,Merdeka Tournament,Kuala Lumpur,Malaysia,TRUE
 1969-11-09,Malaysia,Indonesia,2,3,Merdeka Tournament,Kuala Lumpur,Malaysia,FALSE
 1969-11-19,Indonesia,Singapore,2,3,King's Cup,Bangkok,Thailand,TRUE
-1969-11-21,Indonesia,Vietnam Republic,3,1,King's Cup,Bangkok,Thailand,TRUE
+1969-11-21,Indonesia,Vietnam,3,1,King's Cup,Bangkok,Thailand,TRUE
 1969-11-23,Indonesia,Western Australia,3,1,King's Cup,Bangkok,Thailand,TRUE
 1969-11-26,Indonesia,Laos,3,1,King's Cup,Bangkok,Thailand,TRUE
 1969-11-28,Indonesia,South Korea,0,1,King's Cup,Bangkok,Thailand,TRUE
@@ -125,10 +125,10 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1970-08-08,Indonesia,Japan,3,4,Merdeka Tournament,Kuala Lumpur,Malaysia,TRUE
 1970-08-10,Indonesia,Thailand,6,3,Merdeka Tournament,Kuala Lumpur,Malaysia,TRUE
 1970-08-15,Malaysia,Indonesia,4,0,Merdeka Tournament,Kuala Lumpur,Malaysia,FALSE
-1970-10-29,Indonesia,Thailand,1,2,Vietnam Independence Cup,Saigon,Vietnam Republic,TRUE
-1970-10-31,Vietnam Republic,Indonesia,3,1,Vietnam Independence Cup,Saigon,Vietnam Republic,FALSE
-1970-11-01,Indonesia,Malaysia,1,3,Vietnam Independence Cup,Saigon,Vietnam Republic,TRUE
-1970-11-11,Indonesia,Vietnam Republic,5,3,King's Cup,Bangkok,Thailand,TRUE
+1970-10-29,Indonesia,Thailand,1,2,Vietnam Independence Cup,Saigon,Vietnam,TRUE
+1970-10-31,Vietnam,Indonesia,3,1,Vietnam Independence Cup,Saigon,Vietnam,FALSE
+1970-11-01,Indonesia,Malaysia,1,3,Vietnam Independence Cup,Saigon,Vietnam,TRUE
+1970-11-11,Indonesia,Vietnam,5,3,King's Cup,Bangkok,Thailand,TRUE
 1970-11-13,Indonesia,Malaysia,3,0,King's Cup,Bangkok,Thailand,TRUE
 1970-11-15,Indonesia,Cambodia,4,1,King's Cup,Bangkok,Thailand,TRUE
 1970-11-18,Thailand,Indonesia,2,1,King's Cup,Bangkok,Thailand,FALSE
@@ -138,7 +138,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1970-12-15,India,Indonesia,3,0,Asian Games,Bangkok,Thailand,TRUE
 1970-12-16,Indonesia,Japan,1,2,Asian Games,Bangkok,Thailand,TRUE
 1970-12-19,Thailand,Indonesia,0,1,Asian Games,Bangkok,Thailand,FALSE
-1971-05-02,Indonesia,Vietnam Republic,9,1,Korea Cup,Seoul,South Korea,TRUE
+1971-05-02,Indonesia,Vietnam,9,1,Korea Cup,Seoul,South Korea,TRUE
 1971-05-08,Myanmar,Indonesia,3,1,Korea Cup,Seoul,South Korea,TRUE
 1971-05-11,South Korea,Indonesia,3,0,Korea Cup,Seoul,South Korea,FALSE
 1971-05-13,Indonesia,Malaysia,4,2,Korea Cup,Seoul,South Korea,TRUE
@@ -205,7 +205,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1974-09-03,Denmark,Indonesia,9,0,Friendly,Copenhagen,Denmark,FALSE
 1974-12-25,Indonesia,South Korea,1,3,Friendly,So Kon Po,Hong Kong,TRUE
 1975-03-15,Thailand,Indonesia,3,1,AFC Asian Cup qualification,Bangkok,Thailand,FALSE
-1975-03-17,Indonesia,Vietnam Republic,2,1,AFC Asian Cup qualification,Bangkok,Thailand,TRUE
+1975-03-17,Indonesia,Vietnam,2,1,AFC Asian Cup qualification,Bangkok,Thailand,TRUE
 1975-03-20,Malaysia,Indonesia,0,0,AFC Asian Cup qualification,Bangkok,Thailand,TRUE
 1975-03-22,South Korea,Indonesia,1,0,AFC Asian Cup qualification,Bangkok,Thailand,TRUE
 1975-06-12,Indonesia,Thailand,5,0,Indonesia Tournament,Jakarta,Indonesia,FALSE
@@ -395,7 +395,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 1991-11-30,Philippines,Indonesia,1,2,Southeast Asian Games,Manila,Philippines,FALSE
 1991-12-02,Indonesia,Singapore,0,0,Southeast Asian Games,Manila,Philippines,TRUE
 1991-12-04,Indonesia,Thailand,0,0,Southeast Asian Games,Manila,Philippines,TRUE
-1992-04-20,China PR,Indonesia,2,0,AFC Asian Cup qualification,Singapore,Singapore,TRUE
+1992-04-20,China,Indonesia,2,0,AFC Asian Cup qualification,Singapore,Singapore,TRUE
 1992-04-22,Singapore,Indonesia,1,2,AFC Asian Cup qualification,Singapore,Singapore,FALSE
 1992-04-24,Indonesia,Malaysia,1,1,AFC Asian Cup qualification,Singapore,Singapore,TRUE
 1992-08-08,Indonesia,Malaysia,1,1,Friendly,Jakarta,Indonesia,FALSE
@@ -476,7 +476,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 2000-09-01,Indonesia,Iraq,0,0,Friendly,Jakarta,Indonesia,FALSE
 2000-09-03,Indonesia,Iraq,3,0,Friendly,Jakarta,Indonesia,FALSE
 2000-10-13,Kuwait,Indonesia,0,0,AFC Asian Cup,Tripoli,Lebanon,TRUE
-2000-10-16,China PR,Indonesia,4,0,AFC Asian Cup,Tripoli,Lebanon,TRUE
+2000-10-16,China,Indonesia,4,0,AFC Asian Cup,Tripoli,Lebanon,TRUE
 2000-10-19,South Korea,Indonesia,3,0,AFC Asian Cup,Beirut,Lebanon,TRUE
 2000-11-01,Singapore,Indonesia,1,0,Friendly,Singapore,Singapore,FALSE
 2000-11-06,Indonesia,Philippines,3,0,AFF Championship,Chiang Mai,Thailand,TRUE
@@ -488,8 +488,8 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 2001-04-22,Indonesia,Cambodia,6,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
 2001-04-29,Cambodia,Indonesia,0,2,FIFA World Cup qualification,Phnom Penh,Cambodia,FALSE
 2001-05-06,Maldives,Indonesia,0,2,FIFA World Cup qualification,Malé,Maldives,FALSE
-2001-05-13,China PR,Indonesia,5,1,FIFA World Cup qualification,Kunming,China PR,FALSE
-2001-05-27,Indonesia,China PR,0,2,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
+2001-05-13,China,Indonesia,5,1,FIFA World Cup qualification,Kunming,China,FALSE
+2001-05-27,Indonesia,China,0,2,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
 2002-11-10,Singapore,Indonesia,1,1,Friendly,Singapore,Singapore,FALSE
 2002-12-15,Indonesia,Myanmar,0,0,AFF Championship,Jakarta,Indonesia,FALSE
 2002-12-17,Indonesia,Cambodia,4,2,AFF Championship,Jakarta,Indonesia,FALSE
@@ -510,9 +510,9 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 2004-03-31,Turkmenistan,Indonesia,3,1,FIFA World Cup qualification,Ashgabat,Turkmenistan,FALSE
 2004-06-03,Indonesia,India,1,1,Friendly,Jakarta,Indonesia,FALSE
 2004-06-09,Indonesia,Sri Lanka,1,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
-2004-07-18,Qatar,Indonesia,1,2,AFC Asian Cup,Beijing,China PR,TRUE
-2004-07-21,China PR,Indonesia,5,0,AFC Asian Cup,Beijing,China PR,FALSE
-2004-07-25,Bahrain,Indonesia,3,1,AFC Asian Cup,Jinan,China PR,TRUE
+2004-07-18,Qatar,Indonesia,1,2,AFC Asian Cup,Beijing,China,TRUE
+2004-07-21,China,Indonesia,5,0,AFC Asian Cup,Beijing,China,FALSE
+2004-07-25,Bahrain,Indonesia,3,1,AFC Asian Cup,Jinan,China,TRUE
 2004-09-04,Singapore,Indonesia,2,0,Friendly,Singapore,Singapore,FALSE
 2004-09-08,Sri Lanka,Indonesia,2,2,FIFA World Cup qualification,Colombo,Sri Lanka,FALSE
 2004-10-12,Indonesia,Saudi Arabia,1,3,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
@@ -595,9 +595,9 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 2013-03-23,Indonesia,Saudi Arabia,1,2,AFC Asian Cup qualification,Jakarta,Indonesia,FALSE
 2013-06-07,Indonesia,Netherlands,0,3,Friendly,Jakarta,Indonesia,FALSE
 2013-08-14,Indonesia,Philippines,2,0,Friendly,Surakarta,Indonesia,FALSE
-2013-10-15,Indonesia,China PR,1,1,AFC Asian Cup qualification,Jakarta,Indonesia,FALSE
+2013-10-15,Indonesia,China,1,1,AFC Asian Cup qualification,Jakarta,Indonesia,FALSE
 2013-11-01,Indonesia,Kyrgyzstan,4,0,Friendly,Jakarta,Indonesia,FALSE
-2013-11-15,China PR,Indonesia,1,0,AFC Asian Cup qualification,Xi'an,China PR,FALSE
+2013-11-15,China,Indonesia,1,0,AFC Asian Cup qualification,Xi'an,China,FALSE
 2013-11-19,Indonesia,Iraq,0,2,AFC Asian Cup qualification,Jakarta,Indonesia,FALSE
 2014-03-05,Saudi Arabia,Indonesia,1,0,AFC Asian Cup qualification,Dammam,Saudi Arabia,FALSE
 2014-03-26,Andorra,Indonesia,0,1,Friendly,Alzira,Spain,TRUE
@@ -705,7 +705,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 2024-09-05,Saudi Arabia,Indonesia,1,1,FIFA World Cup qualification,Jeddah,Saudi Arabia,FALSE
 2024-09-10,Indonesia,Australia,0,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
 2024-10-10,Bahrain,Indonesia,2,2,FIFA World Cup qualification,Riffa,Bahrain,FALSE
-2024-10-15,China PR,Indonesia,2,1,FIFA World Cup qualification,Qingdao,China PR,FALSE
+2024-10-15,China,Indonesia,2,1,FIFA World Cup qualification,Qingdao,China,FALSE
 2024-11-15,Indonesia,Japan,0,4,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
 2024-11-19,Indonesia,Saudi Arabia,2,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
 2024-12-09,Myanmar,Indonesia,0,1,ASEAN Championship,Yangon,Myanmar,FALSE
@@ -714,7 +714,7 @@ date,home_team,away_team,home_score,away_score,tournament,city,country,neutral
 2024-12-21,Indonesia,Philippines,0,1,ASEAN Championship,Surakarta,Indonesia,FALSE
 2025-03-20,Australia,Indonesia,5,1,FIFA World Cup qualification,Sydney,Australia,FALSE
 2025-03-25,Indonesia,Bahrain,1,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
-2025-06-05,Indonesia,China PR,1,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
+2025-06-05,Indonesia,China,1,0,FIFA World Cup qualification,Jakarta,Indonesia,FALSE
 2025-06-10,Japan,Indonesia,6,0,FIFA World Cup qualification,Suita,Japan,FALSE
 2025-09-05,Indonesia,Taiwan,6,0,Friendly,Surabaya,Indonesia,FALSE
 2025-09-08,Indonesia,Lebanon,0,0,Friendly,Surabaya,Indonesia,FALSE
