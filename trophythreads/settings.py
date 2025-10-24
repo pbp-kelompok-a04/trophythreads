@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'favoritesApp',
     'InformasiPertandingan',
     'forumApp',
+    'cartApp',
+    'merchandiseApp'
 ]
 
 MIDDLEWARE = [
