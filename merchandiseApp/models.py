@@ -1,14 +1,14 @@
 import uuid
-from django.contrib.auth.models import User
+from main.models import Profile
 from django.db import models
 
 class Merchandise(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     
     CATEGORY_CHOICES = [
         ('jersey', 'Jersey'),
         ('training jersey', 'Training Jersey'),
-        ('tops', 'Tops'),
+        ('top', 'Top'),
         ('jacket', 'Jacket'),
         ('hoodie', 'Hoodie'),
         ('sweatshirt', 'Sweatshirt'),
@@ -42,3 +42,6 @@ class Merchandise(models.Model):
     def increment_views(self):
         self.product_views += 1
         self.save()
+
+    class Meta:
+        app_label = 'merchandiseApp'

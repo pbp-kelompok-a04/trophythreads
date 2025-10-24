@@ -5,21 +5,10 @@ from .forms import MerchandiseForm
 from django.http import HttpResponse
 from django.core import serializers
 
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
-
-import datetime
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-@login_required(login_url='/login')
-def show_mainMerchandise(request):
+def show_main_merchandise(request):
     merchandise_list = Merchandise.objects.all()
 
     context = {
@@ -40,8 +29,14 @@ def show_merchandise(request, id):
     return render(request, "merchandise_detail.html", context)
    
 @csrf_exempt
-@login_required(login_url='/login')
 def create_merchandise_ajax(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated. Please login first.'}, status=401)
+    
+    # Cek role user
+    if request.user.profile.role not in ['seller']:
+        return JsonResponse({'error': 'Only seller can create merchandise.'}, status=403)
+    
     if request.method == 'POST':
         name = request.POST.get("name")
         price = request.POST.get("price")
@@ -70,15 +65,22 @@ def create_merchandise_ajax(request):
 
         return JsonResponse({
             'message': 'Merchandise created successfully!',
-            'product_id': merchandise.id
+            'merchandise_id': merchandise.id
         }, status=201)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
-@login_required(login_url='/login')
 def edit_merchandise_ajax(request, id):
     merchandise = get_object_or_404(Merchandise, pk=id)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated. Please login first.'}, status=401)
+    
+    # Cek role user
+    if request.user.profile.role not in ['seller']:
+        return JsonResponse({'error': 'Only seller can edit merchandise.'}, status=403)
+    
     
     if request.method == 'POST':
         merchandise.name = request.POST.get("name")
@@ -95,16 +97,23 @@ def edit_merchandise_ajax(request, id):
         merchandise.save()
 
         return JsonResponse({
-            'message': 'Product updated successfully!',
+            'message': 'Merchandise updated successfully!',
             'merchandise_id': merchandise.id
         })
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @csrf_exempt
-@login_required(login_url='/login')
 def delete_merchandise_ajax(request, id):
     merchandise = get_object_or_404(Merchandise, pk=id)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User not authenticated. Please login first.'}, status=401)
+    
+    # Cek role user
+    if request.user.profile.role not in ['seller']:
+        return JsonResponse({'error': 'Only seller can delete merchandise.'}, status=403)
+    
 
     if merchandise.user != request.user:
         return JsonResponse({'error': 'You are not authorized to delete this merchandise'}, status=403)
@@ -113,20 +122,33 @@ def delete_merchandise_ajax(request, id):
         merchandise_id = merchandise.id
         merchandise.delete()
         return JsonResponse({
-            'message': 'Product deleted successfully!',
+            'message': 'Merchandise deleted successfully!',
             'merchandise_id': str(merchandise_id)
         })
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-@login_required(login_url='/login')
 def get_merchandise_json(request):
-    print(f"DEBUG: Current user = {request.user} (ID: {request.user.id})")
-
-    merchandise = Merchandise.objects.filter(user=request.user)
+    merchandise = Merchandise.objects.all()
     print(f"DEBUG: My merchandise count = {merchandise.count()}")
 
-    return HttpResponse(serializers.serialize('json', merchandise), content_type='application/json')
+    merchandise_data = []
+    for item in merchandise:
+        merchandise_data.append({
+            'id': str(item.id),  # Convert UUID to string
+            'user': item.user.id if item.user else None,
+            'name': item.name,
+            'price': item.price,
+            'category': item.category,
+            'stock': item.stock,
+            'thumbnail': item.thumbnail,
+            'description': item.description,
+            'product_views': item.product_views,
+            'is_featured': item.is_featured,
+            'rating': 0.0,  # Default value
+        })
+    
+    return JsonResponse(merchandise_data, safe=False)
 
 def show_xml(request):
      merchandise_list = Merchandise.objects.all()

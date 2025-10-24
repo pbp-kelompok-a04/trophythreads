@@ -1,7 +1,7 @@
 from django.forms import ModelForm
-from main.models import Product
+from .models import Merchandise
 
 class MerchandiseForm(ModelForm):
     class Meta:
-        model = Product
+        model = Merchandise 
         fields = ["name", "price", "category", "stock", "thumbnail", "description", "is_featured"]

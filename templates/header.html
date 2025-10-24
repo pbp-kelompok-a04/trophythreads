@@ -2,44 +2,46 @@
 <nav class="fixed top-0 left-0 w-full bg-[var(--color-primary)] shadow-sm border-b border-gray-200 z-50">
     <div class="mx-auto px-12">
         <div class="flex items-center justify-between h-16">
-
             <div class="flex items-center space-x-10">
-
                 <div class="flex items-center space-x-2">
-                    <img src="{% static 'image/placeholder.png' %}" alt="TrophyThreads Logo" class="h-8 w-8">
-                    <span class="text-white text-xl font-extrabold tracking-tight">TrophyThreads</span>
+                    <img src="{% static 'image/logo.png' %}" alt="TrophyThreads Logo" class="h-8">
+                    <span class="px-2 text-white text-xl font-extrabold tracking-tight"
+                        style="font-family: var(--font-title);">TrophyThreads</span>
                 </div>
 
-                <div class="hidden md:flex-1 flex justify-center space-x-8 hidden md:flex">
-                    <a class="text-white hover:text-white transition duration-200">
+                <div style="font-family: var(--font-title);"
+                    class="absolute left-1/2 transform -translate-x-1/2 hidden md:flex justify-evenly w-1/2">
+                    <a href="{% url 'InformasiPertandingan:show_main' %}" class="text-white font-semibold hover:text-white transition duration-200">
+                        Match
+                    </a>
+                    <a class="text-white font-semibold hover:text-white transition duration-200">
                         Merchandise
                     </a>
-                    <a class="text-white hover:text-white transition duration-200">
+                    <a class="text-white font-semibold hover:text-white transition duration-200">
                         Discussion
-                    </a>
-                    <a class="text-white hover:text-white transition duration-200">
-                        Match
                     </a>
                 </div>
             </div>
 
             <div class="hidden md:flex items-center space-x-4">
-                {% if user.is_authenticated %}
                 <div class="text-right">
-                    <div class="text-sm font-semibold text-white leading-tight">{{ user.username }}</div>
-                    <div class="text-xs text-gray-300">{{ Role|default:"User" }}</div>
+                    <div class="text-sm font-semibold text-white leading-tight"> {{ user.username|default:"Guest" }}
+                    </div>
+                    <div class="text-xs text-gray-300 tracking-tight"> {{ Role|default:"No Role" }}</div>
                 </div>
                 <div class="relative">
-                    <a>
+                    <button id="profileButton" class="focus:outline-none">
                         <img src="{% static 'icons/profile-icon.png' %}" alt="Profile"
-                            class="h-9 w-9 rounded-full border-2 border-white hover:border-white transition">
-                    </a>
+                            class="h-9 w-9 rounded-full cursor-pointer">
+                    </button>
+
+                    <div id="profileDropdown"
+                        class="absolute right-0 mt-2 w-32 bg-white text-gray-800 rounded-lg shadow-lg hidden">
+                        <a href="{% url 'main:login' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-b-lg">
+                            Logout
+                        </a>
+                    </div>
                 </div>
-                {% else %}
-                <a class="text-white hover:text-white font-medium transition duration-200">
-                    Login
-                </a>
-                {% endif %}
             </div>
 
             <!-- Mobile Menu Button -->
@@ -59,33 +61,18 @@
     <!-- === Mobile Menu === -->
     <div class="mobile-menu hidden md:hidden bg-[var(--color-primary)] text-white">
         <div class="px-6 py-4 space-y-4">
+            <a href="{% url 'InformasiPertandingan:show_main' %}" class="block hover:text-white transition duration-200">
+                Match
+            </a>
             <a class="block hover:text-white transition duration-200">
                 Merchandise
             </a>
             <a class="block hover:text-white transition duration-200">
                 Discussion
             </a>
-            <a class="block hover:text-white transition duration-200">
-                Match
-            </a>
 
             <div class="border-t border-gray-300 pt-4">
-                {% if user.is_authenticated %}
-                <div class="mb-2">
-                    <div class="text-sm font-semibold text-white">{{ user.username }}</div>
-                    <div class="text-xs text-gray-300">{{ Role|default:"Member" }}</div>
-                </div>
-                <a
-                    class="inline-flex items-center space-x-2 hover:text-white transition">
-                    <img src="{% static 'image/profile-icon.png' %}" alt="Profile"
-                        class="h-8 w-8 rounded-full border border-white">
-                    <span>Profile</span>
-                </a>
-                {% else %}
-                <a class="block hover:text-white font-medium transition duration-200">
-                    Login
-                </a>
-                {% endif %}
+                <a href="/" class="block text-bold text-white">Logout</a>
             </div>
         </div>
     </div>
@@ -93,9 +80,22 @@
     <script>
         const btn = document.querySelector("button.mobile-menu-button");
         const menu = document.querySelector(".mobile-menu");
-
         btn.addEventListener("click", () => {
             menu.classList.toggle("hidden");
+        });
+
+        const profileButton = document.getElementById("profileButton");
+        const profileDropdown = document.getElementById("profileDropdown");
+
+        profileButton.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profileDropdown.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!profileDropdown.contains(e.target) && !profileButton.contains(e.target)) {
+                profileDropdown.classList.add("hidden");
+            }
         });
     </script>
 </nav>
