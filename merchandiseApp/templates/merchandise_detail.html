@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>{{ merchandise.name }}</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div class="min-h-screen" style="background-color: var(--color-background);">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        
+         <!-- spacer to avoid fixed header overlapping content -->
+        <div class="h-14 sm:h-14" aria-hidden="true"></div>
+
+        <div class="mb-4">
+            <a href="{% url 'merchandiseApp:show_main' %}" class="text-orange-600 hover:text-orange-900 flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i>
+                <span class="text-sm font-medium" style="font-family: var(--font-title);">Back to Merchandise</span>
+            </a>
+        </div>
+
+       <!-- Product Details -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 transform hover:shadow-2xl transition-all duration-300">
+            <div class="flex">
+            <style>
+            .merch-image .image-wrap { width:100%; max-width:500; max-height:500; display:block; }
+            .merch-image .image-wrap img,
+            .merch-image .image-wrap .placeholder {
+                width:100%;
+                height:100%;
+                object-fit:cover;
+                transition: transform .45s ease, filter .3s ease;
+            }
+
+            /* Slight hover scale on desktop only (less aggressive than before) */
+            @media (min-width: 1024px) {
+                .merch-image .image-wrap img { max-height:330px; }
+                .merch-image:hover .image-wrap img { transform: scale(1.03); } /* small zoom */
+            }
+            </style>
+
+            <!-- Product Image -->
+            <div class="w-1/2 p-8 relative merch-image">
+                    <div class="aspect-w-1 aspect-h-1 bg-gray-100 rounded-2xl overflow-hidden group flex items-center justify-center image-wrap">
+                    {% if merchandise.thumbnail %}
+                            <img src="{{ merchandise.thumbnail }}" alt="{{ merchandise.name }}" 
+                             class="mx-auto w-auto h-auto object-cover rounded-lg transition-transform duration-500">
+                    {% else %}
+                            <div class="w-auto h-48 sm:w-56 sm:h-56 flex items-center justify-center text-gray-400 group-hover:text-pink-400 transition-colors duration-300 placeholder">
+                            <i class="fas fa-shopping-bag text-6xl opacity-50"></i>
+                            </div>
+                    {% endif %}
+                
+                <!-- Hot Badge -->
+                {% if merchandise.product_views > 100 %}
+                <div class="absolute top-6 left-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-500 text-white shadow-lg animate-pulse">
+                    <i class="fas fa-fire mr-1"></i> HOT
+                    </span>
+                </div>
+                {% endif %}
+                
+                <!-- Featured Badge -->
+                {% if merchandise.is_featured %}
+                <div class="absolute top-4 right-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-400 text-white shadow-lg">
+                    <i class="fas fa-star mr-1"></i> FEATURED
+                    </span>
+                </div>
+                {% endif %}
+                </div>
+                {% if user.is_authenticated %}
+                    <div class="absolute left-4 right-4 bottom-14">
+                        <button class="w-full bg-red-700 text-white py-3 px-4 rounded-xl font-bold text-md hover:bg-red-800 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
+                            <i class="fas fa-heart mr-2"></i>
+                            <span>Add to Favorite</span>
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Info -->
+            <div class="w-1/2 p-8">
+                <div class="">
+                <!-- Category -->
+                <span class="inline-block px-4 py-2 bg-gradient-to-r from-orange-600 to-red-700 text-white rounded-full text-xs font-bold mb-4 shadow-lg">
+                    <i class="fas fa-tag mr-2"></i>{{ merchandise.get_category_display }}
+                </span>
+                
+                <!-- Product Name -->
+                <h1 class="text-xl font-bold text-gray-900 mb-4 leading-tight">{{ merchandise.name }}</h1>
+                
+                <!-- Price -->
+                <div class="mb-6">
+                    <p class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-800 mb-2">
+                    <span id="price-display" class="price">Rp <span id="price-value">{{ merchandise.price|floatformat:0 }}</span></span>
+                    <script>
+                    (function(){
+                        var el = document.getElementById('price-value');
+                        if(!el) return;
+                        var v = el.textContent.trim();
+                        var f = v.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+                        el.textContent = f;
+                    })();
+                    </script>
+                    </p>
+                </div>
+
+                <!-- Stock & Rating Status -->
+                <div class="mb-6">
+                   <p class="text-gray-600">
+                    <i class="fas fa-boxes mr-2 text-blue-400"></i>
+                    <span class="text-gray-600 font-semibold">{{ merchandise.stock }} in stock</span>
+                    <span class="mx-4">|</span>
+                    <i class="fas fa-star mr-2 text-yellow-300"></i><span class="text-grey-500 font-semibold">0.0</span>
+                    </p>
+                </div>
+            </div>
+
+                <!-- Add to Cart Section -->
+                {% if merchandise.stock > 0 %}
+                {% if user.is_authenticated %}
+                <div class="mb-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                    <!-- Quantity Selector -->
+                    <div id="quantity-selector" class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden hover:border-pink-400 transition-colors duration-200">
+                        <button type="button" data-action="decrement" aria-label="Decrease quantity" class="px-4 py-3 text-gray-600 hover:bg-gray-100 transition-colors duration-200">
+                        <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" value="1" min="1" max="{{ merchandise.stock }}" 
+                           class="w-16 text-center border-x py-3 font-semibold focus:outline-none" aria-label="Quantity">
+                        <button type="button" data-action="increment" aria-label="Increase quantity" class="px-4 py-3 text-gray-600 hover:bg-gray-100 transition-colors duration-200">
+                        <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    </div>
+
+                    <script>
+                    (function(){
+                        var sel = document.getElementById('quantity-selector');
+                        if (!sel) return;
+                        var input = sel.querySelector('input[type="number"]');
+                        var btnDec = sel.querySelector('button[data-action="decrement"]');
+                        var btnInc = sel.querySelector('button[data-action="increment"]');
+                        if (!input) return;
+                        var min = parseInt(input.getAttribute('min')) || 1;
+                        var max = parseInt(input.getAttribute('max')) || Infinity;
+
+                        btnDec && btnDec.addEventListener('click', function(e){
+                            e.preventDefault();
+                            var v = parseInt(input.value, 10) || min;
+                            if (v > min) input.value = v - 1;
+                        });
+
+                        btnInc && btnInc.addEventListener('click', function(e){
+                            e.preventDefault();
+                            var v = parseInt(input.value, 10) || min;
+                            if (v < max) input.value = v + 1;
+                        });
+
+                        // sanitize manual input and enforce bounds
+                        input.addEventListener('input', function(){
+                            var v = parseInt(this.value, 10);
+                            if (isNaN(v) || v < min) this.value = min;
+                            else if (v > max) this.value = max;
+                        });
+                    })();
+                    </script>
+
+                    <div class="flex space-x-3 mb-4">
+                    <!-- Add to Cart Button -->
+                    <button class="flex-1 bg-gradient-to-r from-orange-500 to-red-700 text-white py-3 px-4 rounded-xl font-bold text-md hover:from-orange-600 hover:to-red-800 hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center space-x-2">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                    </div>
+                    
+                    <!-- Buy Now -->
+                    <div class="flex space-x-3">
+                    <button class="flex-1 border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-semibold hover:border-pink-400 hover:text-pink-600 transition-all duration-200 flex items-center justify-center space-x-2">
+                        <i class="fas fa-bolt text-yellow-400"></i>
+                        <span>Buy Now</span>
+                    </button>
+                    </div>
+
+                    {% else %}
+                    <div class="mb-6">
+                        <p class="text-gray-600">
+                            Ingin melakukan transaksi? <span class="text-orange-700 font-semibold hover:underline">Login sekarang!</span>
+                        </p>
+                </div>
+                {% endif %}
+                {% endif %}
+                
+                </div>
+            </div>
+        </div>
+
+        <!-- Description & Review -->
+        <div class="mb-8">
+            <!-- Description -->
+            <div class="mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-file-alt text-red-500 mr-3"></i>
+                        Product Description── .✦:
+                    </h2>
+                    <div class="prose prose-lg max-w-none text-gray-700">
+                        {{ merchandise.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rating Selection -->
+            <div class="mb-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        Reviews
+                        <i class="fas fa-star text-yellow-400 ml-3 mr-3"></i>
+                        <span class="bg-red-700 rounded-xl text-white p-3 mr-3">All</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">5</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">4</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">3</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5 mr-3">2</span>
+                        <span class="bg-gray-300 rounded-xl text-gray-600 pt-3 pb-3 pl-5 pr-5">1</span>
+                    </h2>
+                  
+            <!-- Reviews List -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <!-- Sample Review 1 -->
+                <div class="border-b border-gray-200 pb-6 last:border-b-0">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            A
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Ahmad Rizki</h4>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="flex text-yellow-400 mr-2">
+                                            {% for i in "12345" %}
+                                                <i class="fas fa-star text-sm"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span>2 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Amazing quality! The material feels premium and the design is exactly as shown. 
+                                Fast shipping and excellent packaging. Will definitely order again!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Review 2 -->
+                <div class="border-b border-gray-200 pb-6 last:border-b-0 hover:bg-gray-50 mt-4">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                            S
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Sari Dewi</h4>
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <div class="flex text-yellow-400 mr-2">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= 4 %}
+                                                    <i class="fas fa-star text-sm"></i>
+                                                {% else %}
+                                                    <i class="far fa-star text-sm"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <span>1 week ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">
+                                Good product overall. The size fits perfectly and the color is vibrant. 
+                The only downside is that it took a bit longer to arrive than expected.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% include 'footer.html' %}
+
+{% endblock content %}

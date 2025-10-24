@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>My Cart - TrophyThreads</title>
+{% endblock meta %}
+
+{% static 'image/placeholder.png' as FALLBACK_IMAGE %}
+
+{% block content %}
+<style>
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .animated-gradient {
+    background: linear-gradient(90deg, #FF6B6B, #E63946, #FF6B6B);
+    background-size: 200% 200%;
+    animation: gradientMove 6s ease infinite;
+  }
+
+  .cart-row {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cart-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(237, 63, 39, 0.1);
+  }
+</style>
+
+<div class="min-h-screen bg-gradient-to-br from-[#FFF0F0] to-[#FFECEC]">
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28">
+    <div class="max-w-4xl mx-auto">
+
+      <div class="rounded-lg bg-white p-4 mb-6 shadow-sm flex items-center gap-3">
+        <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" class="text-[#ED3F27] text-xl font-bold flex items-center gap-3 hover:opacity-70 transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#ED3F27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          My Cart {% if cart.total_items %}({{ cart.total_items }}){% endif %}
+        </a>
+      </div>
+
+      <div id="cart-list" class="space-y-6">
+        {% if cart and cart.items.count %}
+          {% for item in cart.items.all %}
+          <div class="cart-row flex gap-6 items-start rounded-lg bg-white p-6 border border-[#EEEDED] shadow-sm"
+            data-item-id="{{ item.id }}"
+            data-price="{{ item.product.price|default:item.product_price }}">
+            
+            <div class="flex-shrink-0">
+              <input type="checkbox" class="cart-checkbox h-5 w-5 rounded-md border-[#990B29] text-[#ED3F27]" {% if item.selected %}checked{% endif %}/>
+            </div>
+
+            <div class="w-28 h-28 flex items-center justify-center bg-[#FFF1F1] rounded-md overflow-hidden shadow-inner">
+              {% if item.product and item.product.thumbnail %}
+                <img src="{{ item.product.thumbnail }}" alt="{{ item.product.name }}" class="object-cover w-full h-full" />
+              {% elif item.product_thumbnail %}
+                <img src="{{ item.product_thumbnail }}" alt="{{ item.product_name }}" class="object-cover w-full h-full" />
+              {% else %}
+                <img src="{{ FALLBACK_IMAGE }}" alt="No Image" class="object-cover w-full h-full" />
+              {% endif %}
+            </div>
+
+            <div class="flex-1">
+              <div class="flex items-start justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 leading-tight">
+                  {{ item.product.name|default:item.product_name }}
+                </h3>
+                <button type="button" class="delete-item text-sm text-gray-400 hover:text-[#ED3F27]" data-id="{{ item.id }}">Delete</button>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between">
+                <div>
+                  <div class="text-[#ED3F27] font-semibold text-lg">
+                    Rp <span class="item-price">{{ item.product.price|default:item.product_price }}</span>
+                  </div>
+                  <div class="text-sm text-gray-500 mt-1">
+                    Stock: <span class="item-stock">{{ item.product.stock|default:item.product_stock }}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button type="button" class="qty-minus px-3 py-1 border rounded-md text-lg select-none" data-id="{{ item.id }}">−</button>
+                  <input type="number" min="1" value="{{ item.quantity }}" class="qty-input w-16 text-center border rounded-md py-1" data-id="{{ item.id }}" />
+                  <button type="button" class="qty-plus px-3 py-1 border rounded-md text-lg select-none" data-id="{{ item.id }}">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-8 border border-[#EEEDED] shadow-sm text-center">
+            <h2 class="text-3xl font-bold bg-gradient-to-b from-[#F8A8A1] to-[#E36B6B] bg-clip-text text-transparent">
+              Belum ada produk di Keranjang
+            </h2>
+            <div class="text-[#E36B6B] text-4xl font-medium">(｡´︶`｡)</div>
+            <div class="w-36 h-36 rounded-md overflow-hidden shadow-md mb-4">
+              <img src="{% static 'image/no-merch.png' %}" alt="no merch" class="w-full h-full object-cover" />
+            </div>
+            <p class="font-bold text-[#E36B6B] text-sm md:text-base">
+              Silahkan tambahkan produk terlebih dahulu...
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed left-0 right-0 bottom-0 animated-gradient text-white shadow-lg">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <label class="inline-flex items-center text-white text-lg gap-3">
+        <input type="checkbox" id="select-all" class="h-5 w-5 text-[#990B29]" />
+        <span class="font-semibold">Semua</span>
+      </label>
+
+      <div class="flex items-center gap-6">
+        <div>
+          <div class="text-sm opacity-90">Total</div>
+          <div class="text-xl font-semibold">Rp <span id="total-price">{{ cart.subtotal }}</span></div>
+        </div>
+
+        <a id="checkout-btn" href="{% url 'cartApp:checkout' %}" class="bg-white text-[#ED3F27] font-semibold px-6 py-3 rounded-md shadow hover:scale-105 transition-transform">
+          Checkout
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const csrftoken = document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')?.pop();
+
+  const post = (url, data) =>
+    fetch(url, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrftoken, "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(data),
+    });
+
+  const formatIDR = (n) => n.toLocaleString("id-ID");
+
+  function showToast(msg, type = "info") {
+    const colors = {
+      error: "from-[#ED3F27] to-[#990B29]",
+      success: "from-green-400 to-green-600",
+      info: "from-gray-700 to-gray-900",
+    };
+    const toast = document.createElement("div");
+    toast.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-5 py-3 rounded-lg text-white font-medium shadow-lg z-50 transition-all duration-500 bg-gradient-to-r ${colors[type] || colors.info}`;
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => (toast.style.opacity = "0"), 2000);
+    setTimeout(() => toast.remove(), 2500);
+  }
+
+  function confirmModal(message, confirmText = "Delete", cancelText = "Cancel") {
+    return new Promise((resolve) => {
+      const overlay = document.createElement("div");
+      overlay.className = "fixed inset-0 bg-black/40 flex items-center justify-center z-50";
+      const modal = document.createElement("div");
+      modal.className = "bg-white rounded-lg shadow-xl p-6 max-w-sm text-center animate-fadeIn";
+      modal.innerHTML = `
+        <h3 class="text-lg font-semibold mb-3">Delete Confirmation</h3>
+        <p class="text-gray-600 mb-6">${message}</p>
+        <div class="flex justify-center gap-4">
+          <button id="cancel" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100">${cancelText}</button>
+          <button id="confirm" class="px-4 py-2 rounded-md bg-gradient-to-r from-[#ED3F27] to-[#990B29] text-white hover:opacity-90">${confirmText}</button>
+        </div>`;
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener("click", (e) => {
+        if (e.target.id === "cancel" || e.target === overlay) {
+          overlay.remove();
+          resolve(false);
+        } else if (e.target.id === "confirm") {
+          overlay.remove();
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  const updateTotals = () => {
+    let total = 0;
+    document.querySelectorAll(".cart-row").forEach((row) => {
+      const price = Number(row.dataset.price || 0);
+      const qty = Number(row.querySelector(".qty-input")?.value || 0);
+      const checkbox = row.querySelector(".cart-checkbox");
+      if (checkbox && checkbox.checked) total += price * qty;
+    });
+    document.getElementById("total-price").textContent = formatIDR(total);
+  };
+
+  async function handleDelete(row) {
+    const id = row.dataset.itemId;
+    const name = row.querySelector("h3")?.textContent || "this product";
+    const confirmDelete = await confirmModal(`Are you sure you want to remove product <strong>${name}</strong>?`);
+    if (!confirmDelete) return;
+    const res = await post("{% url 'cartApp:delete_item' 0 %}".replace("0", id), {});
+    if (!res.ok) return showToast("Failed to delete product", "error");
+    row.remove();
+    updateTotals();
+    showToast("Product deleted from cart", "success");
+  }
+
+  document.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("delete-item")) {
+      const row = e.target.closest(".cart-row");
+      await handleDelete(row);
+    }
+  });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("qty-plus")) return;
+    const id = e.target.dataset.id;
+    const input = document.querySelector(`.qty-input[data-id="${id}"]`);
+    const res = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "inc" });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      input.value = data.quantity ?? +input.value + 1;
+      updateTotals();
+    } else showToast(data.error || "Stock not enough", "error");
+  });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("qty-minus")) return;
+    const row = e.target.closest(".cart-row");
+    const id = row.dataset.itemId;
+    const input = row.querySelector(`.qty-input[data-id="${id}"]`);
+    const qty = +input.value;
+    if (qty <= 1) {
+      await handleDelete(row);
+      return;
+    }
+    const r = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "dec" });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) input.value = data.quantity ?? qty - 1;
+    updateTotals();
+  });
+
+  const selectAll = document.getElementById("select-all");
+  if (selectAll) {
+    selectAll.addEventListener("change", async (e) => {
+      const checked = e.target.checked;
+      document.querySelectorAll(".cart-checkbox").forEach(cb => cb.checked = checked);
+      updateTotals();
+      await post("{% url 'cartApp:toggle_select_all' %}", { selected: checked });
+    });
+  }
+
+  document.addEventListener("change", async (e) => {
+    if (!e.target.classList.contains("cart-checkbox")) return;
+    const row = e.target.closest(".cart-row");
+    const id = row?.dataset.itemId;
+    if (!id) return;
+    try {
+      await post("{% url 'cartApp:toggle_select' 0 %}".replace("0", id), {});
+    } catch (err) {
+      console.error("Toggle select gagal:", err);
+    }
+    updateTotals();
+
+    const allCbs = [...document.querySelectorAll(".cart-checkbox")];
+    const allChecked = allCbs.length && allCbs.every(cb => cb.checked);
+    selectAll.checked = allChecked;
+  });
+
+  const checkoutBtn = document.getElementById("checkout-btn");
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", (e) => {
+      const checkedItems = document.querySelectorAll(".cart-checkbox:checked");
+      if (checkedItems.length === 0) {
+        e.preventDefault();
+        showToast("Anda harus pilih produk terlebih dahulu!", "error");
+      }
+    });
+  }
+
+  updateTotals();
+});
+</script>
+
+{% endblock content %}

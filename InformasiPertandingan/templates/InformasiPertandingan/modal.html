@@ -1,129 +1,195 @@
-<div id="editMatchModal"
+<div id="matchModal"
     class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50">
-    <div id="editMatchModalContent"
-        class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 max-h-[90vh] overflow-y-auto p-6">
+    <div id="matchModalContent" class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 max-h-[90vh] overflow-y-auto p-6">
+        <!--Title (bagian atas modal)-->
         <div class="flex items-center justify-between border-b pb-4 mb-4">
-            <h3 class="text-xl font-semibold text-gray-900">Edit Match</h3>
-            <button onclick="hideEditMatchModal()" class="text-gray-400 hover:text-gray-700">&times;</button>
+            <div>
+                <h3 id="modalTitle" class="text-xl font-semibold text-black"></h3>
+                <p id="modalSubtitle" class="text-sm text-gray-600 mt-1"></p>
+            </div>
+            <!--Close modal-->
+            <button onclick="hideMatchModal()" class="text-gray-400 hover:text-gray-700">&times;</button>
         </div>
 
-        <form id="editMatchForm">
+        <!--Form modal-->
+        <form id="matchForm">
+            {% csrf_token %}
             <input type="hidden" id="edit_match_id">
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Title</label>
-                <input type="text" id="edit_title"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                <input type="text" id="edit_title" name="title" placeholder="Enter competition name..."
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Date</label>
-                <input type="date" id="edit_date" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                <input type="date" id="edit_date" name="date"
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">City</label>
-                <input type="text" id="edit_city" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                <input type="text" id="edit_city" name="city" placeholder="Enter city name..."
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700">Country</label>
-                <input type="text" id="edit_country"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" value="Indonesia">
+                <input type="text" id="edit_country" name="country" placeholder="Enter country name..."
+                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-                <!-- Home Team -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Home Team</label>
-                    <input type="text" id="edit_home_team" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                    <input type="text" id="edit_home_team" name="home_team" placeholder="Enter home team name..."
+                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
                 </div>
 
-                <!-- Home Score -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Home Score</label>
-                    <input type="number" id="edit_score_home" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" min="0">
+                    <input type="number" id="edit_score_home" name="score_home_team" placeholder="0"
+                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200"
+                        min="0">
                 </div>
 
-                <!-- Away Team -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Away Team</label>
-                    <input type="text" id="edit_away_team" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                </div>
-
-                <!-- Away Score -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Away Score</label>
-                    <input type="number" id="edit_score_away" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" min="0">
+                    <input type="number" id="edit_score_away" name="score_away_team" placeholder="0"
+                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200"
+                        min="0">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Away Team</label>
+                    <input type="text" id="edit_away_team" name="away_team" placeholder="Enter away team name..."
+                        class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
                 </div>
             </div>
 
+            <hr class="border-t border-gray-300">
+
+            <!--Bagian bawah modal-->
             <div class="flex gap-2 mt-4">
-                <button type="button" onclick="hideEditMatchModal()"
-                    class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">Cancel</button>
-                <button type="submit" class="px-4 py-2 w-full bg-var(--color-secondary) text-white rounded hover:bg-var(--color-primary)">Save
-                    Changes</button>
+                <button type="button" onclick="hideMatchModal()"
+                    style="border-color: var(--color-secondary); color: var(--color-secondary);"
+                    class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50">Cancel</button>
+                <button type="submit" id="submitButton" style="background-color: var(--color-secondary)"
+                    onmouseover="this.style.backgroundColor='var(--color-primary)'"
+                    onmouseout="this.style.backgroundColor='var(--color-secondary)'"
+                    class="px-4 py-2 w-full text-white rounded transition-all duration-200"></button>
             </div>
         </form>
     </div>
+  </div>
 </div>
+
 <script>
-
+    // ketika modal digunakan untuk mengedit match (informasinya masih tertulis)
     function showEditModal(match) {
-        const modal = document.getElementById('editMatchModal');
-
+        const modal = document.getElementById('matchModal');
+        document.getElementById('modalTitle').textContent = 'Ubah Informasi Pertandingan';
+        document.getElementById('modalSubtitle').textContent = 'Koreksi informasi pertandingan untuk memastikan data tetap akurat!';
+        document.getElementById('submitButton').textContent = 'Update Information'
         document.getElementById('edit_match_id').value = match.id;
         document.getElementById('edit_title').value = match.title;
         document.getElementById('edit_date').value = new Date(match.date).toISOString().split('T')[0];
         document.getElementById('edit_city').value = match.city;
         document.getElementById('edit_country').value = match.country;
-        document.getElementById('edit_score_home').value = match.score_home;
-        document.getElementById('edit_score_away').value = match.score_away;
+        document.getElementById('edit_home_team').value = match.home_team.name;
+        document.getElementById('edit_away_team').value = match.away_team.name;
+        document.getElementById('edit_score_home').value = match.score_home_team;
+        document.getElementById('edit_score_away').value = match.score_away_team;
         modal.classList.remove('hidden');
     }
 
-    function hideEditMatchModal() {
-        const modal = document.getElementById('editMatchModal');
-        const content = document.getElementById('editMatchModalContent');
+    // ketika modal digunakan untuk membuat baru suatu match
+    function showCreateModal() {
+        const modal = document.getElementById('matchModal');
+        document.getElementById('modalTitle').textContent = 'Tambah Informasi Pertandingan';
+        document.getElementById('modalSubtitle').textContent = 'Masukkan data pertandingan baru ke dalam sistem!';
+        document.getElementById('submitButton').textContent = 'Add Information'
+        document.getElementById('edit_match_id').value = '';
+        document.getElementById('edit_title').value = '';
+        document.getElementById('edit_date').value = '';
+        document.getElementById('edit_city').value = '';
+        document.getElementById('edit_country').value = '';
+        document.getElementById('edit_home_team').value = '';
+        document.getElementById('edit_away_team').value = '';
+        document.getElementById('edit_score_home').value = '';
+        document.getElementById('edit_score_away').value = '';
+        modal.classList.remove('hidden');
+    }
 
+    // menghilangkan match modal ketika selesai atau diclose
+    function hideMatchModal() {
+        const modal = document.getElementById('matchModal');
+        const content = document.getElementById('matchModalContent');
         content.classList.remove('opacity-100', 'scale-100');
         content.classList.add('opacity-0', 'scale-95');
         setTimeout(() => modal.classList.add('hidden'), 150);
     }
 
-    // submit form via AJAX
-    document.getElementById('editMatchForm').addEventListener('submit', async (e) => {
+    // untuk submit modal
+    document.getElementById('matchForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const matchId = document.getElementById('edit_match_id').value;
+        const isCreating = !matchId; // jika tidak ada match id maka sedang membuat baru (create)
+        const formElement = document.getElementById('matchForm');
+        const formData = new FormData(formElement);
+        
+        // agar aman digunakan csrf token
+        const csrfToken = formData.get('csrfmiddlewaretoken');
+        if (!csrfToken) {
+            console.error('CSRF Token not found in form!');
+            showToast('Error: CSRF Token missing.', 'error');
+            return;
+        }
 
-        const payload = {
-            title: document.getElementById('edit_title').value,
-            date: document.getElementById('edit_date').value,
-            city: document.getElementById('edit_city').value,
-            country: document.getElementById('edit_country').value,
-            home_team: document.getElementById('edit_home_team').value,
-            away_team: document.getElementById('edit_away_team').value,
-            score_home_team: document.getElementById('edit_score_home').value,
-            score_away_team: document.getElementById('edit_score_away').value
-        };
+        // handle create/edit
+        let url;
+        if (isCreating) {
+            url = "{% url 'InformasiPertandingan:add_match' %}";
+        } else {
+            let editUrlTemplate = "{% url 'InformasiPertandingan:edit_match' '00000000-0000-0000-0000-000000000000' %}";
+            url = editUrlTemplate.replace('00000000-0000-0000-0000-000000000000', matchId);
+        }
 
+        // post dan memberi notifikasi toast
         try {
-            const response = await fetch(`/matches/${matchId}/update/`, {
-                method: 'POST',  // atau 'PATCH' sesuai view
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
-                body: JSON.stringify(payload)
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
             });
 
             if (response.ok) {
-                showToast('Match updated successfully!', 'success');
-                hideEditMatchModal();
-                // reload atau update table
+                const message = isCreating ? 'Match created successfully!' : 'Match updated successfully!';
+                showToast(message, 'success');
+                hideMatchModal();
+                document.dispatchEvent(new CustomEvent('matchDataUpdated'));
             } else {
-                showToast('Failed to update match', 'error');
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (e) {
+                    errorData = { error: "Unknown error." }; // default error
+                }
+                const message = isCreating ? 'Failed to create match' : 'Failed to update match';
+                showToast(message + (errorData.error ? `: ${errorData.error}` : ''), 'error');
             }
         } catch (err) {
             console.error(err);
-            showToast('Error occurred', 'error');
+            showToast('Error occurred while saving.', 'error');
         }
-    });
+      }
+    }
+    return cookieValue;
+  }
+});
 </script>
+</body>
+</html>
