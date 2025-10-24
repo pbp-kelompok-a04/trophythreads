@@ -24,11 +24,13 @@
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     let deleteTargetLink = null;
+    let deleteRedirectUrl = null;
 
     // menampilkan modal delete
-    function showDeleteModal(event, id, deleteLink) {
+    function showDeleteModal(event, id, deleteLink, redirectUrl) {
         event.stopPropagation();
         deleteTargetLink = deleteLink;
+        deleteRedirectUrl = redirectUrl;
         deleteModal.classList.remove('hidden');
     }
 
@@ -36,21 +38,36 @@
     cancelDeleteBtn.addEventListener('click', () => {
         deleteModal.classList.add('hidden');
         deleteTargetLink = null;
+        deleteRedirectUrl = null;
     });
 
     // konfirmasi delete
     confirmDeleteBtn.addEventListener('click', async () => {
         if (!deleteTargetLink) return;
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.textContent = 'Deleting...';
+
         try {
             const response = await fetch(deleteTargetLink, { method: 'POST', headers: { 'X-CSRFToken': getCSRFToken() } });
             if (!response.ok) throw new Error("Failed to delete match");
 
             showToast("Match deleted successfully!", "success");
             deleteModal.classList.add('hidden');
-            fetchMatches();
+            if (deleteRedirectUrl) {
+                window.location.href = deleteRedirectUrl;
+            } else {
+                if (typeof fetchMatches === 'function') {
+                    fetchMatches(); 
+                }
+            }
         } catch (error) {
             console.error(error);
             showToast("Failed to delete match.", "error");
+        } finally {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = 'Delete';
+            deleteTargetLink = null;
+            deleteRedirectUrl = null;
         }
     });
 

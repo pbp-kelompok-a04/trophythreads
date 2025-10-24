@@ -97,7 +97,7 @@ class InformasiPertandinganTests(TestCase):
         
         self.matchHot.refresh_from_db()
         self.assertEqual(self.matchHot.views, initial_views + 1)
-        self.assertContains(response, 'const isAuthenticated = "true";')
+        self.assertContains(response, 'const isAuthenticated = "True" === "True";')
         self.assertNotContains(response, 'const isAuthenticated = "false";')
 
     def test_match_detail_guest(self):
@@ -109,7 +109,7 @@ class InformasiPertandinganTests(TestCase):
         
         self.matchHot.refresh_from_db()
         self.assertEqual(self.matchHot.views, initial_views + 1)
-        self.assertContains(response, 'const isAuthenticated = "false";')
+        self.assertContains(response, 'const isAuthenticated = "False" === "True";')        
         self.assertNotContains(response, 'const isAuthenticated = "true";')
 
     # tes json

@@ -85,7 +85,8 @@
     const loginURL = "{% url 'main:login' %}";
     const editURLTemplate = `{% url 'InformasiPertandingan:edit_match' '00000000-0000-0000-0000-000000000000' %}`;
     const deleteURLTemplate = `{% url 'InformasiPertandingan:delete_match' '00000000-0000-0000-0000-000000000000' %}`;
-
+    const mainPageURL = "{% url 'InformasiPertandingan:show_main' %}";
+    
     const loadingState = document.getElementById('loading');
     const errorState = document.getElementById('error');
     const matchContent = document.getElementById('match-content');
@@ -207,7 +208,7 @@
                     <li>
                         <button 
                         class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-200"
-                        onclick="showDeleteModal(event, '${matchId}', '${deleteURL}')">Delete</button>
+                        onclick="showDeleteModal(event, '${matchId}', '${deleteURL}', '${mainPageURL}')">Delete</button>
                     </li>
                 </ul>
                 </div>
