@@ -9,10 +9,9 @@ urlpatterns = [
     path('create/', create_merchandise_ajax, name='create_merchandise_ajax'),
     path('edit/<uuid:id>/', edit_merchandise_ajax, name='edit_merchandise_ajax'),
     path('delete/<uuid:id>/', delete_merchandise_ajax, name='delete_merchandise_ajax'),
-    path('json/', get_merchandise_json, name='get_merchandise_json'),
     path('xml/', show_xml, name='show_xml'),
     path('json/', show_json, name='show_json'),
-    path('json/<int:merchandise_id>/', show_json_by_id, name='show_json_by_id'),
-    path('xml/<int:merchandise_id>/', show_xml_by_id, name='show_xml_by_id'),
+    path('json/<uuid:merchandise_id>/', show_json_by_id, name='show_json_by_id'),
+    path('xml/<uuid:merchandise_id>/', show_xml_by_id, name='show_xml_by_id'),
     path('get-merchandise/', get_merchandise_json, name='get_merchandise_json'),
 ]

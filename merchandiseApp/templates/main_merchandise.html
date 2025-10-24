@@ -340,7 +340,7 @@ function showEditModal(merchandiseId) {
     document.getElementById('merchandiseId').value = merchandiseId;
 
     // Fetch merchandise data 
-    fetch(`/json/${merchandiseId}/`)
+    fetch(`json/${merchandiseId}/`)
         .then(response => response.json())
         .then(data => {
             // If using Django's serializer, data is an array
@@ -348,7 +348,6 @@ function showEditModal(merchandiseId) {
             document.getElementById('name').value = merchandise.name || '';
             document.getElementById('price').value = merchandise.price || '';
             document.getElementById('category').value = merchandise.category || '';
-            document.getElementById('rating').value = merchandise.rating || '';
             document.getElementById('stock').value = merchandise.stock || '';
             document.getElementById('thumbnail').value = merchandise.thumbnail || '';
             document.getElementById('description').value = merchandise.description || '';
@@ -477,7 +476,7 @@ function deleteMerchandise(merchandiseId) {
         return;
     }
 
-    fetch(`/delete/${merchandiseId}/`, {
+    fetch(`delete/${merchandiseId}/`, {
         method: 'DELETE',
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
