@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Count, Q
 from django.contrib.auth.models import User
-from .models import Merchandise, Review, OrderItem 
+from .models import Merchandise, Review, Purchase
 
 
 # ---------- Views ----------
@@ -33,9 +33,9 @@ def product_reviews(request, product_id):
     can_review = False
     if request.user.is_authenticated:
         # Cek apakah user pernah order produk ini
-        has_ordered = OrderItem.objects.filter(order__user=request.user, product=product).exists()
+        #has_ordered = Purchase.objects.filter(order__user=request.user, product=product).exists()
         already_reviewed = Review.objects.filter(product=product, user=request.user).exists()
-        can_review = has_ordered and not already_reviewed
+        can_review = not already_reviewed
 
     context = {
         "product": product,
@@ -44,48 +44,44 @@ def product_reviews(request, product_id):
         "counts": counts,
         "total": stats["total"],
         "can_review": can_review,
-        "has_ordered": has_ordered if request.user.is_authenticated else False,
+        #"has_ordered": has_ordered if request.user.is_authenticated else False,
     }
     return render(request, "main_review.html", context)
 
 
 @login_required
 def add_review(request, product_id):
-    """Tambahkan review (user harus login dan sudah order produk)."""
+    """Halaman + form tambah review."""
     product = get_object_or_404(Merchandise, pk=product_id)
 
-
-    # pastikan user pernah order produk ini
-    has_ordered = OrderItem.objects.filter(order__user=request.user, product=product).exists()
-    if not has_ordered:
-        return JsonResponse({"error": "Kamu hanya bisa review produk yang sudah kamu beli."}, status=403)
-
-    # kalau sudah pernah review, tolak
+    # Kalau sudah pernah review, tolak
     if Review.objects.filter(product=product, user=request.user).exists():
-        return JsonResponse({"error": "Kamu sudah pernah memberikan review untuk produk ini."}, status=400)
+        messages.warning(request, "Kamu sudah pernah memberikan review untuk produk ini.")
+        return redirect("reviewproduct:product_reviews", product_id=product.id)
 
     if request.method == "POST":
         rating = int(request.POST.get("rating") or 0)
         comment = (request.POST.get("comment") or "").strip()
 
         if not (1 <= rating <= 5):
-            return JsonResponse({"error": "Rating harus antara 1 dan 5."}, status=400)
+            messages.error(request, "Rating harus antara 1 dan 5.")
+            return redirect(request.path)
         if not comment:
-            return JsonResponse({"error": "Komentar tidak boleh kosong."}, status=400)
+            messages.error(request, "Komentar tidak boleh kosong.")
+            return redirect(request.path)
 
-        review = Review.objects.create(product=product, user=request.user, rating=rating, body=comment)
+        Review.objects.create(
+            product=product,
+            user=request.user,
+            rating=rating,
+            body=comment
+        )
+        messages.success(request, "Review berhasil ditambahkan!")
+        return redirect("reviewproduct:product_reviews", product_id=product.id)
 
-        return JsonResponse({
-            "message": "Review berhasil ditambahkan!",
-            "review": {
-                "user": request.user.username,
-                "rating": review.rating,
-                "comment": review.body,
-                "created_at": review.created_at.strftime("%Y-%m-%d %H:%M"),
-            },
-        }, status=201)
+    # render halaman add_review.html
+    return render(request, "add_review.html", {"product": product})
 
-    return JsonResponse({"error": "Metode tidak diizinkan."}, status=405)
 
 
 @login_required

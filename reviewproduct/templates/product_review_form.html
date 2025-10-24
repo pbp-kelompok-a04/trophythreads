@@ -120,7 +120,7 @@
     <div class="container">
         <h2>Rate this product</h2>
 
-        <form method="post">
+        <form method="post" action="{% url 'reviewproduct:add_review' product.id %}">
             {% csrf_token %}
             <div class="stars" id="stars">
                 <span class="star" data-value="1">&#9733;</span>
