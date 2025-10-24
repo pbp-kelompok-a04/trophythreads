@@ -145,7 +145,7 @@ def get_merchandise_json(request):
             'description': item.description,
             'product_views': item.product_views,
             'is_featured': item.is_featured,
-            'rating': 0.0,  # Default value for rating
+            'rating': 0.0,  # Default value
         })
     
     return JsonResponse(merchandise_data, safe=False)

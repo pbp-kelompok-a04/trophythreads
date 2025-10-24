@@ -8,7 +8,7 @@ class Merchandise(models.Model):
     CATEGORY_CHOICES = [
         ('jersey', 'Jersey'),
         ('training jersey', 'Training Jersey'),
-        ('tops', 'Tops'),
+        ('top', 'Top'),
         ('jacket', 'Jacket'),
         ('hoodie', 'Hoodie'),
         ('sweatshirt', 'Sweatshirt'),

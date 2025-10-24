@@ -244,7 +244,7 @@ function createMerchandiseCard(merchandiseData) {
         card.id = `merchandise-${merchandiseId}`;
 
         card.innerHTML = `
-            <div class="aspect-[4/3] relative overflow-hidden bg-gray-100">
+            <div class="aspect-[5/5] relative overflow-hidden bg-gray-100">
                 ${merchandise.thumbnail ? 
                     `<img src="${merchandise.thumbnail}" alt="${merchandise.name}" 
                         class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
@@ -275,7 +275,7 @@ function createMerchandiseCard(merchandiseData) {
             
             <div class="p-6">
                 <!-- Merchandise Name -->
-                <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight hover:text-orange-700 transition-colors">
+                <h3 class="text-l font-bold text-gray-900 mb-3 line-clamp-2 leading-tight hover:text-orange-700 transition-colors" style="font-family: 'Judson'; font-size: 1.1rem; font-weight: 700;">
                     <a href="/merchandise/${merchandiseId}/" class="hover:no-underline">
                         ${merchandise.name}
                     </a>
@@ -283,8 +283,8 @@ function createMerchandiseCard(merchandiseData) {
                 
                 <!-- Price -->
                 <div class="mb-4">
-                    <span class="text-2xl font-bold text-red-700">
-                        Rp${parseInt(merchandise.price).toLocaleString('id-ID')}
+                    <span class="text-xl font-bold text-red-700">
+                        Rp ${parseInt(merchandise.price).toLocaleString('id-ID')}
                     </span>
                 </div>
                 
@@ -295,25 +295,12 @@ function createMerchandiseCard(merchandiseData) {
                     </div>
                     <span class="text-yellow-700 font-semibold text-sm">${merchandise.rating || '0.0'}</span>
                     <span class="mx-2">•</span>
-                    <span class="text-gray-400 text-sm ml-1">${merchandise.stock || 0} in stock</span>
+                    <span class="text-gray-400 text-sm ml-1" style="font-family: 'Judson';">${merchandise.stock || 0} in stock</span>
                 </div>         
                 
-                <!-- Description Preview -->
-                ${merchandise.description ? `
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                        ${merchandise.description.substring(0, 100)}${merchandise.description.length > 100 ? '...' : ''}
-                    </p>
-                ` : ''}
-                
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <a href="/merchandise/${merchandiseId}/" 
-                    class="inline-flex items-center text-orange-700 hover:text-orange-600 font-medium text-sm transition-colors group">
-                        Read more
-                        <i class="fas fa-arrow-right ml-1 transform group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                    
-                    ${isOwner ? `
+                ${isOwner ? `
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div class="flex space-x-2">
                             <button onclick="event.stopPropagation(); showEditModal('${merchandiseId}')" 
                                     class="text-blue-400 hover:text-blue-500 text-xs transition-colors px-2 py-1 rounded hover:bg-blue-50">
@@ -325,7 +312,7 @@ function createMerchandiseCard(merchandiseData) {
                             </button>
                         </div>
                     ` : ''}
-                </div>
+                    </div>
             </div>
         `;
 
@@ -408,15 +395,15 @@ function getCategoryDisplay(category) {
         'jersey': '<i class="fas fa-tshirt mr-1"></i> Jersey',
         'training jersey': '<i class="fas fa-tshirt mr-1"></i> Training Jersey',
         'socks': '<i class="fas fa-socks mr-1"></i> Socks',
-        'ball': '<i class="fas fa-basketball-ball mr-1"></i> Ball',
-        'accessories': '<i class="fas fa-vest mr-1"></i> Accessories',
-        'tops': '<i class="fas fa-tshirt mr-1"></i> Tops',
-        'jacket': '<i class="fas fa-jacket mr-1"></i> Jacket',
-        'hoodie': '<i class="fas fa-hoodie mr-1"></i> Hoodie',
-        'sweatshirt': '<i class="fas fa-sweatshirt mr-1"></i> Sweatshirt',
+        'ball': '<i class="fas fa-futbol mr-1"></i> Ball',
+        'accessories': '<i class="fas fa-hat-wizard mr-1"></i> Accessories',
+        'top': '<i class="fas fa-user-tie mr-1"></i> Top',
+        'jacket': '<i class="fas fa-mitten mr-1"></i> Jacket',
+        'hoodie': '<i class="fas fa-mitten mr-1"></i> Hoodie',
+        'sweatshirt': '<i class="fas fa-mitten mr-1"></i> Sweatshirt',
         'vest': '<i class="fas fa-vest mr-1"></i> Vest',
         'bag': '<i class="fas fa-shopping-bag mr-1"></i> Bag',
-        'tumbler': '<i class="fas fa-glass-whiskey mr-1"></i> Tumbler',
+        'tumbler': '<i class="fas fa-mug-saucer mr-1"></i> Tumbler',
         'action figure': '<i class="fas fa-robot mr-1"></i> Action Figure',
         'others': '<i class="fas fa-tag mr-1"></i> Others',
     };
