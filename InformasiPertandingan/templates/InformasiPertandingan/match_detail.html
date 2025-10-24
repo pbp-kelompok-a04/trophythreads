@@ -19,7 +19,8 @@
     <div id="loading" class="flex flex-col items-center justify-center py-20 text-center hidden">
         <svg class="animate-spin h-8 w-8 text-[var(--color-primary)] inline-block" xmlns="http://www.w3.org/2000/svg"
             fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+            </circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
         </svg>
         <p class="text-[var(--color-primary)]">Loading match details...</p>
@@ -32,7 +33,7 @@
     </div>
 
     <!-- Match Content -->
-    <div id="match-content" class="mx-auto bg-white shadow-md p-8 mb-8">
+    <div id="match-content" class="mx-auto bg-white shadow-md p-8 mb-8 mx-12 rounded-xl">
         <h1 id="match-title" class="text-3xl font-bold text-gray-900 text-center mb-6"></h1>
         <div id="scoreboard" class="flex items-center justify-center gap-6 text-gray-800 mb-6">
             <!-- Home Team -->
@@ -60,7 +61,7 @@
     <div id="discussion-section" class="mx-auto items-center justify-between px-12 py-3 text-center mb-4">
         <a id="discussion-link"
             class="inline-block w-full border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] font-h1 font-bold py-3 rounded-md hover:bg-opacity-90 transition-colors"
-            href="#"> Jump To Discussion </a>
+            href="{% url 'forumApp:show_landing_page' %}"> Jump To Discussion </a>
     </div>
 
     <!-- Match Info -->
@@ -76,7 +77,7 @@
     const iconFootballURL = "{% static 'icons/football.png' %}";
     const iconLocationURL = "{% static 'icons/location.png' %}";
     const discussionURLTemplate = `/' '00000000-0000-0000-0000-000000000000' %}`;
-    const loginURL = "/";
+    const loginURL = "{% url 'main:login' %}";
 
     const loadingState = document.getElementById('loading');
     const errorState = document.getElementById('error');
@@ -93,6 +94,7 @@
 
     const isAuthenticated = "{{ user.is_authenticated|yesno:'true,false' }}";
 
+    // menampilkan kondisi saat ini
     function showState(state) {
         loadingState.classList.toggle('hidden', state !== 'loading');
         errorState.classList.toggle('hidden', state !== 'error');
@@ -101,16 +103,27 @@
         matchInfoContainer.classList.toggle('hidden', state !== 'ready');
     }
 
+    // memasukkan informasi yang sudah disanitasi ke dalam match content
     function renderMatch(data) {
-        matchTitle.textContent = data.title;
-        homeFlag.src = data.home_team.flag;
-        homeFlag.alt = data.home_team.name;
-        homeName.textContent = data.home_team.name;
-        scoreHome.textContent = data.score_home_team;
-        scoreAway.textContent = data.score_away_team;
-        awayFlag.src = data.away_team.flag;
-        awayFlag.alt = data.away_team.name;
-        awayName.textContent = data.away_team.name;
+        const title = DOMPurify.sanitize(data.title)
+        const homeFlagURL = DOMPurify.sanitize(data.home_team.flag)
+        const homeTeamName = DOMPurify.sanitize(data.home_team.name)
+        const scoreHomeTeam = data.score_home_team
+        const scoreAwayTeam = data.score_away_team
+        const awayFlagURL = DOMPurify.sanitize(data.away_team.flag)
+        const awayTeamName = DOMPurify.sanitize(data.away_team.name)
+        const dataCity = DOMPurify.sanitize(data.city)
+        const dataCountry = DOMPurify.sanitize(data.country)
+
+        matchTitle.textContent = title;
+        homeFlag.src = homeFlagURL;
+        homeFlag.alt = homeTeamName;
+        homeName.textContent = homeTeamName;
+        scoreHome.textContent = scoreHomeTeam;
+        scoreAway.textContent = scoreAwayTeam;
+        awayFlag.src = awayFlagURL;
+        awayFlag.alt = awayTeamName;
+        awayName.textContent = awayTeamName;
 
         let html = '';
         const formattedDate = new Date(data.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -122,7 +135,8 @@
             discussionLink.href = discussionURLTemplate.replace('00000000-0000-0000-0000-000000000000', data.id);
         }
 
-        if (isAuthenticated === 'false') {
+        // jika sudah login (bukan sebagai guest), maka dapat melihat informasi tambahan
+        if (isAuthenticated === 'true') {
             html = `
             <div class="bg-white mx-12 rounded-xl shadow-md p-6 mb-6"> 
                 <h2 class="text-xl font-bold text-black mb-6 text-center">Informasi Pertandingan</h2>
@@ -130,48 +144,45 @@
                     <div class="flex items-center gap-2">
                         <img src="${iconCalendarURL}" class="w-6 h-7" alt="Tanggal">
                         <div class="flex flex-col items-start">
-                            <span class="font-semibold text-black">Tanggal</span>
-                            <span class="text-sm text-black">${formattedDate}</span>
-                        </div>
+                        <span class="font-semibold text-black">Tanggal</span>
+                        <span class="text-sm text-black">${formattedDate}</span>
                     </div>
+                </div>
 
-                    <div class="flex items-center gap-2">
-                        <img src="${iconFootballURL}" class="w-6 h-6" alt="Kompetisi">
-                        <div class="flex flex-col items-start">
-                            <span class="font-semibold text-black">Kompetisi</span>
-                            <span class="text-sm text-black">${data.title}</span>
-                        </div>
+                <div class="flex items-center gap-2">
+                    <img src="${iconFootballURL}" class="w-6 h-6" alt="Kompetisi">
+                    <div class="flex flex-col items-start">
+                        <span class="font-semibold text-black">Kompetisi</span>
+                        <span class="text-sm text-black">${title}</span>
                     </div>
-
-                    <div class="flex items-center gap-2">
-                        <img src="${iconLocationURL}" class="w-6 h-7" alt="Lokasi">
-                        <div class="flex flex-col items-start">
-                            <span class="font-semibold text-black">Lokasi</span>
-                            <span class="text-sm text-black">${data.city}, ${data.country}</span>
-                        </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <img src="${iconLocationURL}" class="w-6 h-7" alt="Lokasi">
+                    <div class="flex flex-col items-start">
+                        <span class="font-semibold text-black">Lokasi</span>
+                        <span class="text-sm text-black">${dataCity}, ${dataCountry}</span>
                     </div>
                 </div>
             </div>
             `;
         } else {
-            // Jika sudah login, tampilkan tombol diskusi
             html = `
             <div class="mt-4 mx-12 text-left">
-                <p class="text-gray-700 text-sm">Ingin melihat informasi lebih lengkap?
-                    <a href="${loginURL}" class="text-[var(--color-secondary)] font-bold underline">Login sekarang!</a>
-                </p>
+            <p class="text-gray-700 text-sm">Ingin melihat informasi lebih lengkap?
+            <a href="${loginURL}" class="text-[var(--color-secondary)] font-bold underline">Login sekarang!</a>
+            </p>
             </div>
             `;
         }
         matchInfoContainer.innerHTML = html;
     }
 
+    // untuk loading
     async function loadMatchDetail() {
         try {
             showState('loading');
             const response = await fetch(MATCH_ENDPOINT, { headers: { 'Accept': 'application/json' } });
             if (!response.ok) throw new Error('Failed to fetch match');
-
             const matchData = await response.json();
             renderMatch(matchData);
             showState('ready');

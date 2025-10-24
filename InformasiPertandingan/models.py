@@ -16,7 +16,7 @@ class Informasi(models.Model):
     title = models.CharField(max_length=255) 
     date = models.DateField() 
     city = models.CharField(max_length=100) 
-    country = models.CharField(max_length=100, default='Indonesia')
+    country = models.CharField(max_length=100)
     home_team = models.ForeignKey(Country, related_name='home_matches', on_delete=models.CASCADE) 
     away_team = models.ForeignKey(Country, related_name='away_matches', on_delete=models.CASCADE) 
     score_home_team = models.PositiveIntegerField(default=0) 
