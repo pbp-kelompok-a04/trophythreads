@@ -7,7 +7,6 @@
 
 {% block content %}
 {% include 'header.html' %}
-{% include 'footer.html' %}
 {% include 'modal_create_edit_merchandise.html' %}
 {% include 'modal_delete_merchandise.html' %}
 
@@ -91,6 +90,8 @@
 
     </div>
 </div>
+
+{% include 'footer.html' %}
 
 <script>  
 window.currentUserId = "{{ user.id|default:'' }}";
