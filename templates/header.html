@@ -14,10 +14,10 @@
                     <a href="{% url 'InformasiPertandingan:show_main' %}" class="text-white font-semibold hover:text-white transition duration-200">
                         Match
                     </a>
-                    <a class="text-white font-semibold hover:text-white transition duration-200">
+                    <a href="{% url 'merchandiseApp:show_main' %}" class="text-white font-semibold hover:text-white transition duration-200">
                         Merchandise
                     </a>
-                    <a class="text-white font-semibold hover:text-white transition duration-200">
+                    <a href="{% url 'forumApp:show_landing_page' %}" class="text-white font-semibold hover:text-white transition duration-200">
                         Discussion
                     </a>
                 </div>
@@ -27,7 +27,7 @@
                 <div class="text-right">
                     <div class="text-sm font-semibold text-white leading-tight"> {{ user.username|default:"Guest" }}
                     </div>
-                    <div class="text-xs text-gray-300 tracking-tight"> {{ Role|default:"No Role" }}</div>
+                    <div class="text-xs text-gray-200 tracking-tight"> {{ user.profile.role|default:"No Role" }}</div>
                 </div>
                 <div class="relative">
                     <button id="profileButton" class="focus:outline-none">
@@ -64,15 +64,15 @@
             <a href="{% url 'InformasiPertandingan:show_main' %}" class="block hover:text-white transition duration-200">
                 Match
             </a>
-            <a class="block hover:text-white transition duration-200">
+            <a href="{% url 'merchandiseApp:show_main' %}" class="block hover:text-white transition duration-200">
                 Merchandise
             </a>
-            <a class="block hover:text-white transition duration-200">
+            <a href="{% url 'forumApp:show_landing_page' %}" class="block hover:text-white transition duration-200">
                 Discussion
             </a>
 
             <div class="border-t border-gray-300 pt-4">
-                <a href="/" class="block text-bold text-white">Logout</a>
+                <a href="{% url 'main:login' %}" class="block text-bold text-white">Logout</a>
             </div>
         </div>
     </div>

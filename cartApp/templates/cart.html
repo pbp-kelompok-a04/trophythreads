@@ -35,41 +35,12 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-28">
     <div class="max-w-4xl mx-auto">
 
-      <div class="mb-6">
-        <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <button onclick="handleBackCart()" 
-                class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-pink-50 text-[#8B1538] hover:bg-pink-100 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-              </button>
-
-              <div>
-                <h1 class="text-xl md:text-2xl font-bold text-[#8B1538]" style="font-family: var(--font-title);">
-                  My Cart {% if cart.total_items %}({{ cart.total_items }}){% endif %}
-                </h1>
-                <p class="text-sm text-gray-500">Produk yang ingin kamu checkout</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="rounded-lg bg-white p-4 mb-6 shadow-sm flex items-center gap-3">
+        <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" class="text-[#ED3F27] text-xl font-bold flex items-center gap-3 hover:opacity-70 transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#ED3F27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          My Cart {% if cart.total_items %}({{ cart.total_items }}){% endif %}
+        </a>
       </div>
-      <!-- END: Header -->
-
-      <script>
-      function handleBackCart() {
-        const ref = document.referrer || "";
-        if (ref.includes("/favoritesApp/")) {
-          window.location.href = "{% url 'favoritesApp:list' %}";
-        } else if (ref.includes("/product/") || ref.includes("/merchandise/")) {
-          window.history.back();
-        } else {
-          window.location.href = "{% url 'merchandiseApp:show_main' %}";
-        }
-      }
-      </script>
 
       <div id="cart-list" class="space-y-6">
         {% if cart and cart.items.count %}
@@ -169,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       body: new URLSearchParams(data),
     });
 
-  const formatIDR = (n) => Number(n || 0).toLocaleString("id-ID");
+  const formatIDR = (n) => n.toLocaleString("id-ID");
 
   function showToast(msg, type = "info") {
     const colors = {
@@ -213,42 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function anyCartRows() {
-    return document.querySelectorAll(".cart-row").length > 0;
-  }
-
-  function hideBottomBar() {
-    const bar = document.querySelector(".fixed.left-0.right-0.bottom-0");
-    if (bar) bar.style.display = "none";
-  }
-
-  function showBottomBar() {
-    const bar = document.querySelector(".fixed.left-0.right-0.bottom-0");
-    if (bar) bar.style.display = "block";
-  }
-
-  function renderEmptyCart() {
-    const container = document.getElementById("cart-list");
-    container.innerHTML = `
-      <div class="flex flex-col items-center justify-center gap-4 rounded-lg bg-white p-8 border border-[#EEEDED] shadow-sm text-center">
-        <h2 class="text-3xl font-bold bg-gradient-to-b from-[#F8A8A1] to-[#E36B6B] bg-clip-text text-transparent">
-          Belum ada produk di Keranjang
-        </h2>
-        <div class="text-[#E36B6B] text-4xl font-medium">(｡´︶\`｡)</div>
-        <div class="w-36 h-36 rounded-md overflow-hidden shadow-md mb-4">
-          <img src="{% static 'image/no-merch.png' %}" alt="no merch" class="w-full h-full object-cover" />
-        </div>
-        <p class="font-bold text-[#E36B6B] text-sm md:text-base">
-          Silahkan tambahkan produk terlebih dahulu...
-        </p>
-      </div>
-    `;
-    hideBottomBar();
-    const total = document.getElementById("total-price");
-    if (total) total.textContent = formatIDR(0);
-  }
-
-  function updateTotals() {
+  const updateTotals = () => {
     let total = 0;
     document.querySelectorAll(".cart-row").forEach((row) => {
       const price = Number(row.dataset.price || 0);
@@ -256,120 +192,65 @@ document.addEventListener("DOMContentLoaded", () => {
       const checkbox = row.querySelector(".cart-checkbox");
       if (checkbox && checkbox.checked) total += price * qty;
     });
-    const totalEl = document.getElementById("total-price");
-    if (totalEl) totalEl.textContent = formatIDR(total);
+    document.getElementById("total-price").textContent = formatIDR(total);
+  };
 
-    if (!anyCartRows()) {
-      renderEmptyCart();
-    }
-  }
-
-  async function handleDelete(row, bypassConfirm = false) {
+  async function handleDelete(row) {
     const id = row.dataset.itemId;
     const name = row.querySelector("h3")?.textContent || "this product";
-    if (!bypassConfirm) {
-      const confirmDelete = await confirmModal(`Are you sure you want to remove product <strong>${name}</strong>?`);
-      if (!confirmDelete) return;
-    }
-    try {
-      const res = await post("{% url 'cartApp:delete_item' 0 %}".replace("0", id), {});
-      if (!res.ok) {
-        showToast("Failed to delete product", "error");
-        return;
-      }
-      row.remove();
-      updateTotals();
-      showToast("Product deleted from cart", "success");
-
-      if (!anyCartRows()) renderEmptyCart();
-    } catch (err) {
-      console.error(err);
-      showToast("Terjadi error saat menghapus", "error");
-    }
-  }
-
-  async function setQuantity(row, newQty) {
-    const id = row.dataset.itemId;
-    if (!id) return;
-    if (newQty <= 0) {
-      await handleDelete(row, true);
-      return;
-    }
-    try {
-      const r = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "set", quantity: String(newQty) });
-      const data = await r.json().catch(() => ({}));
-      if (r.ok) {
-        const qtyFromServer = data.quantity ?? newQty;
-        row.querySelector(".qty-input").value = qtyFromServer;
-        updateTotals();
-      } else {
-        showToast(data.error || "Gagal update qty", "error");
-        updateTotals();
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("Terjadi error saat update qty", "error");
-    }
+    const confirmDelete = await confirmModal(`Are you sure you want to remove product <strong>${name}</strong>?`);
+    if (!confirmDelete) return;
+    const res = await post("{% url 'cartApp:delete_item' 0 %}".replace("0", id), {});
+    if (!res.ok) return showToast("Failed to delete product", "error");
+    row.remove();
+    updateTotals();
+    showToast("Product deleted from cart", "success");
   }
 
   document.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-item")) {
       const row = e.target.closest(".cart-row");
-      if (!row) return;
       await handleDelete(row);
     }
   });
 
   document.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("qty-plus")) {
-      const id = e.target.dataset.id;
-      const input = document.querySelector(`.qty-input[data-id="${id}"]`);
-      const row = e.target.closest(".cart-row");
-      if (!row) return;
-      const res = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "inc" });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        input.value = data.quantity ?? (+input.value + 1);
-        updateTotals();
-      } else {
-        showToast(data.error || "Stock not enough", "error");
-      }
-    } else if (e.target.classList.contains("qty-minus")) {
-      const row = e.target.closest(".cart-row");
-      const id = row.dataset.itemId;
-      const input = row.querySelector(`.qty-input[data-id="${id}"]`);
-      const qty = +input.value;
-      if (qty <= 1) {
-        await handleDelete(row);
-        return;
-      }
-      const r = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "dec" });
-      const data = await r.json().catch(() => ({}));
-      if (r.ok) {
-        input.value = data.quantity ?? qty - 1;
-        updateTotals();
-      } else {
-        showToast(data.error || "Stock not enough", "error");
-      }
+    if (!e.target.classList.contains("qty-plus")) return;
+    const id = e.target.dataset.id;
+    const input = document.querySelector(`.qty-input[data-id="${id}"]`);
+    const res = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "inc" });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      input.value = data.quantity ?? +input.value + 1;
+      updateTotals();
+    } else showToast(data.error || "Stock not enough", "error");
+  });
+
+  document.addEventListener("click", async (e) => {
+    if (!e.target.classList.contains("qty-minus")) return;
+    const row = e.target.closest(".cart-row");
+    const id = row.dataset.itemId;
+    const input = row.querySelector(`.qty-input[data-id="${id}"]`);
+    const qty = +input.value;
+    if (qty <= 1) {
+      await handleDelete(row);
+      return;
     }
+    const r = await post("{% url 'cartApp:update_cart_item' 0 %}".replace("0", id), { action: "dec" });
+    const data = await r.json().catch(() => ({}));
+    if (r.ok) input.value = data.quantity ?? qty - 1;
+    updateTotals();
   });
 
-  document.addEventListener("blur", async (e) => {
-    if (!e.target.classList.contains("qty-input")) return;
-    const input = e.target;
-    const row = input.closest(".cart-row");
-    if (!row) return;
-    let val = parseInt(input.value || "0", 10);
-    if (isNaN(val) || val < 0) val = 0;
-    await setQuantity(row, val);
-  }, true);
-
-  document.addEventListener("keydown", async (e) => {
-    if (e.key !== "Enter") return;
-    if (!e.target.classList.contains("qty-input")) return;
-    e.preventDefault();
-    e.target.blur(); 
-  });
+  const selectAll = document.getElementById("select-all");
+  if (selectAll) {
+    selectAll.addEventListener("change", async (e) => {
+      const checked = e.target.checked;
+      document.querySelectorAll(".cart-checkbox").forEach(cb => cb.checked = checked);
+      updateTotals();
+      await post("{% url 'cartApp:toggle_select_all' %}", { selected: checked });
+    });
+  }
 
   document.addEventListener("change", async (e) => {
     if (!e.target.classList.contains("cart-checkbox")) return;
@@ -385,23 +266,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const allCbs = [...document.querySelectorAll(".cart-checkbox")];
     const allChecked = allCbs.length && allCbs.every(cb => cb.checked);
-    const selectAll = document.getElementById("select-all");
-    if (selectAll) selectAll.checked = allChecked;
+    selectAll.checked = allChecked;
   });
-
-  const selectAll = document.getElementById("select-all");
-  if (selectAll) {
-    selectAll.addEventListener("change", async (e) => {
-      const checked = e.target.checked;
-      document.querySelectorAll(".cart-checkbox").forEach(cb => cb.checked = checked);
-      updateTotals();
-      try {
-        await post("{% url 'cartApp:toggle_select_all' %}", { selected: checked });
-      } catch (err) {
-        console.error("toggle_select_all failed", err);
-      }
-    });
-  }
 
   const checkoutBtn = document.getElementById("checkout-btn");
   if (checkoutBtn) {
@@ -414,13 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // hide bottom bar if no items
-  if (!anyCartRows()) {
-    renderEmptyCart();
-  } else {
-    showBottomBar();
-    updateTotals();
-  }
+  updateTotals();
 });
 </script>
 
