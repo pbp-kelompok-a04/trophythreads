@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Merchandise
 from .forms import MerchandiseForm
-from reviewproduct.models import Review
 
 from django.http import HttpResponse
 from django.core import serializers
@@ -23,43 +22,8 @@ def show_merchandise(request, id):
     merchandise = get_object_or_404(Merchandise, pk=id)
     merchandise.increment_views()
 
-    if merchandise.description:
-        merchandise.description = merchandise.description.replace('<br>', '\n')
-        merchandise.description = merchandise.description.replace('br>', '\n')
-        merchandise.description = merchandise.description.replace('<br', '\n')
-    
-
-    # Get reviews for this merchandise
-    try:        
-        rating_filter = request.GET.get('filter')
-
-        reviews = Review.objects.filter(
-            product=merchandise, 
-            deleted=False
-        )
-
-        if rating_filter and rating_filter.isdigit():
-            rating_val = int(rating_filter)
-            if 1 <= rating_val <= 5:
-                reviews = reviews.filter(rating=rating_val)
-        
-        reviews = reviews.select_related('user').order_by('-created_at')[:10]
-
-    except ImportError:
-        reviews = []
-
-    # Calculate average rating
-    if reviews:
-        average_rating = sum(review.rating for review in reviews) / len(reviews)
-        average_rating = round(average_rating, 1)
-    else:
-        average_rating = 0.0
-
     context = {
-        'merchandise': merchandise,
-        'reviews': reviews,
-        'average_rating': average_rating,
-        'total_reviews': len(reviews)
+        'merchandise': merchandise
     }
 
     return render(request, "merchandise_detail.html", context)
