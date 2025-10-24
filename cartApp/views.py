@@ -1,4 +1,5 @@
 # cartApp/views.py
+from datetime import timezone
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -7,7 +8,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
 from merchandiseApp.models import Merchandise
-from .models import Cart, CartItem
+from .models import Cart, CartItem, Purchase
 
 from django.conf import settings
 import csv, os, uuid
@@ -209,6 +210,7 @@ def cart_page(request):
         'selected_count': cart_items.filter(selected=True).count(),
     }
     return render(request, 'cart.html', context)
+
 @login_required
 def checkout_view(request):
     cart = _get_cart_for_request(request)
@@ -226,23 +228,12 @@ def checkout_view(request):
         return render(request, 'checkout.html', context)
     
     address = request.POST.get('address')
-
     payment_method = request.POST.get('payment_method')
 
     if not address:
         return JsonResponse({'error': 'Address required'}, status=400)
     if not selected_items.exists():
         return JsonResponse({'error': 'No items selected'}, status=400)
-
-    last_time_iso = request.session.get('last_order_time')
-    if last_time_iso:
-        try:
-            from django.utils import timezone
-            last_time = timezone.datetime.fromisoformat(last_time_iso)
-            if timezone.now() - last_time < timezone.timedelta(seconds=10):
-                return JsonResponse({'error': 'Checkout baru saja dilakukan. Mohon tunggu.'}, status=400)
-        except Exception:
-            pass
 
     try:
         with transaction.atomic():
@@ -258,7 +249,7 @@ def checkout_view(request):
                     raise ValueError("Product not found during checkout")
                 if item.quantity > p.stock:
                     return JsonResponse({'error': f'Not enough stock for {p.name}'}, status=400)
-                
+
             for item in product_items:
                 p = prod_map[item.product.id]
                 p.stock -= item.quantity
@@ -266,33 +257,47 @@ def checkout_view(request):
                     p.sold = (p.sold or 0) + item.quantity
                 p.save()
 
+            order_token = uuid.uuid4()
             purchased_ids = []
             purchased_summary_total = 0
+
             for it in list(selected_items):
                 if it.product:
                     purchased_ids.append(str(it.product.id))
                     price = getattr(it.product, 'price', 0)
+                    product_obj = it.product
+                    name = getattr(product_obj, 'name', '') or ''
                 else:
                     purchased_ids.append(f"csv:{it.product_name}")
                     price = it.product_price or 0
+                    product_obj = None
+                    name = it.product_name or ""
+
+                Purchase.objects.create(
+                    order_token=order_token,
+                    user=request.user if request.user.is_authenticated else None,
+                    product=product_obj,
+                    product_name=name,
+                    product_price=price,
+                    quantity=it.quantity,
+                )
+
                 purchased_summary_total += (price * it.quantity)
                 it.delete()
 
-            import uuid
-            from django.utils import timezone
             request.session['just_ordered'] = True
-            request.session['last_order_token'] = str(uuid.uuid4())
+            request.session['last_order_token'] = str(order_token)
             request.session['last_order_products'] = purchased_ids
             request.session['last_order_summary'] = {
                 'total': int(purchased_summary_total),
                 'count': len(purchased_ids)
             }
-            request.session['last_order_time'] = timezone.now().isoformat()
 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'message': 'Checkout successful', 'redirect_url': reverse('cartApp:loading')})
+
 
 @login_required
 def after_checkout(request):

@@ -1,4 +1,5 @@
 # cartApp/models.py
+import uuid
 from django.db import models
 from django.conf import settings
 from django.db.models import F
@@ -39,3 +40,32 @@ class CartItem(models.Model):
     def __str__(self):
         name = self.product.name if self.product else (self.product_name or 'Unknown')
         return f"{name} x{self.quantity}"
+
+class Purchase(models.Model):
+    order_token = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="purchases")
+    product = models.ForeignKey(
+        "merchandiseApp.Merchandise",
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name="purchases"
+    )
+
+    product_name = models.CharField(max_length=255, blank=True)
+    product_price = models.IntegerField(default=0)
+    quantity = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ["-id"]
+        indexes = [
+            models.Index(fields=["user", "product"]),
+            models.Index(fields=["product"]),
+            models.Index(fields=["order_token"]),
+        ]
+
+    def line_total(self):
+        return (self.product_price or (self.product.price if self.product else 0)) * self.quantity
+
+    def __str__(self):
+        name = self.product.name if self.product else (self.product_name or "Unknown")
+        return f"Purchase {self.order_token} - {name} x{self.quantity}"
