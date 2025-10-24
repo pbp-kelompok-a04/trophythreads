@@ -8,7 +8,6 @@
 {% block content %}
 {% include 'header.html' %}
 <div class="w-full min-h-screen pt-40 pb-10" style="background-color: var(--color-background);">
-
   <div class="fixed top-16 left-0 w-full bg-white border-b border-gray-200 shadow-sm z-40">
     <div class="mx-auto flex items-center justify-between px-12 py-3">
 
@@ -20,7 +19,7 @@
             d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z" />
         </svg>
         <input type="text" id="searchInput" placeholder="Search for a match..."
-          class="w-full border border-gray-300 rounded-md pl-10 pr-4 py-2 focus:ring-2 focus:ring-gray-500 focus:outline-none text-gray-700 text-sm">
+          class="w-full border border-gray-300 rounded-md pl-10 pr-4 py-2 focus:ring-1 focus:ring-[var(--color-secondary)] focus:border-[var(--color-secondary)] focus:outline-none text-gray-700 text-sm transition-all duration-200">
       </div>
 
       <!-- Filter -->
@@ -34,6 +33,7 @@
           <span>Filter</span>
         </button>
 
+        <!-- Pop up Filter -->
         <div id="filterPopup"
           class="hidden absolute right-0 mt-2 bg-gray-100 border border-gray-300 rounded-lg shadow-lg w-48 z-50">
           <ul class="divide-y divide-gray-200">
@@ -51,6 +51,14 @@
 
     </div>
   </div>
+  
+  <!-- Create Match untuk Admin -->
+  {% if user.is_authenticated and user.profile.role == "admin" %}
+  <button type="button" onclick="showCreateModal()"
+    class="fixed bottom-16 right-8 bg-gradient-to-br from-[#ff6a57] to-[#b0200c] hover:from-[#b0200c] hover:to-[#b0200c] text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 px-6 py-3 z-50">
+    + Tambah Informasi Pertandingan
+  </button>
+  {% endif %}
 
   <div class="mx-auto items-center justify-between px-12 py-3">
     <!-- Loading -->
@@ -78,28 +86,40 @@
         <img src="{% static 'image/no-matches.png' %}" alt="No matches found" class="w-full h-full object-contain">
       </div>
       <h3 class="text-lg text-[var(--color-primary)] font-semibold mb-2">No matches found!</h3>
-      {% if user.is_authenticated and user.is_staff %}
-      <p class="text-gray-500 mb-6">🔥Keep the fans updated by adding the latest match now!🔥</p>
-      <a href="{% url 'InformasiPertandingan:create_match' %}"
-        class="inline-flex items-center px-4 py-2 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary)] transition-colors">
-        Create Match
-      </a>
+      {% if user.is_authenticated and user.profile.role == 'admin' %}
+      <p class="text-red-800 mb-6">🔥Keep the fans updated by adding the latest match now!🔥</p>
       {% endif %}
     </div>
   </div>
 </div>
+{% include 'footer.html' %}
 
 <script>
   const MATCHES_API_ENDPOINT = "{% url 'InformasiPertandingan:show_json' %}";
   const filterButton = document.getElementById("filterButton");
   const filterPopup = document.getElementById("filterPopup");
   const loading = document.getElementById("loading");
-  const errorMsg = document.getElementById("error");
+  const errorMessage = document.getElementById("error");
   const emptyState = document.getElementById("empty");
   const grid = document.getElementById("grid");
+  const searchInput = document.getElementById("searchInput");
+  const LOAD_COUNT = 30; // maksimal match tiap load biar ga kebanyakan
+  let visibleCount = LOAD_COUNT;
+
+  // untuk load more jika sudah mencapai 30
+  const loadMoreContainer = document.createElement("div");
+  loadMoreContainer.className = "flex justify-center mt-8";
+  loadMoreContainer.innerHTML = `
+  <button id="loadMoreBtn"
+    class="w-full px-6 py-2 border border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-md hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-black/5 transition-colors">
+    Load More Matches
+  </button>
+`;
 
   let matchesData = [];
+  let currentSortType = null;
 
+  // menutup popup jika diclick bagian luar popup
   filterButton.addEventListener("click", () => {
     filterPopup.classList.toggle("hidden");
   });
@@ -108,7 +128,12 @@
       filterPopup.classList.add("hidden");
     }
   });
+  // selalu memfilter data pertandingan
+  searchInput.addEventListener("input", () => {
+    applyFilter();
+  });
 
+  // menampilkan match data
   async function fetchMatches() {
     try {
       showSection("loading");
@@ -124,15 +149,16 @@
     }
   }
 
+  // memilih tampilan yang sesuai
   function showSection(type) {
     loading.classList.add("hidden");
-    errorMsg.classList.add("hidden");
+    errorMessage.classList.add("hidden");
     emptyState.classList.add("hidden");
     grid.classList.add("hidden");
     if (type === "loading") {
       loading.classList.remove("hidden");
     } else if (type === "error") {
-      errorMsg.classList.remove("hidden");
+      errorMessage.classList.remove("hidden");
     } else if (type === "empty") {
       emptyState.classList.remove("hidden");
     } else if (type === "grid") {
@@ -140,6 +166,7 @@
     }
   }
 
+  // membuka tutup menu titik tiga untuk admin
   function toggleMenu(event, matchId) {
     event.stopPropagation();
     const button = event.currentTarget;
@@ -151,6 +178,7 @@
     }
   }
 
+  // semua menu ditutup jika diklik di luar menu admin
   document.addEventListener('click', (e) => {
     const adminMenus = document.querySelectorAll("[id^='menu-']");
     adminMenus.forEach(menu => {
@@ -164,38 +192,48 @@
     });
   });
 
+  // memunculkan modal edit
   async function showModal(event, matchId) {
     event.stopPropagation();
     const detailURL = `{% url 'InformasiPertandingan:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchId);
-
     try {
-        const response = await fetch(detailURL);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const matchObject = await response.json();
-        showEditModal(matchObject);
+      const response = await fetch(detailURL);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const matchObject = await response.json();
+      showEditModal(matchObject);
     } catch (error) {
-        console.error("ERROR: Gagal mengambil data detail match:", error);
-        showToast("Could not fetch match details for editing.", "error");
+      console.error("ERROR: Gagal mengambil data detail match:", error);
+      showToast("Could not fetch match details for editing.", "error");
     }
   }
 
+  // render satu element match dan sanitasi
   function renderMatchElement(matchItem) {
+    const id = DOMPurify.sanitize(matchItem.id);
+    const title = DOMPurify.sanitize(matchItem.title);
+    const homeTeam = DOMPurify.sanitize(matchItem.home_team.name);
+    const homeFlag = DOMPurify.sanitize(matchItem.home_team.flag);
+    const awayTeam = DOMPurify.sanitize(matchItem.away_team.name);
+    const awayFlag = DOMPurify.sanitize(matchItem.away_team.flag);
+    const scoreHome = matchItem.score_home;
+    const scoreAway = matchItem.score_away;
     const articleElement = document.createElement('article');
     articleElement.className = 'w-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 px-6 py-4 flex flex-col relative mb-4';
-
     const detailLink = `{% url 'InformasiPertandingan:show_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchItem.id);
+    
     articleElement.addEventListener('click', () => {
       window.location.href = detailLink;
     });
 
+    // jika admin maka ada menu admin (titik tiga)
     const editLink = `{% url 'InformasiPertandingan:edit_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchItem.id);
     const deleteLink = `{% url 'InformasiPertandingan:delete_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchItem.id);
-    const isAdmin = "{{ user.is_authenticated }}" === "True" && "{{ user.profile.role }}" === "Admin";
-
+    const isAdmin = "{{ user.is_authenticated }}" === "True" && "{{ user.profile.role }}" === "admin";
+    const hotBadgeHtml = matchItem.is_info_hot ? DOMPurify.sanitize(`<span class="absolute top-4 left-4 inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">🔥Hot</span>`): '';
     const adminMenu = isAdmin
-      ? '' : `
+      ? `
       <div class="absolute top-4 right-4" onclick="event.stopPropagation()">
         <button class="admin-menu-btn text-gray-500 hover:text-gray-700" onclick="toggleMenu(event, '${matchItem.id}')">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -204,12 +242,12 @@
             <circle cx="12" cy="19" r="2" />
           </svg>
         </button>
-        <div id="menu-${matchItem.id}" class="hidden absolute right-0 mt-2 bg-gray-100 border border-gray-300 rounded-lg shadow-lg w-32 z-50">
+        <div id="menu-${id}" class="hidden absolute right-0 mt-2 bg-gray-100 border border-gray-300 rounded-lg shadow-lg w-32 z-50">
           <ul class="text-sm text-gray-700 divide-y divide-gray-200">
             <li>
               <button
                 class="block w-full text-left px-4 py-2 hover:bg-gray-200"
-                onclick="showModal(event, '${matchItem.id}')">
+                onclick="showModal(event, '${id}')">
                 Edit
               </button>
             </li>
@@ -219,30 +257,31 @@
           </ul>
         </div>
       </div>`
-      ;
+      : '';
 
     const completeCardHtml = `
+    ${hotBadgeHtml}
     ${adminMenu}
 
     <div class="flex items-center justify-center mb-3">
-      <h3 class="text-lg font-bold text-center">${matchItem.title}</h3>
+      <h3 class="text-lg font-bold text-center">${title}</h3>
     </div>
 
     <div class="flex items-center justify-center gap-4 text-gray-800 text-sm md:text-base">
       <div class="flex items-center gap-2">
-        <span class="font-medium font-body">${matchItem.home_team}</span>
-        <img src="${matchItem.home_flag}" alt="${matchItem.home_team}" class="w-9 h-6 object-cover rounded-sm border border-gray-300">
+        <span class="font-medium font-body">${homeTeam}</span>
+        <img src="${homeFlag}" alt="${homeTeam}" class="w-9 h-6 object-cover rounded-sm border border-gray-300">
       </div>
 
       <div class="flex items-center gap-2 font-body font-semibold text-lg">
-        <span>${matchItem.score_home}</span>
+        <span>${scoreHome}</span>
         <span>-</span>
-        <span>${matchItem.score_away}</span>
+        <span>${scoreAway}</span>
       </div>
 
       <div class="flex items-center gap-2">
-        <img src="${matchItem.away_flag}" alt="${matchItem.away_team}" class="w-9 h-6 object-cover rounded-sm border border-gray-300">
-        <span class="font-medium font-body">${matchItem.away_team}</span>
+        <img src="${awayFlag}" alt="${awayTeam}" class="w-9 h-6 object-cover rounded-sm border border-gray-300">
+        <span class="font-medium font-body">${awayTeam}</span>
       </div>
     </div>
   `;
@@ -251,32 +290,59 @@
     return articleElement;
   }
 
+  // render semua pertandingan sesuai jumlah
   function renderAllMatches(matchItems) {
     grid.innerHTML = '';
-    matchItems.forEach(matchItem => {
+    const visibleMatches = matchItems.slice(0, visibleCount);
+    visibleMatches.forEach(matchItem => {
       const cardElement = renderMatchElement(matchItem);
       grid.appendChild(cardElement);
     });
+    if (visibleCount < matchItems.length) {
+      grid.appendChild(loadMoreContainer);
+      document.getElementById("loadMoreBtn").onclick = () => {
+        visibleCount += LOAD_COUNT;
+        renderAllMatches(matchItems);
+      };
+    } else {
+      if (loadMoreContainer.parentNode) {
+        loadMoreContainer.parentNode.removeChild(loadMoreContainer);
+      }
+    }
   }
 
+  // menggunakan filter untuk sort dan search
   function applyFilter(type) {
-    if (type === "date") {
-      matchesData.sort((a, b) => new Date(b.date) - new Date(a.date));
-      showToast("Matches sorted by latest date.", "success");
-    } else if (type === "views") {
-      matchesData.sort((a, b) => (b.views || 0) - (a.views || 0));
-      showToast("Matches sorted by highest views.", "success");
+    if (type) {
+      currentSortType = type;
+      if (type === "date") {
+        showToast("Matches sorted by latest date.", "success");
+      } else if (type === "views") {
+        showToast("Matches sorted by highest views.", "success");
+      }
     }
 
-    if (!matchesData || matchesData.length === 0) {
+    const searchText = searchInput.value.toLowerCase();
+    let filteredMatches = matchesData.filter(match => {
+      return match.title.toLowerCase().includes(searchText);
+    });
+
+    if (type === "date") {
+      filteredMatches.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if (type === "views") {
+      filteredMatches.sort((a, b) => (b.views || 0) - (a.views || 0));
+    }
+
+    if (!filteredMatches || filteredMatches.length === 0) {
       showSection("empty");
     } else {
       showSection("grid");
-      renderAllMatches(matchesData);
+      renderAllMatches(filteredMatches);
     }
     filterPopup.classList.add("hidden");
   }
 
+  document.addEventListener('matchDataUpdated', fetchMatches);
   fetchMatches();
 </script>
 {% include 'InformasiPertandingan/modal.html' %}
