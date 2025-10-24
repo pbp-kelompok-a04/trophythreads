@@ -51,11 +51,13 @@
             const response = await fetch(deleteTargetLink, { method: 'POST', headers: { 'X-CSRFToken': getCSRFToken() } });
             if (!response.ok) throw new Error("Failed to delete match");
 
-            showToast("Match deleted successfully!", "success");
             deleteModal.classList.add('hidden');
             if (deleteRedirectUrl) {
+                sessionStorage.setItem('toastMessage', 'Match deleted successfully!');
+                sessionStorage.setItem('toastType', 'success');
                 window.location.href = deleteRedirectUrl;
             } else {
+                showToast("Match deleted successfully!", "success");
                 if (typeof fetchMatches === 'function') {
                     fetchMatches(); 
                 }
