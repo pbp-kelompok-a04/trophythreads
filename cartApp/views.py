@@ -292,7 +292,7 @@ def checkout_view(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-    return JsonResponse({'message': 'Checkout successful', 'redirect_url': reverse('cartApp:after_checkout')})
+    return JsonResponse({'message': 'Checkout successful', 'redirect_url': reverse('cartApp:loading')})
 
 @login_required
 def after_checkout(request):
@@ -308,3 +308,17 @@ def after_checkout(request):
         'last_order_products': last_order_products,
     }
     return render(request, 'after_checkout.html', context)
+
+@login_required
+def loading_view(request):
+    redirect_url = reverse('cartApp:after_checkout')
+    # waktu tampil loading (ms) 
+    wait_ms = 1400
+    last_order_summary = request.session.get('last_order_summary')
+
+    context = {
+        'redirect_url': redirect_url,
+        'wait_ms': wait_ms,
+        'last_order_summary': last_order_summary,
+    }
+    return render(request, 'loading.html', context)
