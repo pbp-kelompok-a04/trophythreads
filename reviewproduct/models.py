@@ -6,7 +6,6 @@ from django.utils import timezone
 from merchandiseApp.models import Merchandise
 from cartApp.models import Purchase
 
-
 class Review(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     product = models.ForeignKey(Merchandise, on_delete=models.CASCADE, related_name='reviews', db_index=True)
@@ -35,7 +34,7 @@ class Review(models.Model):
     def save(self, *args, **kwargs):
         if not self.purchased_at:
             oi = (
-                Perchase.objects
+                Purchase.objects
                 .filter(order__user=self.user, product=self.product)
                 .order_by('-purchased_at')
                 .first()

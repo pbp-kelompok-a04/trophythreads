@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Count, Q
 from django.contrib.auth.models import User
-from .models import Merchandise, Review, Purchase
+from .models import Merchandise, Review, Purchase 
 
 
 # ---------- Views ----------
@@ -33,7 +33,7 @@ def product_reviews(request, product_id):
     can_review = False
     if request.user.is_authenticated:
         # Cek apakah user pernah order produk ini
-        #has_ordered = Purchase.objects.filter(order__user=request.user, product=product).exists()
+        has_ordered = Purchase.objects.filter(order__user=request.user, product=product).exists()
         already_reviewed = Review.objects.filter(product=product, user=request.user).exists()
         can_review = not already_reviewed
 
@@ -54,7 +54,13 @@ def add_review(request, product_id):
     """Halaman + form tambah review."""
     product = get_object_or_404(Merchandise, pk=product_id)
 
-    # Kalau sudah pernah review, tolak
+
+    # pastikan user pernah order produk ini
+    has_ordered = Purchase.objects.filter(order__user=request.user, product=product).exists()
+    if not has_ordered:
+        return JsonResponse({"error": "Kamu hanya bisa review produk yang sudah kamu beli."}, status=403)
+
+    # kalau sudah pernah review, tolak
     if Review.objects.filter(product=product, user=request.user).exists():
         messages.warning(request, "Kamu sudah pernah memberikan review untuk produk ini.")
         return redirect("reviewproduct:product_reviews", product_id=product.id)
