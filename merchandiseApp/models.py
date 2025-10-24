@@ -3,7 +3,7 @@ from main.models import Profile
 from django.db import models
 
 class Merchandise(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey('main.Profile', on_delete=models.CASCADE, null=True)
     
     CATEGORY_CHOICES = [
         ('jersey', 'Jersey'),
