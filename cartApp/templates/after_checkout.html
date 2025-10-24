@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+  <title>Pembayaran Berhasil - TrophyThreads</title>
+{% endblock meta %}
+
+{% block content %}
+{% include 'header.html' %}
+
+<div class="min-h-screen flex flex-col bg-gradient-to-br from-[#FFECEC] via-[#FFF5F5] to-[#FFD8D8]">
+  <br></br>
+  <div class="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex items-center justify-center">
+    <div class="mx-auto rounded-2xl p-10 shadow-[0_10px_40px_rgba(229,63,39,0.08)] w-full" 
+         style="max-width:760px; background: linear-gradient(180deg, #FFFFFF 0%, #FFF5F5 100%);">
+      <div class="flex flex-col items-center text-center">
+
+        <h1 class="text-xl md:text-5xl font-extrabold text-[#F36B4C] tracking-widest uppercase">
+          Pembayaran <span class="ml-2 text-[#FFBFBF]">Berhasil</span>
+        </h1>
+
+        <div class="rounded-full bg-gradient-to-tr from-[#FFBFBF] to-[#FFD6C9] p-8 mt-6 mb-4 animate-bounce-slow text-6xl shadow-lg text-white">
+          ᕙ( •̀ ᗜ •́ )ᕗ
+        </div>
+
+        <p class="mt-2 bg-gradient-to-r from-[#FF7A5C] to-[#ED3F27] bg-clip-text text-transparent font-medium text-lg max-w-xl">
+          Terima kasih! Pesanan kamu akan segera diproses.
+        </p>
+
+        <!-- Button -->
+        <div class="mt-8">
+          <a href="{% url 'merchandiseApp:show_mainMerchandise' %}" 
+             class="inline-flex items-center gap-2 bg-gradient-to-r from-[#FF7A5C] to-[#FF5341] text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:opacity-90 transition">
+            ← Kembali ke Home
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'footer.html' %}
+
+<style>
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-bounce-slow {
+  animation: bounce-slow 2.0s ease-in-out infinite;
+}
+</style>
+
+{% endblock content %}
