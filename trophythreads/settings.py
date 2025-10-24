@@ -34,7 +34,9 @@ ALLOWED_HOSTS = ["localhost",
                  "127.0.0.1", 
                  "samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -45,14 +47,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'merchandiseApp',
+    'favoritesApp',
     'InformasiPertandingan',
     'forumApp',
-    'reviewproduct',
-    'merchandiseApp',
+    'cartApp',
+    'reviewproduct'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
