@@ -215,12 +215,7 @@
 
             <!-- Rating Selection -->
             <div class="mb-8">
-                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 mb-">
-                    <!-- Rating and Review Link reviewProduct:main_review' -->
-                    <a href="?" class="text-orange-600 hover:text-orange-900 flex items-center gap-2">
-                        <span class="text-xl" style="font-family: var(--font-title);">Rating and Review Details </span>
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
+                <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
                     <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
                         Reviews
                         <i class="fas fa-star text-yellow-400 ml-3 mr-3"></i>
@@ -231,6 +226,11 @@
                         <a href="?filter=2" class="{% if request.GET.filter == '2' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5 mr-3">2</a>
                         <a href="?filter=1" class="{% if request.GET.filter == '1' %} bg-red-700 text-white {% else %} bg-gray-300 text-gray-600 {% endif %} rounded-xl text-sm pt-3 pb-3 pl-5 pr-5">1</a>
                     </h2>
+                     <!-- Rating and Review Link reviewProduct:main_review' -->
+                    <a href="?" class="text-orange-600 font-bold hover:text-orange-900 flex items-center gap-2">
+                        <span class="text-xl mb-4" style="font-family: var(--font-title);">Rating and Review Details  </span>
+                        <i class="fas fa-arrow-right mb-4"></i>
+                    </a>
                   
             <!-- Reviews List -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
