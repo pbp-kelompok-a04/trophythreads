@@ -1,9 +1,9 @@
 import uuid
-from main.models import Profile
+from django.contrib.auth.models import User
 from django.db import models
 
 class Merchandise(models.Model):
-    user = models.ForeignKey('main.Profile', on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     
     CATEGORY_CHOICES = [
         ('jersey', 'Jersey'),
