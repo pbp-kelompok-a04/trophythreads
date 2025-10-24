@@ -11,23 +11,44 @@
 <div class="min-h-screen bg-gradient-to-br from-pink-50 via-white to-pink-50 pt-20 pb-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     
-    <!-- Header Section -->
-    <div class="flex items-center justify-between mb-8">
-      <div class="flex items-center gap-3">
-        <button onclick="window.history.back()" class="text-[#8B1538] hover:text-[#6B0F28] transition-colors">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
-        <h1 class="text-3xl font-bold text-[#8B1538]">Favorites</h1>
+    <!-- START: Header yang disesuaikan biar mirip My Cart -->
+    <div class="mb-6">
+      <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6">
+        <div class="flex items-center justify-between">
+          <!-- kiri: back + judul -->
+          <div class="flex items-center gap-4">
+            <button onclick="window.history.back()" 
+              class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-pink-50 text-[#8B1538] hover:text-[#6B0F28] hover:bg-pink-100 transition">
+              <!-- arrow -->
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+
+            <div>
+              <h1 class="text-xl md:text-2xl font-bold text-[#8B1538] leading-tight" style="font-family: var(--font-title);">
+                Favorites
+              </h1>
+              <p class="text-sm text-gray-500">Produk yang kamu simpan</p>
+            </div>
+          </div>
+
+          <!-- kanan: tombol menuju cart -->
+          <div class="flex items-center gap-3">
+            <a href="{% url 'cartApp:cart_page' %}" 
+              class="relative bg-[#8B1538] px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition inline-flex items-center gap-2 text-sm text-white">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="font-medium">My Cart</span>
+              <!-- badge keranjang -->
+              <span id="cart-badge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </a>
+          </div>
+        </div>
       </div>
-      
-      <button onclick="window.location.href='/merchandise/'" class="text-[#8B1538] hover:text-[#6B0F28] transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-        </svg>
-      </button>
     </div>
+    <!-- END: Header -->
+
+
 
     <!-- Loading State -->
     <div id="loadingState" class="flex justify-center items-center py-20">
