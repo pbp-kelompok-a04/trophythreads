@@ -1,5 +1,5 @@
 <div id="matchModal"
-    class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
     <div id="matchModalContent" class="bg-white rounded-lg shadow-lg w-11/12 sm:w-4/5 max-h-[90vh] overflow-y-auto p-6">
         <!--Title (bagian atas modal)-->
         <div class="flex items-center justify-between border-b pb-4 mb-4">
@@ -73,12 +73,9 @@
             <!--Bagian bawah modal-->
             <div class="flex gap-2 mt-4">
                 <button type="button" onclick="hideMatchModal()"
-                    style="border-color: var(--color-secondary); color: var(--color-secondary);"
-                    class="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50">Cancel</button>
-                <button type="submit" id="submitButton" style="background-color: var(--color-secondary)"
-                    onmouseover="this.style.backgroundColor='var(--color-primary)'"
-                    onmouseout="this.style.backgroundColor='var(--color-secondary)'"
-                    class="px-4 py-2 w-full text-white rounded transition-all duration-200"></button>
+                    class="px-4 py-2 border rounded text-[var(--color-secondary)] border-[var(--color-secondary)] hover:bg-gray-50">Cancel</button>
+                <button type="submit" id="submitButton" 
+                    class="px-4 py-2 w-full text-white rounded transition-all duration-200 bg-[var(--color-secondary)] hover:bg-[var(--color-primary)]"></button>
             </div>
         </form>
     </div>
