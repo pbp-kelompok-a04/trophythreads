@@ -35,13 +35,14 @@ class Review(models.Model):
         if not self.purchased_at:
             oi = (
                 Purchase.objects
-                .filter(order__user=self.user, product=self.product)
-                .order_by('-purchased_at')
+                .filter(user=self.user, product=self.product)
+                .order_by('-id')  # atau '-created_at' kalau punya field waktu
                 .first()
             )
             if oi:
-                self.purchased_at = oi.purchased_at
+                self.purchased_at = timezone.now().date()
         super().save(*args, **kwargs)
+
 
     def delete(self, using=None, keep_parents=False):
         self.deleted = True
