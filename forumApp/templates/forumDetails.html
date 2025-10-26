@@ -237,7 +237,7 @@ document.getElementById('createCommentForm').addEventListener('submit', async fu
     
     if (IS_AUTHENTICATED === false) {
         showToast("You must be logged in to post a comment.","info")
-        console.log("GUEST ACTION BLOCKED: Must be logged in to post a comment. Showing toast.");
+        console.log("GUEST ACTION BLOCKED: Must be logged in to post a comment.");
 
         if (typeof showToast !== 'function') {
             showToast("You must be logged in to post a comment.","info")
