@@ -349,6 +349,24 @@
     margin-top: 50px;
     margin-bottom: 60px;
   }
+
+  .btn-simple-back {
+  display: inline-block;
+  font-weight: 600;
+  color: #b5371b;
+  text-decoration: none;
+  font-size: 16px;
+  margin-top: 10px;   /* jarak dari atas */
+  margin-bottom: 10px; 
+  transition: color 0.2s ease;
+}
+
+  .btn-simple-back:hover {
+    color: #7a0e22;
+    text-decoration: underline;
+  }
+
+
 </style>
 
 <div class="page">
@@ -360,6 +378,10 @@
     {% endfor %}
   </div>
   {% endif %}
+
+  <a href="{% url 'merchandiseApp:show_merchandise' product.id %}" class="btn-simple-back">← Back</a>
+
+
 
   <!-- Header Section -->
   <section class="panel header">
@@ -392,7 +414,8 @@
       {% endif %}
     </div>
   </section>
-
+  
+  
   <!-- Reviews List Section -->
   <section class="panel list">
     {% for r in reviews %}
