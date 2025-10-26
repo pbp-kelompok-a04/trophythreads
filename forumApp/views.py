@@ -118,7 +118,7 @@ def increment_views(request, thread_id):
 
 def show_json(request):
     user_id = request.user.id if request.user.is_authenticated else None
-    forum_list = ForumPost.objects.all().prefetch_related('comments') # Prefetch comments for efficiency
+    forum_list = ForumPost.objects.all().prefetch_related('comments') 
     
     data = []
     for forum in forum_list:
@@ -156,7 +156,7 @@ def show_json_by_id(request, id):
             'author': forum.author.username,
             'author_id': forum.author.id,
             'post_type': forum.post_type,
-            'views': forum.views, # <-- EXPOSE VIEWS
+            'views': forum.views, 
             'created_at': forum.created_at.isoformat() if forum.created_at else None,
             'updated_at': forum.updated_at.isoformat() if forum.updated_at else None,
             'is_author': forum.author.id == user_id, 
@@ -241,7 +241,7 @@ def edit_thread(request, thread_id):
         try:
             forum_post = get_object_or_404(ForumPost, pk=thread_id)
             
-            # Authorization check: only the author can edit
+            # Check only the author can edit
             if forum_post.author != request.user:
                 return JsonResponse({"error": "You are not authorized to edit this thread."}, status=403)
                 
@@ -279,7 +279,7 @@ def delete_thread(request, thread_id):
         try:
             forum_post = get_object_or_404(ForumPost, pk=thread_id)
             
-            # Authorization check: only the author can delete
+            # Check only the author can delete
             if forum_post.author != request.user:
                 return JsonResponse({"error": "You are not authorized to delete this thread."}, status=403)
                 
@@ -299,7 +299,7 @@ def edit_comment(request, comment_id):
         try:
             comment = get_object_or_404(Comment, pk=comment_id)
 
-            # Authorization check: only the author can edit
+            # Check only the author can edit
             if comment.author != request.user:
                 return JsonResponse({"error": "You are not authorized to edit this comment."}, status=403)
 
@@ -335,7 +335,7 @@ def delete_comment(request, comment_id):
         try:
             comment = get_object_or_404(Comment, pk=comment_id)
 
-            # Authorization check: only the author can delete
+            # Check only the author can delete
             if comment.author != request.user:
                 return JsonResponse({"error": "You are not authorized to delete this comment."}, status=403)
 
