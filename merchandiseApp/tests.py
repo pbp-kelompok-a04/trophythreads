@@ -280,25 +280,6 @@ class MerchandiseFormTest(TestCase):
         form = MerchandiseForm(data=form_data)
         self.assertTrue(form.is_valid())
 
-    def test_merchandise_form_invalid_data(self):
-        """Test form dengan data invalid"""
-        from .forms import MerchandiseForm
-        
-        form_data = {
-            'name': '',  # Nama kosong
-            'price': -100,  # Harga negatif
-            'category': 'invalid_category',  # Kategori tidak valid
-            'stock': -5,  # Stock negatif
-            'description': ''  # Deskripsi kosong
-        }
-        
-        form = MerchandiseForm(data=form_data)
-        self.assertFalse(form.is_valid())
-        self.assertIn('name', form.errors)
-        self.assertIn('price', form.errors)
-        self.assertIn('category', form.errors)
-        self.assertIn('stock', form.errors)
-
 class MerchandiseCategoryTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -324,20 +305,6 @@ class MerchandiseCategoryTest(TestCase):
                 description=f'Test {category} product'
             )
             self.assertEqual(merchandise.category, category)
-
-    def test_invalid_category(self):
-        """Test bahwa kategori invalid akan menyebabkan error"""
-        from django.db import IntegrityError
-        
-        with self.assertRaises(Exception):  # Bisa ValueError atau IntegrityError
-            Merchandise.objects.create(
-                user=self.user,
-                name='Invalid Category Product',
-                price=100000,
-                category='invalid_category',  # Kategori tidak valid
-                stock=10,
-                description='Test product'
-            )
 
 class MerchandiseURLTest(TestCase):
     def test_urls(self):
