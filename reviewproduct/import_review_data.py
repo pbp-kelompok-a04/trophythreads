@@ -25,7 +25,7 @@ except Exception as e:
     print(f"❌ Gagal setup Django: {e}")
     sys.exit(1)
 
-# === Import Model ===
+# === Import Model ==
 try:
     from django.contrib.auth.models import User
     from merchandiseApp.models import Merchandise

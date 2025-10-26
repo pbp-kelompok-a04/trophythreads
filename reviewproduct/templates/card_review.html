@@ -3,7 +3,7 @@
     <div class="avatar">{{ review.user.username|first|upper }}</div>
     <div class="r-info">
       <div class="name">{{ review.user.username }}</div>
-      <div class="date">{{ review.created_at|date:"d M Y" }}</div>
+      <div class="date">{{ review.created_at|date:"d/m/Y" }}</div>
     </div>
   </div>
 
@@ -18,6 +18,10 @@
   </div>
 
   <div class="body">{{ review.body }}</div>
+
+  {% if review.updated_at > review.created_at %}
+  <small style="color: #888;">(edited on {{ review.updated_at|date:"d/m/Y H:i" }})</small>
+  {% endif %}
 
   {% if request.user == review.user %}
   <div class="review-actions">
