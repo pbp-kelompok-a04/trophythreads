@@ -19,8 +19,13 @@ class Review(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['product', 'user'], name='unique_user_review_per_product')
+            models.UniqueConstraint(
+                fields=['product', 'user'],
+                condition=models.Q(deleted=False),
+                name='unique_user_review_per_product_active'
+            )
         ]
+
         indexes = [
             models.Index(fields=['product', 'deleted', '-created_at']),
             models.Index(fields=['product', 'rating']),

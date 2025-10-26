@@ -21,7 +21,7 @@
 
   html, body {
     margin: 0;
-    background: var(--bg);
+    background: var(--bg) !important;
     color: var(--text);
     font-family: var(--font-body);
   }
@@ -35,9 +35,11 @@
 
   .page {
     width: 100%;
-    margin: 0 auto 80px;
-    padding-top: 64px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 64px 20px 40px;
     animation: fadeIn 0.4s ease-in-out;
+    min-height: calc(100vh - 200px);
   }
 
   /* Header panel */
@@ -79,23 +81,6 @@
     flex: 1;
   }
 
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--maroon));
-    color: #fff;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 12px;
-    font-weight: 700;
-    border: none;
-    box-shadow: 0 4px 12px rgba(237,63,39,0.25);
-    transition: all .2s ease;
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(237,63,39,0.3);
-    opacity: .95;
-  }
-
   /* Filter pill buttons */
   .pill {
     display: inline-flex;
@@ -122,6 +107,45 @@
     transform: translateY(-2px);
     background: #ffe0e0;
   }
+  .pill.active:hover {
+    background: linear-gradient(135deg, var(--accent), var(--maroon));
+  }
+
+  /* Add Review Button */
+  .btn-add-anim {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #ff5f3d, #7a0e22);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    box-shadow: 0 6px 14px rgba(237,63,39,0.25);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-add-anim:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(237,63,39,0.35);
+  }
+  .btn-add-anim::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.25);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+  .btn-add-anim:hover::after {
+    left: 120%;
+  }
 
   /* Review list panel */
   .panel.list {
@@ -135,12 +159,19 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.04);
     padding: 18px 20px;
     margin: 12px 0;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.3s ease;
   }
 
   .review-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  }
+
+  .r-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
   }
 
   .avatar {
@@ -152,13 +183,46 @@
     display: grid;
     place-items: center;
     font-weight: 800;
+    font-size: 16px;
+  }
+
+  .name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .date {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .stars {
+    color: #ffb400;
+    font-size: 18px;
+    margin: 8px 0;
+  }
+
+  .stars .on {
+    color: #ffb400;
+  }
+
+  .stars .off {
+    color: #ddd;
+  }
+
+  .body {
+    color: var(--text);
+    line-height: 1.6;
+    margin-top: 8px;
   }
 
   .review-actions {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-    margin-top: 8px;
+    margin-top: 12px;
   }
 
   .btn-delete, .btn-edit {
@@ -168,6 +232,7 @@
     cursor: pointer;
     font-size: 13px;
     transition: all .2s ease;
+    text-decoration: none;
   }
 
   .btn-delete {
@@ -179,15 +244,56 @@
     opacity: .9;
     transform: translateY(-1px);
   }
+  .btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 
   .btn-edit {
     background: #fff;
     border: 1px solid var(--maroon);
     color: var(--maroon);
+    display: inline-block;
   }
   .btn-edit:hover {
     background: var(--maroon);
     color: #fff;
+  }
+
+  /* Back to Home Button */
+  .btn-back-anim {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #ff5f3d, #7a0e22);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 14px rgba(237,63,39,0.25);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-back-anim:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(237,63,39,0.35);
+  }
+  .btn-back-anim::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+  .btn-back-anim:hover::after {
+    left: 120%;
   }
 
   /* Toast notification */
@@ -217,6 +323,8 @@
     transform: translateY(-6px);
     transition: all .3s ease;
   }
+  .toast.success { border-left-color: #2e7d32; }
+  .toast.error { border-left-color: #d32f2f; }
   .toast.success::before { content: "✅"; }
   .toast.error::before { content: "❌"; }
 
@@ -225,10 +333,26 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 40px 20px;
+    line-height: 1.8;
+  }
+
+  
+  .back-home-container {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 60px;
+  }
 </style>
 
 <div class="page">
-
+  <!-- Toast Messages -->
   {% if messages %}
   <div id="toast-container">
     {% for message in messages %}
@@ -237,9 +361,11 @@
   </div>
   {% endif %}
 
+  <!-- Header Section -->
   <section class="panel header">
     <div class="header-bar">
       <h2 class="header-title">💬 Ratings and Reviews</h2>
+      
       <div class="header-center">
         <a class="pill {% if stars == 'all' %}active{% endif %}" href="?stars=all">
           All <span class="count">{{ total|default:0 }}</span>
@@ -260,197 +386,145 @@
       </div>
 
       {% if can_review %}
-  <a href="{% url 'reviewproduct:add_review' product.id %}" class="btn-add-anim">
-    ＋ Add Review
-  </a>
-{% endif %}
-
-<style>
-.btn-add-anim {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(90deg, #ff5f3d, #7a0e22);
-  color: #fff;
-  padding: 10px 22px;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 15px;
-  text-decoration: none;
-  box-shadow: 0 6px 14px rgba(237,63,39,0.25);
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-
-.btn-add-anim:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(237,63,39,0.35);
-}
-
-
-.btn-add-anim::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.25);
-  transform: skewX(-20deg);
-  transition: left 0.5s ease;
-}
-
-.btn-add-anim:hover::after {
-  left: 120%;
-}
-
-
-.btn-add-anim:hover span {
-  animation: pulse 0.5s ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-</style>
-
+        <a href="{% url 'reviewproduct:add_review' product.id %}" class="btn-add-anim">
+          ＋ Add Review
+        </a>
+      {% endif %}
     </div>
   </section>
 
+  <!-- Reviews List Section -->
   <section class="panel list">
     {% for r in reviews %}
       {% include "card_review.html" with review=r product=product %}
     {% empty %}
-      <div class="review-card" style="text-align:center;color:var(--muted);font-weight:600;padding:30px 0;">
-        Belum ada review 😔 <br>Jadilah yang pertama memberikan ulasan!
+      <div class="review-card empty-state">
+        Belum ada review 😔<br>
+        Jadilah yang pertama memberikan ulasan!
       </div>
     {% endfor %}
   </section>
 
-  <div style="text-align:center; margin-top:40px;">
-  <a href="{% url 'merchandiseApp:show_main' %}"
-     class="btn-back-anim">
-     🏠 Kembali ke Home
-  </a>
+  <!-- Back to Home Button -->
+  <div class="back-home-container">
+    <a href="{% url 'merchandiseApp:show_main' %}" class="btn-back-anim">
+      🏠 Kembali ke Home
+    </a>
+  </div>
 </div>
 
-<style>
-.btn-back-anim {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(90deg, #ff5f3d, #7a0e22);
-  color: #fff;
-  padding: 12px 28px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: 0 6px 14px rgba(237,63,39,0.25);
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-back-anim:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(237,63,39,0.35);
-}
-
-
-.btn-back-anim::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.2);
-  transform: skewX(-20deg);
-  transition: left 0.5s ease;
-}
-
-.btn-back-anim:hover::after {
-  left: 120%;
-}
-
-
-.btn-back-anim:hover::before {
-  animation: wiggle 0.6s ease-in-out;
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-10deg); }
-  50% { transform: rotate(8deg); }
-  75% { transform: rotate(-6deg); }
-}
-</style>
-
+{% include 'footer.html' %}
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("🟢 Review page loaded");
+
+  // ==================== TOAST ANIMATION ====================
   const toasts = document.querySelectorAll(".toast");
   toasts.forEach((toast, i) => {
     setTimeout(() => {
       toast.style.opacity = "1";
       toast.style.transform = "translateY(0)";
     }, 200 + i * 150);
-    setTimeout(() => toast.remove(), 3500 + i * 100);
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 300);
+    }, 3500 + i * 100);
   });
 
+  // ==================== DELETE REVIEW ====================
   const deleteButtons = document.querySelectorAll(".btn-delete");
-  deleteButtons.forEach(btn => {
+  console.log(`🔍 Found ${deleteButtons.length} delete button(s)`);
+
+  deleteButtons.forEach((btn, index) => {
+    console.log(`Button ${index + 1}: ${btn.dataset.url}`);
+    
     btn.addEventListener("click", function (e) {
       e.preventDefault();
+      e.stopPropagation();
+      
       const url = this.dataset.url;
-      if (!confirm("Yakin ingin menghapus review ini?")) return;
+      const card = this.closest(".review-card");
+      
+      console.log("🗑️ Delete clicked:", url);
+      
+      if (!confirm("Yakin ingin menghapus review ini?")) {
+        console.log("❌ User cancelled");
+        return;
+      }
+
+      // Disable button
+      this.disabled = true;
+      const originalText = this.textContent;
+      this.textContent = "Menghapus...";
+      console.log("⏳ Sending delete request...");
 
       fetch(url, {
         method: "POST",
         headers: {
           "X-CSRFToken": getCookie("csrftoken"),
           "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
         },
       })
-      .then(async (res) => {
-        const ct = res.headers.get("content-type") || "";
-        if (!ct.includes("application/json")) {
-          window.location = url;
-          throw new Error("Non-JSON response");
+      .then(res => {
+        console.log("📡 Response status:", res.status);
+        console.log("📡 Response ok:", res.ok);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
-        if (!res.ok) throw new Error("HTTP " + res.status);
+        
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          console.warn("⚠️ Non-JSON response, reloading...");
+          location.reload();
+          return null;
+        }
+        
         return res.json();
       })
-      .then((data) => {
-        if (data && data.message) {
-          showToast("success", data.message);
-          const card = this.closest(".review-card");
-          card.style.transition = "opacity 0.3s ease";
+      .then(data => {
+        if (!data) return;
+        
+        console.log("✅ Response data:", data);
+        
+        if (data.success || data.message) {
+          showToast("success", data.message || "Review berhasil dihapus!");
+          
+         
+          card.style.transition = "all 0.4s ease";
           card.style.opacity = "0";
+          card.style.transform = "translateX(30px) scale(0.95)";
+          
           setTimeout(() => {
             card.remove();
-            location.reload();
-          }, 300);
+            console.log("🗑️ Card removed from DOM");
+            
+            const remainingReviews = document.querySelectorAll(".review-card:not(.empty-state)").length;
+            console.log(`📊 Remaining reviews: ${remainingReviews}`);
+            
+            if (remainingReviews === 0) {
+              console.log("🔄 No reviews left, reloading...");
+              setTimeout(() => location.reload(), 500);
+            }
+          }, 400);
         } else {
-          showToast("error", (data && data.error) || "Gagal menghapus review.");
+          throw new Error(data.error || "Gagal menghapus review");
         }
       })
-      .catch(() => {
-        showToast("error", "Mengalihkan ke konfirmasi hapus...");
+      .catch(err => {
+        console.error("❌ Error:", err);
+        showToast("error", err.message || "Terjadi kesalahan server");
+        
+        // Re-enable button
+        this.disabled = false;
+        this.textContent = originalText;
       });
     });
   });
 
-  const addReviewBtn = document.querySelector(".btn-primary");
-  if (addReviewBtn) {
-    addReviewBtn.addEventListener("click", function (event) {
-    });
-  }
-
+  // ==================== HELPER FUNCTIONS ====================
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -472,11 +546,17 @@ document.addEventListener("DOMContentLoaded", function () {
     toast.className = `toast ${type}`;
     toast.textContent = text;
     container.appendChild(toast);
+    
     setTimeout(() => {
       toast.style.opacity = "1";
       toast.style.transform = "translateY(0)";
     }, 50);
-    setTimeout(() => toast.remove(), 3000);
+    
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(-10px)";
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
 
   function createToastContainer() {
@@ -491,4 +571,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
 {% endblock content %}
