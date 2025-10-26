@@ -92,18 +92,15 @@ function hideThreadConfirmModal() {
     document.body.classList.remove("overflow-hidden");
 }
 
-// Attach the actual delete logic to the modal's confirm button
 document.getElementById('confirmDeleteThreadBtn').addEventListener('click', () => {
     if (threadIdToDelete) {
-        // Call the private AJAX function
         performDeleteThread(threadIdToDelete); 
         hideThreadConfirmModal();
     }
 });
-// ----------------------------------------
 
 
-// --- HANDLE AUTHENTICATION CHECK ---
+// Check authenticated
 function handleCreateThreadClick() {
   if (IS_AUTHENTICATED === false) {
     if (typeof showToast === 'function') {
@@ -234,7 +231,7 @@ filterButtons.forEach(btn => {
   });
 });
 
-// Update filter styles to match the simpler button style in image 2
+// Update filter button style
 function updateFilterStyles() {
   filterButtons.forEach(btn => {
     if (btn.id === `filter-${activeFilter}`) {
@@ -245,10 +242,6 @@ function updateFilterStyles() {
   });
 }
 
-/**
- * Handles the AJAX DELETE request to delete a thread.
- * @param {string} threadId The ID of the thread to delete.
- */
 async function performDeleteThread(threadId) {
     
     try {
@@ -281,11 +274,9 @@ async function performDeleteThread(threadId) {
     }
 }
 
-// The function called by the render button is now the modal function
 function deleteThread(threadId) {
     showThreadConfirmModal(threadId);
 }
-
 
 function showCreateThreadModal() {
   const modal = document.getElementById("createThreadModal");

@@ -341,10 +341,6 @@ document.getElementById('editCommentForm').addEventListener('submit', async func
     }
 });
 
-/**
- * Executes the AJAX DELETE request for a comment.
- * @param {string} commentId The ID of the comment to delete.
- */
 async function performDeleteComment(commentId) {
     
     try {
@@ -379,9 +375,7 @@ function deleteComment(commentId) {
     showCommentConfirmModal(commentId);
 }
 
-
-// --- Initialization ---
-
+// Initialize
 // Start fetching the data when the page loads
 fetchThreadDetail();
 fetchComments();
