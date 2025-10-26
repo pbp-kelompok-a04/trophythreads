@@ -27,9 +27,12 @@ def product_reviews(request, product_id):
     )
     counts = {i: stats.get(f"c{i}", 0) for i in range(1,6)}
 
-    can_review = request.user.is_authenticated and \
-                 Purchase.objects.filter(user=request.user, product=product).exists() and \
-                 not Review.objects.filter(product=product, user=request.user).exists()
+    can_review = (
+        request.user.is_authenticated
+        and Purchase.objects.filter(user=request.user, product=product).exists()
+        and not Review.objects.filter(product=product, user=request.user, deleted=False).exists()
+    )
+
 
     return render(request, "main_review.html", {
         "product": product,
@@ -51,8 +54,8 @@ def add_review(request, product_id):
         messages.error(request, "Kamu hanya bisa review produk yang sudah dibeli.")
         return redirect("reviewproduct:product_reviews", product_id=product.id)
 
-    # Cek sudah pernah review
-    if Review.objects.filter(product=product, user=request.user).exists():
+    # Cek sudah pernah review (hanya yang belum dihapus)
+    if Review.objects.filter(product=product, user=request.user, deleted=False).exists():
         messages.warning(request, "Kamu sudah pernah memberikan review untuk produk ini.")
         return redirect("reviewproduct:product_reviews", product_id=product.id)
 
