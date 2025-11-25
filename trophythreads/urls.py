@@ -26,4 +26,5 @@ urlpatterns = [
     path('favorites/', include('favoritesApp.urls')),
     path('review/', include('reviewproduct.urls')),
     path('cart/', include('cartApp.urls')),
+    path('auth/', include('authentication.urls')),
 ]
