@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% if mode == 'edit' %}Update Review{% else %}Add Review{% endif %}</title>
 
 <style>
@@ -20,9 +21,13 @@
 }
 
 /* BASE */
-body {
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
   font-family: var(--font-body);
   background: var(--color-bg);
   color: var(--color-text);
@@ -32,9 +37,10 @@ body {
   justify-content: flex-start;
   min-height: 100vh;
   animation: fadeIn 0.4s ease;
+  padding: 20px;
 }
 
-/* 🔙 BACK LINK */
+/* BACK LINK */
 a.back-link {
   margin-top: 32px;
   text-decoration: none;
@@ -54,7 +60,7 @@ a.back-link:hover {
 /* FORM CONTAINER */
 .container {
   background: white;
-  width: 90%;
+  width: 100%;
   max-width: 540px;
   margin: 40px 0 80px;
   padding: 40px 36px;
@@ -82,7 +88,7 @@ h2::after {
   margin: 10px auto 0;
 }
 
-/*  STARS SECTION */
+/* STARS SECTION */
 .stars {
   display: flex;
   justify-content: center;
@@ -94,6 +100,7 @@ h2::after {
   color: #ddd;
   cursor: pointer;
   transition: color 0.25s, transform 0.2s;
+  user-select: none;
 }
 .star:hover {
   transform: scale(1.25);
@@ -114,6 +121,7 @@ textarea {
   outline: none;
   resize: none;
   transition: border-color 0.25s, box-shadow 0.25s;
+  font-family: var(--font-body);
 }
 textarea:focus {
   border-color: var(--color-secondary);
@@ -158,11 +166,18 @@ textarea:focus {
   letter-spacing: 0.3px;
 }
 
-/*  RESPONSIVE */
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* RESPONSIVE */
 @media (max-width: 640px) {
-  .container { width: 92%; padding: 28px 20px; }
+  .container { width: 100%; padding: 28px 20px; }
   .stars { font-size: 30px; }
   .btn-row { flex-direction: column; }
+  h2 { font-size: 20px; }
 }
 
 /* ANIMATIONS */
@@ -183,28 +198,23 @@ textarea:focus {
   <div class="container">
     <h2>{% if mode == 'edit' %}Edit Your Review{% else %}Rate This Product{% endif %}</h2>
 
-    <form method="post" 
-      action="{% if mode == 'edit' %}
-                 {% url 'reviewproduct:edit_review' review.id %}
-               {% else %}
-                 {% url 'reviewproduct:add_review' product.id %}
-               {% endif %}">
+    <form method="post" id="review-form">
       {% csrf_token %}
       
       <div class="stars" id="stars">
-        <span class="star" data-value="1">&#9733;</span>
-        <span class="star" data-value="2">&#9733;</span>
-        <span class="star" data-value="3">&#9733;</span>
-        <span class="star" data-value="4">&#9733;</span>
-        <span class="star" data-value="5">&#9733;</span>
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
       </div>
 
       <input type="hidden" name="rating" id="rating-value">
-      <textarea name="comment" placeholder="Share your thoughts...">{{ review.body|default_if_none:"" }}</textarea>
+      <textarea name="comment" id="comment-textarea" placeholder="Share your thoughts...">{% if review %}{{ review.body }}{% endif %}</textarea>
 
       <div class="btn-row">
         <button type="button" class="btn btn-cancel" onclick="window.history.back()">Cancel</button>
-        <button type="submit" class="btn btn-submit">
+        <button type="submit" class="btn btn-submit" id="submit-btn">
           {% if mode == 'edit' %}Update Review{% else %}Add Review{% endif %}
         </button>
       </div>
@@ -212,9 +222,12 @@ textarea:focus {
   </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
   const stars = document.querySelectorAll('.star');
   const ratingInput = document.getElementById('rating-value');
+  const form = document.getElementById('review-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const commentArea = document.getElementById('comment-textarea');
 
   // Set default rating kalau mode edit
   {% if review %}
@@ -223,6 +236,7 @@ document.addEventListener("DOMContentLoaded", function() {
     stars.forEach((s, i) => { if (i < oldRating) s.classList.add('active'); });
   {% endif %}
 
+  // Star click handler
   stars.forEach(star => {
     star.addEventListener('click', () => {
       const value = parseInt(star.dataset.value);
@@ -239,6 +253,58 @@ document.addEventListener("DOMContentLoaded", function() {
       stars.forEach((s, i) => {
         s.style.color = (i < ratingInput.value) ? 'gold' : '#ddd';
       });
+    });
+  });
+
+  // Form submission
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    if (!ratingInput.value) {
+      alert('Please select a rating');
+      return;
+    }
+
+    const comment = commentArea.value.trim();
+    if (!comment) {
+      alert('Please write a comment');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Loading...';
+
+    const formData = new FormData(form);
+    
+    {% if mode == 'edit' %}
+      const url = '/reviewproduct/api/review/{{ review.id }}/edit/';
+    {% else %}
+      const url = '/reviewproduct/api/product/{{ product.id }}/add/';
+    {% endif %}
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = `/reviewproduct/product/${data.product_id}/`;
+      } else {
+        alert(data.error || 'Error submitting form');
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    })
+    .catch(err => {
+      console.error('Error:', err);
+      alert('Error submitting form: ' + err.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
     });
   });
 });
