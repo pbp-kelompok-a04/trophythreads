@@ -25,7 +25,15 @@
 
   {% if request.user == review.user %}
   <div class="review-actions">
-    <a href="{% url 'reviewproduct:edit_review' review.id %}" class="btn-edit">✏️ Edit</a>
+    <button class="btn-edit"
+        onclick="openEditModal(
+            '{{ review.id }}',
+            '{{ review.rating }}',
+            `{{ review.body|escapejs }}`
+        )">
+    ✏️ Edit
+</button>
+
     <button class="btn-delete" data-url="{% url 'reviewproduct:delete_review' review.id %}">🗑 Delete</button>
   </div>
   {% endif %}
