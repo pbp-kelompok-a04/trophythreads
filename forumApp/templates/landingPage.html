@@ -60,12 +60,14 @@
   </div>
 
 <script>
-// --- AUTHENTICATION VARIABLES (Defined locally) ---
-const IS_AUTHENTICATED = {{ request.user.is_authenticated|yesno:"true,false" }};
+{% if request.user.is_authenticated %}
+    const IS_AUTHENTICATED = true;
+{% else %}
+    const IS_AUTHENTICATED = false;
+{% endif %}
 
 const API_URL = "{% url 'forumApp:show_json' %}";
 const DETAIL_URL_TEMPLATE = "{% url 'forumApp:show_thread_detail' '00000000-0000-0000-0000-000000000000' %}";
-// API URL template for deletion
 const DELETE_URL_TEMPLATE = "{% url 'forumApp:delete_thread' 'REPLACE_ID' %}";
 
 const threadList = document.getElementById("thread-list");
@@ -76,9 +78,8 @@ const filterButtons = document.querySelectorAll(".filter-btn");
 
 let activeFilter = "all";
 let threads = [];
-let threadIdToDelete = null; // Store ID for modal confirmation
+let threadIdToDelete = null; 
 
-// --- MODAL FUNCTIONS (Thread Deletion) ---
 function showThreadConfirmModal(threadId) {
     threadIdToDelete = threadId;
     document.getElementById("deleteThreadConfirmModal").classList.remove("hidden");
@@ -91,24 +92,20 @@ function hideThreadConfirmModal() {
     document.body.classList.remove("overflow-hidden");
 }
 
-// Attach the actual delete logic to the modal's confirm button
 document.getElementById('confirmDeleteThreadBtn').addEventListener('click', () => {
     if (threadIdToDelete) {
-        // Call the private AJAX function
         performDeleteThread(threadIdToDelete); 
         hideThreadConfirmModal();
     }
 });
-// ----------------------------------------
 
-
-// --- HANDLE AUTHENTICATION CHECK ---
+// Check authenticated
 function handleCreateThreadClick() {
   if (IS_AUTHENTICATED === false) {
     if (typeof showToast === 'function') {
         showToast("You must be logged in to create a thread.", "info");
     } else {
-        console.log("GUEST ACTION BLOCKED: Must be logged in to create a thread. (showToast function missing)");
+        console.log("GUEST ACTION BLOCKED: Must be logged in to create a thread.");
         showToast("You must be logged in to create a thread.", "info");
     }
     return;
@@ -233,7 +230,7 @@ filterButtons.forEach(btn => {
   });
 });
 
-// Update filter styles to match the simpler button style in image 2
+// Update filter button style
 function updateFilterStyles() {
   filterButtons.forEach(btn => {
     if (btn.id === `filter-${activeFilter}`) {
@@ -244,10 +241,6 @@ function updateFilterStyles() {
   });
 }
 
-/**
- * Handles the AJAX DELETE request to delete a thread.
- * @param {string} threadId The ID of the thread to delete.
- */
 async function performDeleteThread(threadId) {
     
     try {
@@ -280,11 +273,9 @@ async function performDeleteThread(threadId) {
     }
 }
 
-// The function called by the render button is now the modal function
 function deleteThread(threadId) {
     showThreadConfirmModal(threadId);
 }
-
 
 function showCreateThreadModal() {
   const modal = document.getElementById("createThreadModal");
