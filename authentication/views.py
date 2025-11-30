@@ -4,6 +4,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from main.models import Profile
 import json
 
 @csrf_exempt
@@ -14,11 +15,13 @@ def login(request):
     if user is not None:
         if user.is_active:
             auth_login(request, user)
+            user_role = user.profile.role
             # Login status successful.
             return JsonResponse({
                 "username": user.username,
                 "status": True,
-                "message": "Login successful!"
+                "message": "Login successful!",
+                "role": user_role
                 # Add other data if you want to send data to Flutter.
             }, status=200)
         else:
@@ -40,6 +43,7 @@ def register(request):
         username = data['username']
         password1 = data['password1']
         password2 = data['password2']
+        role = data.get('role','user')
 
         # Check if the passwords match
         if password1 != password2:
@@ -59,8 +63,11 @@ def register(request):
         user = User.objects.create_user(username=username, password=password1)
         user.save()
         
+        Profile.objects.create(user=user, role=role)
+        
         return JsonResponse({
             "username": user.username,
+            "role": role,
             "status": 'success',
             "message": "User created successfully!"
         }, status=200)
