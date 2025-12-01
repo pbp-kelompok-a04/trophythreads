@@ -7,9 +7,9 @@
 
 {% block content %}
 {% include 'header.html' %}
-<div class="w-full min-h-screen pt-40 pb-10" style="background-color: var(--color-background);">
+<div class="w-full min-h-screen pt-40 pb-10 bg-[var(--color-background)]">
   <div class="fixed top-16 left-0 w-full bg-white border-b border-gray-200 shadow-sm z-40">
-    <div class="mx-auto flex items-center justify-between px-12 py-3">
+    <div class="mx-auto flex items-center justify-between px-4 sm:px-12 py-3">
 
       <!-- Search Bar-->
       <div class="flex items-center flex-1 relative">
@@ -25,7 +25,7 @@
       <!-- Filter -->
       <div class="relative ml-2 sm:ml-3 md:ml-4">
         <button id="filterButton"
-          class="flex border border-gray-300 items-center gap-2 bg-white text-white px-4 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-500 font-medium">
+          class="flex border border-gray-300 items-center gap-2 bg-white text-gray-500 px-4 py-2 rounded-md hover:bg-gray-100 transition text-sm text-gray-500 font-medium">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2l-7 8v5l-4 2v-7L3 6V4z" />
@@ -51,16 +51,16 @@
 
     </div>
   </div>
-  
+
   <!-- Create Match untuk Admin -->
   {% if user.is_authenticated and user.profile.role == "admin" %}
   <button type="button" onclick="showCreateModal()"
-    class="fixed bottom-16 right-8 bg-gradient-to-br from-[#ff6a57] to-[#b0200c] hover:from-[#b0200c] hover:to-[#b0200c] text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 px-6 py-3 z-50">
+    class="fixed bottom-16 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-8 bg-gradient-to-br from-[#ff6a57] to-[#b0200c] hover:from-[#b0200c] hover:to-[#b0200c] text-white font-semibold rounded-full shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300 px-4 py-2 text-sm sm:px-6 sm:py-3 sm:text-base z-50 whitespace-nowrap">
     + Tambah Informasi Pertandingan
   </button>
   {% endif %}
 
-  <div class="mx-auto items-center justify-between px-12 py-3">
+  <div class="items-center justify-between mx-4 sm:mx-12 py-3">
     <!-- Loading -->
     <div id="loading" class="flex flex-col items-center justify-center py-20 text-center hidden">
       <svg class="animate-spin h-8 w-8 text-[var(--color-primary)] inline-block" xmlns="http://www.w3.org/2000/svg"
@@ -72,8 +72,7 @@
     </div>
 
     <!-- Error -->
-    <div id="error" class="hidden bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 text-center"
-      style="display: none;">
+    <div id="error" class="hidden bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 text-center">
       <p>⚠️ Failed to load matches. Please try again later.</p>
     </div>
 
@@ -81,7 +80,7 @@
     <div id="grid" class="hidden"></div>
 
     <!-- Empty -->
-    <div id="empty" class="rounded-lg p-24 text-center hidden">
+    <div id="empty" class="rounded-lg px-6 py-16 sm:px-12 sm:py-20 lg:p-24 text-center hidden">
       <div class="h-48 mx-auto mb-4">
         <img src="{% static 'image/no-matches.png' %}" alt="No matches found" class="w-full h-full object-contain">
       </div>
@@ -128,6 +127,7 @@
       filterPopup.classList.add("hidden");
     }
   });
+
   // selalu memfilter data pertandingan
   searchInput.addEventListener("input", () => {
     applyFilter();
@@ -221,21 +221,21 @@
     const scoreAway = matchItem.score_away;
     const articleElement = document.createElement('article');
     articleElement.className = 'w-full bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 px-6 py-4 flex flex-col relative mb-4';
-    const detailLink = `{% url 'InformasiPertandingan:show_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchItem.id);
-    
+    const detailLink = `{% url 'InformasiPertandingan:show_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', id);
+
     articleElement.addEventListener('click', () => {
       window.location.href = detailLink;
     });
 
     // jika admin maka ada menu admin (titik tiga)
-    const editLink = `{% url 'InformasiPertandingan:edit_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchItem.id);
-    const deleteLink = `{% url 'InformasiPertandingan:delete_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', matchItem.id);
+    const editLink = `{% url 'InformasiPertandingan:edit_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', id);
+    const deleteLink = `{% url 'InformasiPertandingan:delete_match' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', id);
     const isAdmin = "{{ user.is_authenticated }}" === "True" && "{{ user.profile.role }}" === "admin";
-    const hotBadgeHtml = matchItem.is_info_hot ? DOMPurify.sanitize(`<span class="absolute top-4 left-4 inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">🔥Hot</span>`): '';
+    const hotBadgeHtml = matchItem.is_info_hot ? DOMPurify.sanitize(`<span class="absolute top-4 left-4 inline-flex items-center px-1 sm:px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">🔥Hot</span>`) : '';
     const adminMenu = isAdmin
       ? `
       <div class="absolute top-4 right-4" onclick="event.stopPropagation()">
-        <button class="admin-menu-btn text-gray-500 hover:text-gray-700" onclick="toggleMenu(event, '${matchItem.id}')">
+        <button class="admin-menu-btn text-gray-500 hover:text-gray-700" onclick="toggleMenu(event, '${id}')">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="2" />
             <circle cx="12" cy="12" r="2" />
@@ -252,7 +252,9 @@
               </button>
             </li>
             <li>
-              <a href="${deleteLink}" onclick="return confirm('Are you sure you want to delete this match?')" class="block px-4 py-2 text-red-600 hover:bg-gray-200">Delete</a>
+              <button 
+              class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-200"
+              onclick="showDeleteModal(event, '${id}', '${deleteLink}')">Delete</button>
             </li>
           </ul>
         </div>
@@ -260,28 +262,29 @@
       : '';
 
     const completeCardHtml = `
+
     ${hotBadgeHtml}
     ${adminMenu}
 
     <div class="flex items-center justify-center mb-3">
-      <h3 class="text-lg font-bold text-center">${title}</h3>
+      <h3 class="text-base sm:text-lg font-bold text-center max-w-[60%] sm:max-w-[60%] mx-auto leading-tight break-words">${title}</h3>
     </div>
 
     <div class="flex items-center justify-center gap-4 text-gray-800 text-sm md:text-base">
-      <div class="flex items-center gap-2">
-        <span class="font-medium font-body">${homeTeam}</span>
-        <img src="${homeFlag}" alt="${homeTeam}" class="w-9 h-6 object-cover rounded-sm border border-gray-300">
+      <div class="flex items-center gap-1 sm:gap-2">
+        <span class="font-medium font-body truncate overflow-hidden text-ellipsis whitespace-nowrap max-w-[98%] sm:max-w-[100%]">${homeTeam}</span>
+        <img src="${homeFlag}" alt="${homeTeam}" class="w-6 h-4 md:w-9 md:h-6 object-cover rounded-sm border border-gray-300">
       </div>
 
-      <div class="flex items-center gap-2 font-body font-semibold text-lg">
+      <div class="flex items-center gap-1 sm:gap-2 font-body font-semibold text-sm sm:text-base md:text-lg">
         <span>${scoreHome}</span>
         <span>-</span>
         <span>${scoreAway}</span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <img src="${awayFlag}" alt="${awayTeam}" class="w-9 h-6 object-cover rounded-sm border border-gray-300">
-        <span class="font-medium font-body">${awayTeam}</span>
+      <div class="flex items-center gap-1 sm:gap-2">
+        <img src="${awayFlag}" alt="${awayTeam}" class="w-6 h-4 md:w-9 md:h-6 object-cover rounded-sm border border-gray-300">
+        <span class="font-medium font-body truncate overflow-hidden text-ellipsis whitespace-nowrap max-w-[98%] sm:max-w-[100%]">${awayTeam}</span>
       </div>
     </div>
   `;
@@ -343,7 +346,18 @@
   }
 
   document.addEventListener('matchDataUpdated', fetchMatches);
-  fetchMatches();
+  window.addEventListener('load', () => {
+    const message = sessionStorage.getItem('toastMessage');
+    const type = sessionStorage.getItem('toastType');
+
+    if (message && type && typeof showToast === 'function') {
+      showToast(message, type);
+      sessionStorage.removeItem('toastMessage');
+      sessionStorage.removeItem('toastType');
+    }
+    fetchMatches();
+  });
 </script>
 {% include 'InformasiPertandingan/modal.html' %}
+{% include 'InformasiPertandingan/modal_delete.html' %}
 {% endblock content %}

@@ -4,24 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from merchandiseApp.models import Merchandise
-
-class Order(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Order #{self.id} by {self.user}"
-
-
-class OrderItem(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Merchandise, on_delete=models.CASCADE)
-    purchased_at = models.DateField(default=timezone.localdate)
-
-    def __str__(self):
-        return f"{self.product.name} (Order {self.order_id})"
-
+from cartApp.models import Purchase
 
 class Review(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -36,8 +19,13 @@ class Review(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['product', 'user'], name='unique_user_review_per_product')
+            models.UniqueConstraint(
+                fields=['product', 'user'],
+                condition=models.Q(deleted=False),
+                name='unique_user_review_per_product_active'
+            )
         ]
+
         indexes = [
             models.Index(fields=['product', 'deleted', '-created_at']),
             models.Index(fields=['product', 'rating']),
@@ -51,14 +39,15 @@ class Review(models.Model):
     def save(self, *args, **kwargs):
         if not self.purchased_at:
             oi = (
-                OrderItem.objects
-                .filter(order__user=self.user, product=self.product)
-                .order_by('-purchased_at')
+                Purchase.objects
+                .filter(user=self.user, product=self.product)
+                .order_by('-id')  # atau '-created_at' kalau punya field waktu
                 .first()
             )
             if oi:
-                self.purchased_at = oi.purchased_at
+                self.purchased_at = timezone.now().date()
         super().save(*args, **kwargs)
+
 
     def delete(self, using=None, keep_parents=False):
         self.deleted = True

@@ -237,7 +237,7 @@ document.getElementById('createCommentForm').addEventListener('submit', async fu
     
     if (IS_AUTHENTICATED === false) {
         showToast("You must be logged in to post a comment.","info")
-        console.log("GUEST ACTION BLOCKED: Must be logged in to post a comment. Showing toast.");
+        console.log("GUEST ACTION BLOCKED: Must be logged in to post a comment.");
 
         if (typeof showToast !== 'function') {
             showToast("You must be logged in to post a comment.","info")
@@ -341,10 +341,6 @@ document.getElementById('editCommentForm').addEventListener('submit', async func
     }
 });
 
-/**
- * Executes the AJAX DELETE request for a comment.
- * @param {string} commentId The ID of the comment to delete.
- */
 async function performDeleteComment(commentId) {
     
     try {
@@ -379,9 +375,7 @@ function deleteComment(commentId) {
     showCommentConfirmModal(commentId);
 }
 
-
-// --- Initialization ---
-
+// Initialize
 // Start fetching the data when the page loads
 fetchThreadDetail();
 fetchComments();

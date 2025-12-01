@@ -5,64 +5,372 @@
 
 {% block content %}
 {% include "header.html" %}
+
 <style>
-  :root{
-    --font-title:'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    --font-body:'Open Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    --maroon:#7a0e22;
-    --accent:#ED3F27;
-    --bg:#FFF1F1;
-    --text:#222;
-    --muted:#6b6b6b;
-    --line:#ead6da;
-    --radius:10px;
-    --shadow:0 6px 18px rgba(0,0,0,.06);
+  :root {
+    --font-title: 'Poppins', 'Montserrat', sans-serif;
+    --font-body: 'Open Sans', system-ui, sans-serif;
+    --maroon: #7a0e22;
+    --accent: #ED3F27;
+    --bg: #fff8f8;
+    --text: #2b2b2b;
+    --muted: #757575;
+    --radius: 0px;
+    --shadow: 0 0px 24px rgba(0,0,0,0.08);
   }
 
-  html,body {margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  html, body {
+    margin: 0;
+    background: var(--bg) !important;
+    color: var(--text);
+    font-family: var(--font-body);
+  }
+
+  nav.fixed {
+    background-color: var(--maroon) !important;
+  }
+  nav.fixed a, nav.fixed span {
+    color: #ffffff !important;
+  }
+
   .page {
-  width: 100%;
-  max-width: none;
-  margin: 0 auto 56px;
-  padding-top: 64px; 
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 64px 20px 40px;
+    animation: fadeIn 0.4s ease-in-out;
+    min-height: calc(100vh - 200px);
+  }
+
+  /* Header panel */
+  .panel {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: all .25s ease;
+  }
+
+  .panel.header {
+    padding: 20px 28px;
+    margin-bottom: 24px;
+  }
+
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  .header-title {
+    font-family: var(--font-title);
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--maroon);
+    margin: 0;
+    letter-spacing: 0.3px;
+  }
+
+  .header-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex: 1;
+  }
+
+  /* Filter pill buttons */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    background: #f7dede;
+    color: var(--maroon);
+    border: 1px solid #f1caca;
+    transition: all .2s ease;
+  }
+  .pill .star { color: #ffb400; }
+  .pill.active {
+    background: linear-gradient(135deg, var(--accent), var(--maroon));
+    color: #fff;
+    border: none;
+  }
+  .pill.active .star { color: #fff; }
+  .pill:hover {
+    transform: translateY(-2px);
+    background: #ffe0e0;
+  }
+  .pill.active:hover {
+    background: linear-gradient(135deg, var(--accent), var(--maroon));
+  }
+
+  /* Add Review Button */
+  .btn-add-anim {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #ff5f3d, #7a0e22);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    box-shadow: 0 6px 14px rgba(237,63,39,0.25);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-add-anim:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(237,63,39,0.35);
+  }
+  .btn-add-anim::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.25);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+  .btn-add-anim:hover::after {
+    left: 120%;
+  }
+
+  /* Review list panel */
+  .panel.list {
+    padding: 18px;
+  }
+
+  .review-card {
+    background: #fff;
+    border: 1px solid #f2dcdc;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    padding: 18px 20px;
+    margin: 12px 0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.3s ease;
+  }
+
+  .review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  }
+
+  .r-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #f5c6c6;
+    color: var(--maroon);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 16px;
+  }
+
+  .name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+
+  .date {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .stars {
+    color: #ffb400;
+    font-size: 18px;
+    margin: 8px 0;
+  }
+
+  .stars .on {
+    color: #ffb400;
+  }
+
+  .stars .off {
+    color: #ddd;
+  }
+
+  .body {
+    color: var(--text);
+    line-height: 1.6;
+    margin-top: 8px;
+  }
+
+  .review-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+
+  .btn-delete, .btn-edit {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .2s ease;
+    text-decoration: none;
+  }
+
+  .btn-delete {
+    background: linear-gradient(135deg, var(--accent), #b81414);
+    color: white;
+    border: none;
+  }
+  .btn-delete:hover {
+    opacity: .9;
+    transform: translateY(-1px);
+  }
+  .btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-edit {
+    background: #fff;
+    border: 1px solid var(--maroon);
+    color: var(--maroon);
+    display: inline-block;
+  }
+  .btn-edit:hover {
+    background: var(--maroon);
+    color: #fff;
+  }
+
+  /* Back to Home Button */
+  .btn-back-anim {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(90deg, #ff5f3d, #7a0e22);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 14px rgba(237,63,39,0.25);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-back-anim:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(237,63,39,0.35);
+  }
+  .btn-back-anim::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+  }
+  .btn-back-anim:hover::after {
+    left: 120%;
+  }
+
+  /* Toast notification */
+  #toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+  }
+
+  .toast {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    padding: 12px 16px;
+    font-weight: 600;
+    border-left: 6px solid var(--accent);
+    color: var(--maroon);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 320px;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: all .3s ease;
+  }
+  .toast.success { border-left-color: #2e7d32; }
+  .toast.error { border-left-color: #d32f2f; }
+  .toast.success::before { content: "✅"; }
+  .toast.error::before { content: "❌"; }
+
+  /* Subtle fade animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 40px 20px;
+    line-height: 1.8;
+  }
+
+  
+  .back-home-container {
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 60px;
+  }
+
+  .btn-simple-back {
+  display: inline-block;
+  font-weight: 600;
+  color: #b5371b;
+  text-decoration: none;
+  font-size: 16px;
+  margin-top: 10px;   /* jarak dari atas */
+  margin-bottom: 10px; 
+  transition: color 0.2s ease;
 }
-  .panel {width: 100%;background:#ffffff;border-radius:var(--radius);box-shadow:var(--shadow);}
-  .panel.header {padding:18px 24px;margin-bottom:18px;--radius:0px;}
-  .header-bar {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
-  .header-title {font-family:var(--font-title);font-size:22px;font-weight:800;color:var(--maroon);margin:0;white-space:nowrap;}
-  .header-center {display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;flex:1;}
-  .btn-primary {background:var(--accent);color:#fff;text-decoration:none;padding:10px 20px;border-radius:10px;font-weight:800;border:0;box-shadow:inset 0 -2px 0 rgba(0,0,0,.18);line-height:1;white-space:nowrap;transition:all .2s ease;}
-  .btn-primary:hover {background:#c42b1c;}
-  .pill {display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:12px;text-decoration:none;background:#7a0e22;color:#fff;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.06);transition:all .2s ease;}
-  .pill .star {color:#ED3F27;font-size:14px;}
-  .pill .count {font-weight:300;font-size:13px;margin-left:4px;opacity:.9;}
-  .pill.active {background:#ED3F27;}
-  .pill.active .star {color:#fff;}
-  .panel.list {padding:14px;}
-  .review-card {background:#fff;border:1px solid #efdddd;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.05);padding:14px 16px;margin:10px 0;}
-  .r-head {display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;}
-  .avatar {width:42px;height:42px;border-radius:50%;background:#f4d9dc;color:var(--maroon);display:grid;place-items:center;font-weight:800;font-family:var(--font-title);}
-  .name {font-weight:800;}
-  .date {color:var(--muted);font-size:12px;margin-top:2px;}
-  .stars {color:#ffb400;font-size:18px;margin:6px 0 8px;}
-  .body {line-height:1.55;}
-  .actions {display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
-  .btn-outline {background:#fff;border:1px solid #d9898d;color:#a2333b;padding:6px 12px;border-radius:10px;text-decoration:none;font-weight:700;}
-  #toast-container {position:fixed;top:20px;right:20px;display:flex;flex-direction:column;gap:10px;z-index:9999;}
-  .toast {background:#fff;border-radius:10px;box-shadow:0 6px 16px rgba(0,0,0,0.15);padding:12px 16px;font-weight:600;animation:slideIn .3s ease;border-left:6px solid var(--accent);color:#7a0e22;display:flex;align-items:center;gap:10px;min-width:320px;}
-  .toast.success::before {content:"✅";}
-  .toast.warning::before {content:"⚠️";}
-  .toast.error::before {content:"❌";}
-  .toast.info::before {content:"ℹ️";}
-  .toast.success {border-color:#2e7d32;}
-  .toast.warning {border-color:#ff9800;}
-  .toast.error {border-color:#d32f2f;}
-  .toast.info {border-color:#1976d2;}
-  @keyframes slideIn {from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+
+  .btn-simple-back:hover {
+    color: #7a0e22;
+    text-decoration: underline;
+  }
+
+
 </style>
 
 <div class="page">
-
+  <!-- Toast Messages -->
   {% if messages %}
   <div id="toast-container">
     {% for message in messages %}
@@ -71,95 +379,264 @@
   </div>
   {% endif %}
 
+  <a href="{% url 'merchandiseApp:show_merchandise' product.id %}" class="btn-simple-back">← Back</a>
+
+
+  <!-- Header Section -->
   <section class="panel header">
     <div class="header-bar">
-      <h2 class="header-title">Ratings and Reviews</h2>
-
+      <h2 class="header-title">💬 Ratings and Reviews</h2>
+      
       <div class="header-center">
         <a class="pill {% if stars == 'all' %}active{% endif %}" href="?stars=all">
-          <span class="label">All</span><span class="count">{{ total|default:0 }}</span>
+          All <span class="count">{{ total|default:0 }}</span>
         </a>
-        <a class="pill {% if stars == '5' %}active{% endif %}" href="?stars=5">
-          <span class="star">★</span><span class="label">5</span><span class="count">{{ counts.5|default:0 }}</span>
-        </a>
-        <a class="pill {% if stars == '4' %}active{% endif %}" href="?stars=4">
-          <span class="star">★</span><span class="label">4</span><span class="count">{{ counts.4|default:0 }}</span>
-        </a>
-        <a class="pill {% if stars == '3' %}active{% endif %}" href="?stars=3">
-          <span class="star">★</span><span class="label">3</span><span class="count">{{ counts.3|default:0 }}</span>
-        </a>
-        <a class="pill {% if stars == '2' %}active{% endif %}" href="?stars=2">
-          <span class="star">★</span><span class="label">2</span><span class="count">{{ counts.2|default:0 }}</span>
-        </a>
-        <a class="pill {% if stars == '1' %}active{% endif %}" href="?stars=1">
-          <span class="star">★</span><span class="label">1</span><span class="count">{{ counts.1|default:0 }}</span>
-        </a>
+        {% for i in "54321" %}
+          <a class="pill {% if stars == i %}active{% endif %}" href="?stars={{ i }}">
+            <span class="star">★</span> {{ i }}
+            <span class="count">
+              {% if i == '5' %}{{ counts.5|default:0 }}
+              {% elif i == '4' %}{{ counts.4|default:0 }}
+              {% elif i == '3' %}{{ counts.3|default:0 }}
+              {% elif i == '2' %}{{ counts.2|default:0 }}
+              {% elif i == '1' %}{{ counts.1|default:0 }}
+              {% endif %}
+            </span>
+          </a>
+        {% endfor %}
       </div>
 
       {% if can_review %}
-        <a href="{% url 'reviewproduct:add_review' product.id %}" class="btn-primary">Add Review</a>
+        <button class="btn-add-anim" id="open-add-modal">
+          ＋ Add Review
+        </button>
       {% endif %}
     </div>
   </section>
-
+  
+  
+  <!-- Reviews List Section -->
   <section class="panel list">
     {% for r in reviews %}
       {% include "card_review.html" with review=r product=product %}
     {% empty %}
-      <div class="review-card">Belum ada review.</div>
+      <div class="review-card empty-state">
+        Belum ada review 😔<br>
+        Jadilah yang pertama memberikan ulasan!
+      </div>
     {% endfor %}
   </section>
+
+  <!-- Back to Home Button -->
+  <div class="back-home-container">
+    <a href="{% url 'merchandiseApp:show_main' %}" class="btn-back-anim">
+      🏠 Back To Merchandise
+    </a>
+  </div>
 </div>
 
+<!-- ========================================================= -->
+<!--                     MODAL ADD REVIEW                      -->
+<!-- ========================================================= -->
+
+<div id="add-review-modal" 
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); z-index:99999; justify-content:center; 
+            align-items:center;">
+
+  <div style="background:white; padding:24px; border-radius:12px; width:90%; max-width:420px;
+              box-shadow:0 8px 20px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease;">
+
+    <h3 style="margin-top:0; font-size:20px; font-weight:700; color:#7a0e22;">
+      Tambah Review
+    </h3>
+
+    <label style="font-weight:600;">Rating</label>
+
+    <div id="add-stars" style="font-size:28px; color:#ddd; cursor:pointer; margin-bottom:14px;">
+      <span data-value="1">★</span>
+      <span data-value="2">★</span>
+      <span data-value="3">★</span>
+      <span data-value="4">★</span>
+      <span data-value="5">★</span>
+    </div>
+
+    <input type="hidden" id="add-rating" value="3">
+
+
+    <label style="font-weight:600;">Komentar</label>
+    <textarea id="add-comment"
+              style="width:100%; min-height:100px; padding:10px; margin-top:4px; border-radius:8px;
+                     border:1px solid #ccc; resize:vertical;"></textarea>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+
+      <button id="close-add-modal"
+              style="padding:8px 14px; font-weight:600; background:#ddd; border-radius:8px;">
+        Batal
+      </button>
+
+      <button id="submit-add-review"
+              style="padding:8px 16px; background:#7a0e22; color:white; font-weight:700; 
+                     border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.15);">
+        Kirim
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!--                     MODAL EDIT REVIEW                     -->
+<!-- ========================================================= -->
+
+<div id="edit-review-modal" 
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); z-index:99999; justify-content:center; 
+            align-items:center;">
+
+  <div style="background:white; padding:24px; border-radius:12px; width:90%; max-width:420px;
+              box-shadow:0 8px 20px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease;">
+
+    <h3 style="margin-top:0; font-size:20px; font-weight:700; color:#7a0e22;">
+      Edit Review
+    </h3>
+
+    <label style="font-weight:600;">Rating</label>
+     <!-- BINTANG EDIT -->
+    <div id="edit-stars" style="font-size:28px; color:#ddd; cursor:pointer; margin-bottom:14px;">
+      <span data-value="1">★</span>
+      <span data-value="2">★</span>
+      <span data-value="3">★</span>
+      <span data-value="4">★</span>
+      <span data-value="5">★</span>
+    </div>
+
+    <input type="hidden" id="edit-rating">
+
+    <label style="font-weight:600;">Komentar</label>
+    <textarea id="edit-comment"
+              style="width:100%; min-height:100px; padding:10px; margin-top:4px; border-radius:8px;
+                     border:1px solid #ccc; resize:vertical;"></textarea>
+
+    <!-- Hidden: simpan ID review yang sedang diedit -->
+    <input type="hidden" id="edit-review-id">
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+
+      <button id="close-edit-modal"
+              style="padding:8px 14px; font-weight:600; background:#ddd; border-radius:8px;">
+        Batal
+      </button>
+
+      <button id="submit-edit-review"
+              style="padding:8px 16px; background:#7a0e22; color:white; font-weight:700; 
+                     border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.15);">
+        Simpan
+      </button>
+
+    </div>
+  </div>
+</div>
+
+{% include 'footer.html' %}
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const toasts = document.querySelectorAll(".toast");
-  toasts.forEach((toast, i) => {
-    toast.style.opacity = "0";
-    toast.style.transform = "translateY(-10px)";
-    toast.style.transition = "all 0.3s ease";
+
+// STAR RATING MODAL
+const starContainer = document.getElementById("add-stars");
+const starInput = document.getElementById("add-rating");
+
+if (starContainer) {
+  const stars = starContainer.querySelectorAll("span");
+
+  function updateStars(value) {
+    stars.forEach(st => {
+      st.style.color = (parseInt(st.dataset.value) <= value) ? "#ffb400" : "#ddd";
+    });
+    starInput.value = value;
+  }
+
+  stars.forEach(star => {
+    star.addEventListener("click", () => {
+      const val = parseInt(star.dataset.value);
+      updateStars(val);
+    });
+  });
+
+  updateStars(0);
+}
+
+function openEditModal(reviewId, oldRating, oldComment) {
+    const modal = document.getElementById("edit-review-modal");
+
+    // simpan ID review
+    document.getElementById("edit-review-id").value = reviewId;
+
+    // set komentar
+    document.getElementById("edit-comment").value = oldComment;
+
+    // set rating hidden
+    document.getElementById("edit-rating").value = oldRating;
+
+    // SET WARNA BINTANG
+    const starContainer = document.getElementById("edit-stars");
+    const stars = starContainer.querySelectorAll("span");
+
+    stars.forEach(star => {
+        const v = parseInt(star.dataset.value);
+        star.style.color = v <= oldRating ? "#ffb400" : "#ddd";
+
+        star.onclick = () => {
+            document.getElementById("edit-rating").value = v;
+
+            stars.forEach(s => {
+                const vv = parseInt(s.dataset.value);
+                s.style.color = vv <= v ? "#ffb400" : "#ddd";
+            });
+        };
+    });
+
+    // tampilkan modal
+    modal.style.display = "flex";
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  console.log("🟢 Review page loaded with AJAX features");
+
+  /* ============================================================
+     Toast Utility
+  ============================================================ */
+  function showToast(type, text) {
+    const container = document.getElementById("toast-container") || createToastContainer();
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.textContent = text;
+    container.appendChild(toast);
+
     setTimeout(() => {
       toast.style.opacity = "1";
       toast.style.transform = "translateY(0)";
-    }, 200 + i * 150);
-  });
-  setTimeout(() => {
-    toasts.forEach(toast => {
+    }, 30);
+
+    setTimeout(() => {
       toast.style.opacity = "0";
       toast.style.transform = "translateY(-10px)";
-      setTimeout(() => toast.remove(), 400);
-    });
-  }, 3500);
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
 
-  const addReviewBtn = document.querySelector(".btn-primary");
-  if (addReviewBtn) {
-    addReviewBtn.addEventListener("click", function (event) {
-      event.preventDefault();
-      const url = this.getAttribute("href");
-      const rating = prompt("Masukkan rating (1-5):");
-      const comment = prompt("Tulis komentar kamu:");
-      if (!rating || !comment) {
-        showToast("error", "Rating dan komentar wajib diisi!");
-        return;
-      }
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": getCookie("csrftoken"),
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({ rating, comment }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) showToast("error", data.error);
-        else {
-          showToast("success", data.message || "Review berhasil ditambahkan!");
-          setTimeout(() => location.reload(), 1200);
-        }
-      })
-      .catch(() => showToast("error", "Terjadi kesalahan. Coba lagi."));
-    });
+  function createToastContainer() {
+    const div = document.createElement("div");
+    div.id = "toast-container";
+    div.style.position = "fixed";
+    div.style.top = "20px";
+    div.style.right = "20px";
+    div.style.zIndex = "99999";
+    document.body.appendChild(div);
+    return div;
   }
 
   function getCookie(name) {
@@ -177,25 +654,198 @@ document.addEventListener("DOMContentLoaded", function() {
     return cookieValue;
   }
 
-  function showToast(type, text) {
-    const container = document.getElementById("toast-container") || createToastContainer();
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = text;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+  const csrftoken = getCookie("csrftoken");
+
+  /* ============================================================
+   MODAL HANDLING
+  ============================================================ */
+  const addModal = document.getElementById("add-review-modal");
+  const editModal = document.getElementById("edit-review-modal");
+
+  // open ADD modal
+  const openAddBtn = document.getElementById("open-add-modal");
+  if (openAddBtn) {
+    openAddBtn.addEventListener("click", () => {
+      document.getElementById("add-comment").value = "";
+      addModal.style.display = "flex";
+    });
   }
 
-  function createToastContainer() {
-    const div = document.createElement("div");
-    div.id = "toast-container";
-    div.style.position = "fixed";
-    div.style.top = "20px";
-    div.style.right = "20px";
-    div.style.zIndex = "9999";
-    document.body.appendChild(div);
-    return div;
-  }
+  document.getElementById("close-add-modal").addEventListener("click", () => {
+    addModal.style.display = "none";
+  });
+
+  document.getElementById("close-edit-modal").addEventListener("click", () => {
+    editModal.style.display = "none";
+  });
+
+  /* ============================================================
+    AJAX ADD REVIEW
+  ============================================================ */
+  document.getElementById("submit-add-review").addEventListener("click", function () {
+
+    const rating = document.getElementById("add-rating").value;
+    const comment = document.getElementById("add-comment").value.trim();
+    
+    if (comment.length === 0) {
+      showToast("error", "Komentar tidak boleh kosong");
+      return;
+    }
+
+    fetch("{% url 'reviewproduct:add_review' product.id %}", {
+
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({
+        rating: rating,
+        comment: comment,
+      }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        showToast("error", data.error);
+      } else {
+        showToast("success", "Review berhasil ditambahkan!");
+        addModal.style.display = "none";
+        setTimeout(() => location.reload(), 800);
+      }
+    })
+    .catch(err => showToast("error", "Terjadi kesalahan"));
+  });
+
+  /* ============================================================
+    OPEN EDIT MODAL
+  ============================================================ */
+  document.getElementById("submit-edit-review").onclick = async function () {
+    const reviewId = document.getElementById("edit-review-id").value;
+    const rating = document.getElementById("edit-rating").value;
+    const comment = document.getElementById("edit-comment").value.trim();
+
+    const url = `/review/api/review/${reviewId}/edit/`;  // Tanpa /reviewproduct
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({ rating, comment }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+
+        showToast("success", "Review berhasil diperbarui!");
+        document.getElementById("edit-review-modal").style.display = "none";
+        setTimeout(() => location.reload(), 700);
+
+    } catch (err) {
+        showToast("error", err.message);
+    }
+};
+
+
+  /* ============================================================
+    AJAX DELETE REVIEW
+  ============================================================ */
+  // ==================== DELETE REVIEW ====================
+  const deleteButtons = document.querySelectorAll(".btn-delete");
+  console.log(`🔍 Found ${deleteButtons.length} delete button(s)`);
+
+  deleteButtons.forEach((btn, index) => {
+    console.log(`Button ${index + 1}: ${btn.dataset.url}`);
+    
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const url = this.dataset.url;
+      const card = this.closest(".review-card");
+      
+      console.log("🗑️ Delete clicked:", url);
+      
+      if (!confirm("Yakin ingin menghapus review ini?")) {
+        console.log("❌ User cancelled");
+        return;
+      }
+
+      // Disable button
+      this.disabled = true;
+      const originalText = this.textContent;
+      this.textContent = "Menghapus...";
+      console.log("⏳ Sending delete request...");
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+          "X-Requested-With": "XMLHttpRequest",
+          "Content-Type": "application/json",
+        },
+      })
+      .then(res => {
+        console.log("📡 Response status:", res.status);
+        console.log("📡 Response ok:", res.ok);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          console.warn("⚠️ Non-JSON response, reloading...");
+          location.reload();
+          return null;
+        }
+        
+        return res.json();
+      })
+      .then(data => {
+        if (!data) return;
+        
+        console.log("✅ Response data:", data);
+        
+        if (data.success || data.message) {
+          showToast("success", data.message || "Review berhasil dihapus!");
+          
+         
+          card.style.transition = "all 0.4s ease";
+          card.style.opacity = "0";
+          card.style.transform = "translateX(30px) scale(0.95)";
+          
+          setTimeout(() => {
+            card.remove();
+            console.log("🗑️ Card removed from DOM");
+            
+            const remainingReviews = document.querySelectorAll(".review-card:not(.empty-state)").length;
+            console.log(`📊 Remaining reviews: ${remainingReviews}`);
+            
+            if (remainingReviews === 0) {
+              console.log("🔄 No reviews left, reloading...");
+              setTimeout(() => location.reload(), 500);
+            }
+          }, 400);
+        } else {
+          throw new Error(data.error || "Gagal menghapus review");
+        }
+      })
+      .catch(err => {
+        console.error("❌ Error:", err);
+        showToast("error", err.message || "Terjadi kesalahan server");
+        
+        // Re-enable button
+        this.disabled = false;
+        this.textContent = originalText;
+      });
+    });
+  });
 });
 </script>
-{% endblock %}
+
+
+{% endblock content %}

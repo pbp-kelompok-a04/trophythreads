@@ -32,7 +32,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", 
                  "127.0.0.1", 
-                 "samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",]
+                 "samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",
+                 "10.0.2.2",]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://samuel-marcelino-trophythreads.pbp.cs.ui.ac.id",
@@ -51,7 +52,9 @@ INSTALLED_APPS = [
     'favoritesApp',
     'InformasiPertandingan',
     'forumApp',
+    'cartApp',
     'reviewproduct',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -63,7 +66,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+# CORS Flags
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 ROOT_URLCONF = 'trophythreads.urls'
 

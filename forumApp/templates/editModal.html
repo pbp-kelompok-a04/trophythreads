@@ -52,7 +52,6 @@
 </div>
 
 <script>
-// URL templates for fetching data and submitting the edit
 const DETAIL_JSON_URL_TEMPLATE = "{% url 'forumApp:show_json_by_id' 'REPLACE_ID' %}";
 const EDIT_URL_TEMPLATE = "{% url 'forumApp:edit_thread' 'REPLACE_ID' %}";
 
@@ -61,7 +60,7 @@ function hideEditThreadModal() {
     modal.classList.add("hidden");
     document.body.classList.remove("overflow-hidden");
     document.getElementById('editThreadError').classList.add('hidden');
-    // Clear the form data
+    // Clear form data
     document.getElementById('edit_thread_title').value = '';
     document.getElementById('edit_thread_content').value = '';
     document.getElementById('edit_thread_id').value = '';
@@ -75,7 +74,7 @@ async function showEditThreadModal(threadId) {
     const idInput = document.getElementById('edit_thread_id');
     const errorDiv = document.getElementById('editThreadError');
 
-    // Show initial loading state and modal
+    // Show loading state and modal
     titleInput.value = 'Loading...';
     contentInput.value = 'Loading thread content...';
     errorDiv.classList.add('hidden');
@@ -83,7 +82,7 @@ async function showEditThreadModal(threadId) {
     document.body.classList.add("overflow-hidden");
 
     try {
-        // 1. Fetch thread data
+        // Fetch thread data
         const fetchUrl = DETAIL_JSON_URL_TEMPLATE.replace('REPLACE_ID', threadId);
         const response = await fetch(fetchUrl);
         
@@ -94,7 +93,7 @@ async function showEditThreadModal(threadId) {
 
         const threadData = await response.json();
         
-        // 2. Populate the modal fields
+        // Input modal fields
         idInput.value = threadData.id;
         titleInput.value = threadData.title;
         contentInput.value = threadData.content;
@@ -112,7 +111,6 @@ async function showEditThreadModal(threadId) {
     }
 }
 
-
 document.getElementById('editThreadForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -122,7 +120,7 @@ document.getElementById('editThreadForm').addEventListener('submit', async funct
     const errorDiv = document.getElementById('editThreadError');
     const submitBtn = document.getElementById('submitEditThreadBtn');
 
-    // Validation
+    // Validasi
     if (!title || !content || !threadId) {
         errorDiv.textContent = 'Thread ID, Title, and content are required.';
         errorDiv.classList.remove('hidden');
@@ -132,7 +130,7 @@ document.getElementById('editThreadForm').addEventListener('submit', async funct
     // Hide previous errors
     errorDiv.classList.add('hidden');
 
-    // Disable button during submission
+    // Disable button when already press submit
     submitBtn.disabled = true;
     submitBtn.textContent = 'Saving...';
 
@@ -141,7 +139,7 @@ document.getElementById('editThreadForm').addEventListener('submit', async funct
         const submitUrl = EDIT_URL_TEMPLATE.replace('REPLACE_ID', threadId);
 
         const response = await fetch(submitUrl, {
-            method: 'POST', // Use POST for update endpoint
+            method: 'POST', // Use POST
             headers: {
                 'X-CSRFToken': csrfToken,
                 'Content-Type': 'application/json',
@@ -155,7 +153,7 @@ document.getElementById('editThreadForm').addEventListener('submit', async funct
         const data = await response.json();
 
         if (response.ok) {
-            // Success: refresh the thread list to show changes without full page reload
+            // If success, refresh the thread list to show changes without full page reload
             if (typeof fetchThreads === 'function') {
                 fetchThreads();
             }

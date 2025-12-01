@@ -23,7 +23,8 @@ urlpatterns = [
     path('informasi/', include('InformasiPertandingan.urls')),
     path('merchandise/', include('merchandiseApp.urls')),
     path('forum/', include('forumApp.urls')),
-    path('favoritesApp/', include('favoritesApp.urls')),
-    path('reviews/', include('reviewproduct.urls')),
-    
+    path('favorites/', include('favoritesApp.urls')),
+    path('review/', include('reviewproduct.urls')),
+    path('cart/', include('cartApp.urls')),
+    path('auth/', include('authentication.urls')),
 ]
