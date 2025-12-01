@@ -95,6 +95,8 @@
 
 <script>  
 window.currentUserId = "{{ user.id|default:'' }}";
+window.currentUserRole = "{% if request.user.is_authenticated %}{{ request.user.profile.role|default:''|escapejs }}{% else %}{% endif %}";
+
 // Function untuk scroll ke atas
 function scrollToTop() {
   window.scrollTo({
@@ -237,6 +239,7 @@ function createMerchandiseCard(merchandiseData) {
         const currentUserId = window.currentUserId;
         const isOwner = currentUserId && currentUserId !== 'None' && merchandiseUserId && 
                        currentUserId.toString() === merchandiseUserId.toString();
+        const canEditOrDelete = isOwner || currentUserRole === 'seller';
 
         console.log('Card details:', { merchandiseId, name: merchandise.name, isOwner });
 
@@ -300,7 +303,7 @@ function createMerchandiseCard(merchandiseData) {
                 </div>         
                 
                 <!-- Action Buttons -->
-                ${isOwner ? `
+                ${canEditOrDelete ? `
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
                         <div class="flex space-x-2">
                             <button onclick="event.stopPropagation(); showEditModal('${merchandiseId}')" 
