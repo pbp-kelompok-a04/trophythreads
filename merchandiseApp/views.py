@@ -117,7 +117,6 @@ def edit_merchandise_ajax(request, id):
     if request.user.profile.role not in ['seller']:
         return JsonResponse({'error': 'Only seller can edit merchandise.'}, status=403)
     
-    
     if request.method == 'POST':
         merchandise.name = request.POST.get("name")
         merchandise.price = request.POST.get("price")
@@ -146,10 +145,8 @@ def delete_merchandise_ajax(request, id):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'User not authenticated. Please login first.'}, status=401)
     
-    # Cek role user
     if request.user.profile.role not in ['seller']:
         return JsonResponse({'error': 'Only seller can delete merchandise.'}, status=403)
-    
 
     if merchandise.user != request.user:
         return JsonResponse({'error': 'You are not authorized to delete this merchandise'}, status=403)

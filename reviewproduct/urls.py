@@ -2,7 +2,6 @@
 from django.urls import path
 from reviewproduct.views import product_reviews, add_review, edit_review, delete_review
 
-
 app_name = "reviewproduct"
 
 urlpatterns = [
@@ -10,5 +9,4 @@ urlpatterns = [
     path('product/<uuid:product_id>/add/', add_review, name='add_review'),
     path("review/<str:pk>/edit/", edit_review, name="edit_review"),
     path("review/<str:pk>/delete/", delete_review, name="delete_review"),
-
 ]
