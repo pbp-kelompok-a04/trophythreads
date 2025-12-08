@@ -58,16 +58,28 @@ def cart_page(request):
     if _is_json_request(request):
         items_data = []
         for item in cart_items:
-            if item.product:
-                product_data = {'id': str(item.product.id), 'name': item.product.name, 'price': item.product.price, 
-                                'thumbnail': getattr(item.product, 'thumbnail', ''), 'stock': getattr(item.product, 'stock', 0)}
-            else:
-                product_data = {'id': None, 'name': item.product_name, 'price': item.product_price,
-                                'thumbnail': item.product_thumbnail or '', 'stock': item.product_stock or 0}
-            items_data.append({'id': item.id, 'product': product_data, 'quantity': item.quantity, 
-                               'selected': item.selected, 'line_total': item.line_total()})
-        return JsonResponse({'items': items_data, 'cart_subtotal': cart.subtotal(), 'total_items': cart.total_items(),
-                             'selected_count': cart_items.filter(selected=True).count(), 'total_price': total_price})
+            # PERBAIKAN: Format response agar sesuai dengan CartItem model Flutter
+            items_data.append({
+                'model': 'cartApp.cartitem',
+                'pk': item.id,
+                'fields': {
+                    'cart': item.cart.id,
+                    'product': str(item.product.id) if item.product else None,
+                    'product_name': item.product_name or (item.product.name if item.product else 'Unknown Product'),
+                    'product_price': item.product_price or (item.product.price if item.product else 0),
+                    'product_thumbnail': item.product_thumbnail or (getattr(item.product, 'thumbnail', '') if item.product else ''),
+                    'product_stock': item.product_stock or (getattr(item.product, 'stock', 0) if item.product else 0),
+                    'quantity': item.quantity,
+                    'selected': item.selected,
+                }
+            })
+        return JsonResponse({
+            'items': items_data,
+            'cart_subtotal': cart.subtotal(),
+            'total_items': cart.total_items(),
+            'selected_count': cart_items.filter(selected=True).count(),
+            'total_price': total_price
+        })
 
     context = {'cart': cart, 'cart_items': cart_items, 'cart_count': cart_items.count(),
                'total_price': total_price, 'selected_count': cart_items.filter(selected=True).count()}
@@ -106,15 +118,38 @@ def add_to_cart_ajax(request):
         uuid.UUID(product_id_raw)
         product = Merchandise.objects.get(pk=product_id_raw)
         item_qs = cart.items.filter(product=product)
+        
         if item_qs.exists():
             item = item_qs.first()
+            # Update existing item
             item.quantity = F('quantity') + qty
+            # TAMBAHAN: Update denormalized fields juga
+            item.product_name = product.name
+            item.product_price = product.price
+            item.product_thumbnail = getattr(product, 'thumbnail', '')
+            item.product_stock = getattr(product, 'stock', 0)
             item.save()
             item.refresh_from_db()
         else:
-            item = CartItem.objects.create(cart=cart, product=product, quantity=qty, selected=False)
-        return JsonResponse({'success': True, 'message': 'Added to cart', 'item_id': item.id,
-                             'cart_subtotal': cart.subtotal(), 'total_items': cart.total_items()})
+            # Create new item dengan semua field
+            item = CartItem.objects.create(
+                cart=cart, 
+                product=product,
+                product_name=product.name,
+                product_price=product.price,
+                product_thumbnail=getattr(product, 'thumbnail', ''),
+                product_stock=getattr(product, 'stock', 0),
+                quantity=qty, 
+                selected=False
+            )
+        
+        return JsonResponse({
+            'success': True, 
+            'message': 'Added to cart', 
+            'item_id': item.id,
+            'cart_subtotal': cart.subtotal(), 
+            'total_items': cart.total_items()
+        })
     except (ValueError, Merchandise.DoesNotExist):
         pass
 
@@ -154,10 +189,24 @@ def add_to_cart_ajax(request):
         item.save()
         item.refresh_from_db()
     else:
-        item = CartItem.objects.create(cart=cart, product=None, product_name=name, product_price=price,
-                                       product_thumbnail=thumbnail, product_stock=stock, quantity=qty, selected=False)
-    return JsonResponse({'success': True, 'message': 'Added to cart', 'item_id': item.id,
-                         'cart_subtotal': cart.subtotal(), 'total_items': cart.total_items()})
+        item = CartItem.objects.create(
+            cart=cart, 
+            product=None, 
+            product_name=name, 
+            product_price=price,
+            product_thumbnail=thumbnail, 
+            product_stock=stock, 
+            quantity=qty, 
+            selected=False
+        )
+    
+    return JsonResponse({
+        'success': True, 
+        'message': 'Added to cart', 
+        'item_id': item.id,
+        'cart_subtotal': cart.subtotal(), 
+        'total_items': cart.total_items()
+    })
 
 @csrf_exempt
 @login_required
@@ -245,6 +294,8 @@ def delete_item_ajax(request, item_id):
 
 @csrf_exempt
 @login_required
+@csrf_exempt
+@login_required
 def checkout_view(request):
     cart = _get_cart_for_request(request)
     buy_now = request.session.get('buy_now', False)
@@ -255,7 +306,7 @@ def checkout_view(request):
         purchases = Purchase.objects.filter(order_token=last_token, user=request.user)
         if purchases.exists():
             class _TempItem:
-                def _init_(self, purchase):
+                def __init__(self, purchase):
                     self._purchase = purchase
                     self.product = purchase.product
                     thumb = ''
@@ -287,10 +338,12 @@ def checkout_view(request):
     if buy_now and last_token:
         purchases = Purchase.objects.filter(order_token=last_token, user=request.user)
         if not purchases.exists():
-            return JsonResponse({'error': 'No purchase found'}, status=400)
+            return JsonResponse({'success': False, 'error': 'No purchase found'}, status=400)
+        
         request.session['just_ordered'] = True
         request.session['last_order_token'] = str(last_token)
         request.session.pop('buy_now', None)
+        
         if _is_json_request(request):
             return JsonResponse({'success': True, 'message': 'Checkout successful', 'order_token': str(last_token)})
         return JsonResponse({'message': 'Checkout successful', 'redirect_url': reverse('cartApp:loading')})
@@ -299,13 +352,20 @@ def checkout_view(request):
     request.session.pop('buy_now', None)
     request.session.pop('last_order_token', None)
     request.session.pop('last_order_summary', None)
+    
     selected_items = cart.items.filter(selected=True)
     address = data.get('address')
     payment_method = data.get('payment_method')
-    if not address:
-        return JsonResponse({'error': 'Address required'}, status=400)
+    
+    # Validation
+    if not address or address.strip() == '':
+        return JsonResponse({'success': False, 'error': 'Address is required'}, status=400)
+    
+    if not payment_method or payment_method.strip() == '':
+        return JsonResponse({'success': False, 'error': 'Payment method is required'}, status=400)
+    
     if not selected_items.exists():
-        return JsonResponse({'error': 'No items selected'}, status=400)
+        return JsonResponse({'success': False, 'error': 'No items selected for checkout'}, status=400)
 
     try:
         with transaction.atomic():
@@ -313,22 +373,28 @@ def checkout_view(request):
             product_ids = [it.product.id for it in product_items]
             products = Merchandise.objects.select_for_update().filter(id__in=product_ids)
             prod_map = {p.id: p for p in products}
+            
+            # Validate stock for all items
             for item in product_items:
                 p = prod_map.get(item.product.id)
                 if p is None:
                     raise ValueError("Product not found")
                 if item.quantity > getattr(p, 'stock', 0):
-                    return JsonResponse({'error': f'Not enough stock for {p.name}'}, status=400)
+                    return JsonResponse({'success': False, 'error': f'Not enough stock for {p.name}'}, status=400)
+            
+            # Update stock
             for item in product_items:
                 p = prod_map[item.product.id]
                 p.stock = (p.stock or 0) - item.quantity
                 if hasattr(p, 'sold'):
                     p.sold = (p.sold or 0) + item.quantity
                 p.save()
+            
             order_token = uuid.uuid4()
             purchased_ids = []
             purchased_summary_total = 0
             purchased_items = []
+            
             for it in list(selected_items):
                 if it.product:
                     purchased_ids.append(str(it.product.id))
@@ -340,21 +406,43 @@ def checkout_view(request):
                     price = it.product_price or 0
                     product_obj = None
                     name = it.product_name or ""
-                Purchase.objects.create(order_token=order_token, user=request.user if request.user.is_authenticated else None,
-                                        product=product_obj, product_name=name, product_price=price, quantity=it.quantity)
+                
+                Purchase.objects.create(
+                    order_token=order_token, 
+                    user=request.user if request.user.is_authenticated else None,
+                    product=product_obj, 
+                    product_name=name, 
+                    product_price=price, 
+                    quantity=it.quantity
+                )
+                
                 purchased_summary_total += (price * it.quantity)
-                purchased_items.append({'product_name': name, 'quantity': it.quantity, 'price': price, 'line_total': price * it.quantity})
+                purchased_items.append({
+                    'product_name': name, 
+                    'quantity': it.quantity, 
+                    'price': price, 
+                    'line_total': price * it.quantity
+                })
                 it.delete()
+            
             request.session['just_ordered'] = True
             request.session['last_order_token'] = str(order_token)
             request.session['last_order_products'] = purchased_ids
             request.session['last_order_summary'] = {'total': int(purchased_summary_total), 'count': len(purchased_ids)}
+    
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
     if _is_json_request(request):
-        return JsonResponse({'success': True, 'message': 'Checkout successful', 'order_token': str(order_token),
-                             'items': purchased_items, 'shipping_fee': SHIPPING_FEE, 'service_fee': SERVICE_FEE}, status=201)
+        return JsonResponse({
+            'success': True, 
+            'message': 'Checkout successful', 
+            'order_token': str(order_token),
+            'items': purchased_items, 
+            'shipping_fee': SHIPPING_FEE, 
+            'service_fee': SERVICE_FEE
+        }, status=201)
+    
     return JsonResponse({'message': 'Checkout successful', 'redirect_url': reverse('cartApp:loading')})
 
 @csrf_exempt
@@ -497,6 +585,11 @@ def show_checkout_json(request):
         return HttpResponse(json.dumps(items_data), content_type="application/json")
     selected_items = cart.items.filter(selected=True).select_related('product')
     return HttpResponse(serializers.serialize("json", selected_items), content_type="application/json")
+
+@csrf_exempt
+@login_required
+def toggle_select_item_ajax(request, item_id):
+    return toggle_select_ajax(request, item_id)
 
 def proxy_image(request):
     image_url = request.GET.get('url')
