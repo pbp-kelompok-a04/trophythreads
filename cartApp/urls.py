@@ -20,4 +20,5 @@ urlpatterns = [
     path('json/', views.show_json, name='show_json'),
     path('json/<int:item_id>/', views.show_json_by_id, name='show_json_by_id'),
     path('checkout/json/', views.show_checkout_json, name='show_checkout_json'),
+    path('proxy-image/', views.proxy_image, name='proxy_image'),
 ]

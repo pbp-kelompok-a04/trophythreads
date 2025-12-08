@@ -15,6 +15,7 @@ from .models import Cart, CartItem, Purchase
 from django.conf import settings
 import csv, os, uuid, json
 from django.db.models import F
+import requests
 
 SHIPPING_FEE = getattr(settings, 'SHIPPING_FEE', 10000)
 SERVICE_FEE = getattr(settings, 'SERVICE_FEE', 3000)
@@ -496,3 +497,21 @@ def show_checkout_json(request):
         return HttpResponse(json.dumps(items_data), content_type="application/json")
     selected_items = cart.items.filter(selected=True).select_related('product')
     return HttpResponse(serializers.serialize("json", selected_items), content_type="application/json")
+
+def proxy_image(request):
+    image_url = request.GET.get('url')
+    if not image_url:
+        return HttpResponse('No URL provided', status=400)
+    
+    try:
+        # Fetch image from external source
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        
+        # Return the image with proper content type
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get('Content-Type', 'image/jpeg')
+        )
+    except requests.RequestException as e:
+        return HttpResponse(f'Error fetching image: {str(e)}', status=500)
