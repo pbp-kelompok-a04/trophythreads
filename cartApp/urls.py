@@ -8,6 +8,8 @@ urlpatterns = [
     path('', views.cart_page, name='cart_page'),
     path('json/', views.show_json, name='show_json'), # Fetch Cart Items
     path('toggle-select/<int:item_id>/', views.toggle_select_item_ajax, name='toggle_select_item'),
+    path('loading/', views.loading_view, name='loading'),
+    path('after-checkout/', views.after_checkout, name='after_checkout'),
     # API Actions
     path('add/', views.add_to_cart_ajax, name='add_to_cart'),
     path('update/<int:item_id>/', views.update_cart_item_ajax, name='update_cart_item'),
@@ -16,4 +18,6 @@ urlpatterns = [
     path('toggle-all/', views.toggle_select_all, name='toggle_select_all'),
     path('checkout/', views.checkout_view, name='checkout'),
     path('buy-now/', views.buy_now_ajax, name='buy_now'),
+    path('api/checkout-items/', views.checkout_items_json, name='checkout_items_json'),
+    path('api/process-checkout/', views.process_checkout_json, name='process_checkout_json'),
 ]
