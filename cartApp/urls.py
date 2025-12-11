@@ -6,7 +6,8 @@ app_name = 'cartApp'
 
 urlpatterns = [
     path('', views.cart_page, name='cart_page'),
-    path('json/', views.show_json, name='show_json'), # Fetch Cart Items
+    path('json/', views.show_json, name='show_json'), # Fetch Cart Item
+    path('checkout-json/', views.show_checkout_json, name='show_checkout_json'), # Get checkout items
     path('toggle-select/<int:item_id>/', views.toggle_select_item_ajax, name='toggle_select_item'),
     path('loading/', views.loading_view, name='loading'),
     path('after-checkout/', views.after_checkout, name='after_checkout'),
@@ -18,6 +19,4 @@ urlpatterns = [
     path('toggle-all/', views.toggle_select_all, name='toggle_select_all'),
     path('checkout/', views.checkout_view, name='checkout'),
     path('buy-now/', views.buy_now_ajax, name='buy_now'),
-    path('api/checkout-items/', views.checkout_items_json, name='checkout_items_json'),
-    path('api/process-checkout/', views.process_checkout_json, name='process_checkout_json'),
 ]
