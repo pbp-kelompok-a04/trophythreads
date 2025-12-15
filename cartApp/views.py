@@ -339,6 +339,33 @@ def checkout_view(request):
         if not purchases.exists():
             return JsonResponse({'success': False, 'error': 'No purchase found'}, status=400)
         
+        # Validasi input
+        data = _get_request_data(request)
+        address = data.get('address', '').strip()
+        payment_method = data.get('payment_method', '').strip()
+        
+        if not address:
+            return JsonResponse({'success': False, 'error': 'Address is required'}, status=400)
+        
+        if not payment_method:
+            return JsonResponse({'success': False, 'error': 'Payment method is required'}, status=400)
+        
+        try:
+            with transaction.atomic():
+                for purchase in purchases:
+                    if purchase.product:
+                        product = Merchandise.objects.select_for_update().get(pk=purchase.product.id)
+                        if purchase.quantity > getattr(product, 'stock', 0):
+                            raise ValueError(f'Not enough stock for {product.name}. Available: {getattr(product, "stock", 0)}, Requested: {purchase.quantity}')
+                        product.stock = (product.stock or 0) - purchase.quantity
+                        if hasattr(product, 'sold'):
+                            product.sold = (product.sold or 0) + purchase.quantity
+                        product.save()
+        except ValueError as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': f'Checkout failed: {str(e)}'}, status=500)
+        
         request.session['just_ordered'] = True
         request.session['last_order_token'] = str(last_token)
         request.session.pop('buy_now', None)
@@ -368,7 +395,6 @@ def checkout_view(request):
     address = data.get('address', '').strip()
     payment_method = data.get('payment_method', '').strip()
     
-    # PENTING: Validasi SEBELUM transaction
     if not address:
         return JsonResponse({'success': False, 'error': 'Address is required'}, status=400)
     
@@ -385,7 +411,6 @@ def checkout_view(request):
             products = Merchandise.objects.select_for_update().filter(id__in=product_ids)
             prod_map = {p.id: p for p in products}
             
-            # Validate stock for all items
             for item in product_items:
                 p = prod_map.get(item.product.id)
                 if p is None:
@@ -394,7 +419,6 @@ def checkout_view(request):
                 if item.quantity > current_stock:
                     raise ValueError(f'Not enough stock for {p.name}. Available: {current_stock}, Requested: {item.quantity}')
             
-            # Update stock
             for item in product_items:
                 p = prod_map[item.product.id]
                 p.stock = (p.stock or 0) - item.quantity
@@ -443,13 +467,10 @@ def checkout_view(request):
             request.session['last_order_summary'] = {'total': int(purchased_summary_total), 'count': len(purchased_ids)}
     
     except ValueError as e:
-        # Validation error - transaction will rollback
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
     except Exception as e:
-        # Other errors - transaction will rollback
         return JsonResponse({'success': False, 'error': f'Checkout failed: {str(e)}'}, status=500)
 
-    # Calculate grand total
     grand_total = purchased_summary_total + SHIPPING_FEE + SERVICE_FEE
 
     if _is_json_request(request):
@@ -470,48 +491,67 @@ def checkout_view(request):
 @login_required
 def buy_now_ajax(request):
     if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
     data = _get_request_data(request)
+    
+    # Clear session
     request.session.pop('buy_now', None)
     request.session.pop('last_order_token', None)
     request.session.pop('last_order_summary', None)
     request.session.pop('last_order_products', None)
+    
     product_id_raw = data.get('product_id')
     qty_raw = data.get('quantity', '1')
+    
     try:
         qty = int(qty_raw)
         if qty <= 0:
             raise ValueError("quantity must be positive")
     except Exception:
-        return JsonResponse({'error': 'Invalid quantity'}, status=400)
+        return JsonResponse({'success': False, 'message': 'Invalid quantity'}, status=400)
+    
     if not product_id_raw:
-        return JsonResponse({'error': 'product_id required'}, status=400)
+        return JsonResponse({'success': False, 'message': 'product_id required'}, status=400)
 
+    # Try UUID-based product first
     try:
         uuid.UUID(product_id_raw)
-        with transaction.atomic():
-            product = Merchandise.objects.select_for_update().get(pk=product_id_raw)
-            if qty > getattr(product, 'stock', 0):
-                return JsonResponse({'error': 'Not enough stock'}, status=400)
-            product.stock -= qty
-            if hasattr(product, 'sold'):
-                product.sold = (product.sold or 0) + qty
-            product.save()
-            order_token = uuid.uuid4()
-            Purchase.objects.create(order_token=order_token, user=request.user, product=product,
-                                    product_name=product.name, product_price=product.price, quantity=qty)
-            request.session['just_ordered'] = True
-            request.session['last_order_token'] = str(order_token)
-            request.session['last_order_products'] = [str(product.id)]
-            request.session['last_order_summary'] = {'total': int(product.price * qty), 'count': 1}
-            request.session['buy_now'] = True
-        if _is_json_request(request):
-            return JsonResponse({'success': True, 'message': 'Buy now successful', 'order_token': str(order_token),
-                                 'product_name': product.name, 'quantity': qty, 'total': int(product.price * qty)}, status=201)
-        return JsonResponse({'message': 'Buy now successful', 'redirect_url': reverse('cartApp:checkout')})
+        product = Merchandise.objects.get(pk=product_id_raw)
+        
+        if qty > getattr(product, 'stock', 0):
+            return JsonResponse({'success': False, 'message': 'Not enough stock'}, status=400)
+        
+        order_token = uuid.uuid4()
+        Purchase.objects.create(
+            order_token=order_token, 
+            user=request.user, 
+            product=product,
+            product_name=product.name, 
+            product_price=product.price, 
+            quantity=qty
+        )
+        
+        request.session['just_ordered'] = True
+        request.session['last_order_token'] = str(order_token)
+        request.session['last_order_products'] = [str(product.id)]
+        request.session['last_order_summary'] = {'total': int(product.price * qty), 'count': 1}
+        request.session['buy_now'] = True
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Buy now successful', 
+            'order_token': str(order_token),
+            'redirect_url': reverse('cartApp:checkout'),  # for web compatibility
+            'product_name': product.name, 
+            'quantity': qty, 
+            'total': int(product.price * qty)
+        }, status=201)
+        
     except (ValueError, Merchandise.DoesNotExist):
         pass
 
+    # Try CSV-based product
     csv_path = os.path.join(settings.BASE_DIR, 'merchandise.csv')
     try:
         idx = str(product_id_raw)
@@ -519,37 +559,57 @@ def buy_now_ajax(request):
             idx = idx.split("csv_")[1]
         idx = int(idx)
     except Exception:
-        return JsonResponse({'error': 'product not found'}, status=404)
+        return JsonResponse({'success': False, 'message': 'product not found'}, status=404)
+    
     if not os.path.exists(csv_path):
-        return JsonResponse({'error': 'csv not found'}, status=500)
+        return JsonResponse({'success': False, 'message': 'csv not found'}, status=500)
+    
     with open(csv_path, newline='', encoding='utf-8') as f:
         rows = list(csv.DictReader(f))
+    
     if idx < 0 or idx >= len(rows):
-        return JsonResponse({'error': 'product not found'}, status=404)
+        return JsonResponse({'success': False, 'message': 'product not found'}, status=404)
+    
     row = rows[idx]
     try:
         price = int(float(row.get('price') or 0))
     except:
         price = 0
+    
     stock = row.get('stock') or row.get('Stock') or row.get('stok') or 0
     try:
         stock = int(stock)
     except:
         stock = 0
+    
     if qty > stock:
-        return JsonResponse({'error': 'Not enough stock'}, status=400)
+        return JsonResponse({'success': False, 'message': 'Not enough stock'}, status=400)
+    
     order_token = uuid.uuid4()
-    Purchase.objects.create(order_token=order_token, user=request.user, product=None,
-                            product_name=row.get('name') or '', product_price=price, quantity=qty)
+    Purchase.objects.create(
+        order_token=order_token, 
+        user=request.user, 
+        product=None,
+        product_name=row.get('name') or '', 
+        product_price=price, 
+        quantity=qty
+    )
+    
     request.session['just_ordered'] = True
     request.session['last_order_token'] = str(order_token)
     request.session['last_order_products'] = [f"csv:{row.get('name')}"]
     request.session['last_order_summary'] = {'total': int(price * qty), 'count': 1}
     request.session['buy_now'] = True
-    if _is_json_request(request):
-        return JsonResponse({'success': True, 'message': 'Buy now successful', 'order_token': str(order_token),
-                             'product_name': row.get('name') or '', 'quantity': qty, 'total': int(price * qty)}, status=201)
-    return JsonResponse({'message': 'Buy now successful', 'redirect_url': reverse('cartApp:checkout')})
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Buy now successful', 
+        'order_token': str(order_token),
+        'redirect_url': reverse('cartApp:checkout'),  # for web compatibility
+        'product_name': row.get('name') or '', 
+        'quantity': qty, 
+        'total': int(price * qty)
+    }, status=201)
 
 @login_required
 def after_checkout(request):
