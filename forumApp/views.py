@@ -275,7 +275,7 @@ def edit_thread(request, thread_id):
 @csrf_exempt
 @login_required
 def delete_thread(request, thread_id):
-    if request.method == "DELETE":
+    if request.method in ["DELETE", "POST"]:
         try:
             forum_post = get_object_or_404(ForumPost, pk=thread_id)
             
