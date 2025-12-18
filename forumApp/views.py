@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.db.models import F 
 import json
+from django.utils.html import strip_tags
 
 def show_landing_page(request):
     filter_type = request.GET.get("filter", "all")
@@ -80,7 +81,6 @@ def create_forum(request):
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
-# NEW: View to increment the views count via AJAX
 @csrf_exempt
 def increment_views(request, thread_id):
     if request.method == "POST":
@@ -347,3 +347,41 @@ def delete_comment(request, comment_id):
             return JsonResponse({"error": "Comment not found."}, status=404)
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
+
+@csrf_exempt
+def create_forum_flutter(request):
+    
+    if request.method == 'POST':
+        try:
+            if not request.user.is_authenticated:
+                return JsonResponse({"status": "error", "message": "Login required"}, status=401)
+
+            # Parse JSON 
+            data = json.loads(request.body)            
+            title = strip_tags(data.get("title", ""))
+            content = strip_tags(data.get("content", ""))
+            
+            if not title or not content:
+                return JsonResponse({"status": "error", "message": "Fields cannot be empty"}, status=400)
+
+            user = request.user
+            try:
+                profile = Profile.objects.get(user=user)
+                post_type = "official" if profile.role in ["admin", "seller"] else "personal"
+            except Profile.DoesNotExist:
+                post_type = "personal"
+
+            new_thread = ForumPost.objects.create(
+                title=title,
+                content=content,
+                author=user,
+                post_type=post_type,
+                views=0
+            )
+
+            return JsonResponse({"status": "success", "message": "Thread created!"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=405)
