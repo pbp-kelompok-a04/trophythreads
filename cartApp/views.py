@@ -33,8 +33,9 @@ def _get_cart_for_request(request):
     return cart
 
 def _is_json_request(request):
+    content_type = request.headers.get('Content-Type', '')
     return (request.headers.get('Accept') == 'application/json' or
-            request.headers.get('Content-Type') == 'application/json' or
+            'application/json' in content_type or
             request.GET.get('format') == 'json')
 
 def _get_request_data(request):
