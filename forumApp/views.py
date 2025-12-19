@@ -331,7 +331,7 @@ def edit_comment(request, comment_id):
 @csrf_exempt
 @login_required
 def delete_comment(request, comment_id):
-    if request.method == "DELETE":
+    if request.method in ["DELETE","POST"]:
         try:
             comment = get_object_or_404(Comment, pk=comment_id)
 
