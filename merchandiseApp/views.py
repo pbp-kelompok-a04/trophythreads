@@ -151,7 +151,8 @@ def delete_merchandise_ajax(request, id):
     if merchandise.user != request.user:
         return JsonResponse({'error': 'You are not authorized to delete this merchandise'}, status=403)
 
-    if request.method == 'DELETE':
+    override = request.headers.get('X-HTTP-Method-Override') or request.POST.get('_method')
+    if request.method == 'DELETE'or (request.method == 'POST' and (override is None or override.upper() == 'DELETE')):
         merchandise_id = merchandise.id
         merchandise.delete()
         return JsonResponse({
@@ -208,3 +209,13 @@ def show_json_by_id(request, merchandise_id):
        return HttpResponse(json_data, content_type="application/json")
    except Merchandise.DoesNotExist:
        return HttpResponse(status=404)
+
+@csrf_exempt
+def increment_views(request, id):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error'}, status=400)
+    
+    merchandise = get_object_or_404(Merchandise, pk=id)
+    merchandise.product_views += 1
+    merchandise.save()
+    return JsonResponse({'status': 'success', 'new_views': merchandise.product_views})
