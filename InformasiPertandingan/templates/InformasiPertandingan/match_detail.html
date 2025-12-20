@@ -67,7 +67,7 @@
         class="mx-auto items-center justify-between px-4 sm:px-12 py-3 text-center mb-2 sm:mb-4">
         <a id="discussion-link"
             class="inline-block w-full border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] font-h1 font-bold py-3 rounded-md hover:bg-opacity-90 transition-colors"
-            href="{% url 'forumApp:show_landing_page' %}"> Jump To Discussion </a>
+            href="{% url 'forumApp:show_landing_page' %}"> Masuk ke diskusi </a>
     </div>
 
     <!-- Match Info -->
@@ -104,7 +104,7 @@
 
     // load match agar langsung terlihat perubahannya
     document.addEventListener('matchDataUpdated', () => {
-        console.log('Match Data Updated! Memuat ulang detail...');
+        console.log('Data pertandingan berubah! Memuat ulang detail...');
         loadMatchDetail();
     });
 

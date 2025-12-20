@@ -6,7 +6,69 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.core import serializers
 from django.utils.html import strip_tags
+import requests, json
 
+@csrf_exempt
+def create_match_flutter(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        title = strip_tags(data.get("title", ""))
+        date = data.get("date", "")
+        city = strip_tags(data.get("city", ""))
+        country = strip_tags(data.get("country", ""))
+        home_team_name = data.get("home_team", "")
+        away_team_name = data.get("away_team", "")
+        score_home_team = data.get("score_home_team", "")
+        score_away_team = data.get("score_away_team", "")
+        views = data.get("views", 0)
+        user = request.user
+        
+        new_informasi = Informasi(
+            title=title, 
+            date=date, 
+            city=city,
+            country=country,
+            home_team=get_object_or_404(Country, name=home_team_name),
+            away_team=get_object_or_404(Country, name=away_team_name),
+            score_home_team=score_home_team,
+            score_away_team=score_away_team,
+            views=views,
+            user=user
+        )
+        new_informasi.save()
+        
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
+def show_json_country(request):
+    country_list = Country.objects.all()
+    data = []
+    for country in country_list:
+        data.append({
+            'id': str(country.id),
+            'name': country.name,
+            'flag': country.flag
+        })
+    return JsonResponse(data, safe=False)   
+
+# fungsi untuk menjadi perantara agar gambar dapat ditampilkan di Flutter
+def proxy_image(request):
+    image_url = request.GET.get('url')
+    if not image_url:
+        return HttpResponse('No URL provided', status=400)
+
+    # kalau imagenya ada, fetch gambarnya dan return isinya
+    try:
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get('Content-Type', 'image/jpeg')
+        )
+    except requests.RequestException as e:
+        return HttpResponse(f'Error fetching image: {str(e)}', status=500)
+    
 # fungsi halaman utama page
 def show_main(request):
     informasi_list = Informasi.objects.all()
@@ -69,8 +131,8 @@ def show_json(request):
                 'name': informasi.away_team.name,
                 'flag': informasi.away_team.flag
             },
-            'score_home': informasi.score_home_team,
-            'score_away': informasi.score_away_team,
+            'score_home_team': informasi.score_home_team,
+            'score_away_team': informasi.score_away_team,
             'views': informasi.views,
             'user_id': informasi.user_id if informasi.user else None,
         })
@@ -110,6 +172,15 @@ def delete_match(request, id):
     match.delete()
     return HttpResponseRedirect(reverse('InformasiPertandingan:show_main'))
 
+@csrf_exempt
+def delete_match_flutter(request, id):
+    if request.method == 'POST':
+        match = get_object_or_404(Informasi, pk=id)
+        match.delete()
+        return JsonResponse({'status': 'success'}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
+
 # fungsi untuk mengedit atau mengubah match
 @csrf_exempt
 @require_POST
@@ -131,6 +202,29 @@ def edit_match(request, match_id):
     match.score_away_team = request.POST.get("score_away_team", match.score_away_team)
     match.save()
     return JsonResponse({'success': True})
+
+@csrf_exempt
+def edit_match_flutter(request, match_id):
+    if request.method == 'POST':
+        match = get_object_or_404(Informasi, pk=match_id)
+        data = json.loads(request.body)
+        match.title = strip_tags(data.get("title", ""))
+        match.date = data.get("date", "")
+        match.city = strip_tags(data.get("city", ""))
+        match.country = strip_tags(data.get("country", ""))
+        home_team_name = data.get("home_team", "")
+        away_team_name = data.get("away_team", "")
+
+        if home_team_name:
+            match.home_team = get_object_or_404(Country, name=home_team_name)
+        if away_team_name:
+            match.away_team = get_object_or_404(Country, name=away_team_name)
+        match.score_home_team = data.get("score_home_team", "")
+        match.score_away_team = data.get("score_away_team", "")
+        match.save()
+        return JsonResponse({"status": "success"}, status=200)
+    else:
+        return JsonResponse({"status": "error"}, status=401)
 
 # fungsi untuk menampilkan suatu match (detail match)
 def show_match(request, id):
