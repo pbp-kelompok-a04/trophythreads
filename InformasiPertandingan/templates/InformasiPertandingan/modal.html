@@ -17,53 +17,53 @@
             <input type="hidden" id="edit_match_id">
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Title</label>
-                <input type="text" id="edit_title" name="title" placeholder="Enter competition name..."
+                <label class="block text-sm font-medium text-gray-700">Judul Pertandingan</label>
+                <input type="text" id="edit_title" name="title" placeholder="Masukkan Judul Pertandingan..."
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Date</label>
+                <label class="block text-sm font-medium text-gray-700">Tanggal Pertandingan</label>
                 <input type="date" id="edit_date" name="date"
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">City</label>
-                <input type="text" id="edit_city" name="city" placeholder="Enter city name..."
+                <label class="block text-sm font-medium text-gray-700">Kota Pertandingan</label>
+                <input type="text" id="edit_city" name="city" placeholder="Masukkan Kota Pertandingan..."
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Country</label>
-                <input type="text" id="edit_country" name="country" placeholder="Enter country name..."
+                <label class="block text-sm font-medium text-gray-700">Negara Pertandingan</label>
+                <input type="text" id="edit_country" name="country" placeholder="Masukkan Negara Pertandingan..."
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
             </div>
 
             <div class="mb-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Home Team</label>
-                    <input type="text" id="edit_home_team" name="home_team" placeholder="Enter home team name..."
+                    <label class="block text-sm font-medium text-gray-700">Tim Kandang</label>
+                    <input type="text" id="edit_home_team" name="home_team" placeholder="Masukkan Tim Kandang..."
                         class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Home Score</label>
+                    <label class="block text-sm font-medium text-gray-700">Skor Tim Kandang</label>
                     <input type="number" id="edit_score_home" name="score_home_team" placeholder="0"
                         class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200"
                         min="0">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Away Score</label>
+                    <label class="block text-sm font-medium text-gray-700">Skor Tim Tandang</label>
                     <input type="number" id="edit_score_away" name="score_away_team" placeholder="0"
                         class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200"
                         min="0">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Away Team</label>
-                    <input type="text" id="edit_away_team" name="away_team" placeholder="Enter away team name..."
+                    <label class="block text-sm font-medium text-gray-700">Tim Tandang</label>
+                    <input type="text" id="edit_away_team" name="away_team" placeholder="Masukkan Tim Tandang..."
                         class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:border-[var(--color-secondary)] focus:ring-1 focus:ring-[var(--color-secondary)] text-gray-800 placeholder-gray-400 focus:outline-none transition-all duration-200">
                 </div>
             </div>
@@ -73,7 +73,7 @@
             <!--Bagian bawah modal-->
             <div class="flex gap-2 mt-4">
                 <button type="button" onclick="hideMatchModal()"
-                    class="px-4 py-2 border rounded text-[var(--color-secondary)] border-[var(--color-secondary)] hover:bg-gray-50">Cancel</button>
+                    class="px-4 py-2 border rounded text-[var(--color-secondary)] border-[var(--color-secondary)] hover:bg-gray-50">Batal</button>
                 <button type="submit" id="submitButton" 
                     class="px-4 py-2 w-full text-white rounded transition-all duration-200 bg-[var(--color-secondary)] hover:bg-[var(--color-primary)]"></button>
             </div>
@@ -86,7 +86,7 @@
         const modal = document.getElementById('matchModal');
         document.getElementById('modalTitle').textContent = 'Ubah Informasi Pertandingan';
         document.getElementById('modalSubtitle').textContent = 'Koreksi informasi pertandingan untuk memastikan data tetap akurat!';
-        document.getElementById('submitButton').textContent = 'Update Information'
+        document.getElementById('submitButton').textContent = 'Ubah Informasi'
         document.getElementById('edit_match_id').value = match.id;
         document.getElementById('edit_title').value = match.title;
         document.getElementById('edit_date').value = new Date(match.date).toISOString().split('T')[0];
@@ -104,7 +104,7 @@
         const modal = document.getElementById('matchModal');
         document.getElementById('modalTitle').textContent = 'Tambah Informasi Pertandingan';
         document.getElementById('modalSubtitle').textContent = 'Masukkan data pertandingan baru ke dalam sistem!';
-        document.getElementById('submitButton').textContent = 'Add Information'
+        document.getElementById('submitButton').textContent = 'Tambah Informasi'
         document.getElementById('edit_match_id').value = '';
         document.getElementById('edit_title').value = '';
         document.getElementById('edit_date').value = '';
