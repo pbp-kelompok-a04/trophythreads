@@ -142,6 +142,7 @@ def show_json(request):
 def show_json_by_id(request, match_id):
     try:
         informasi = Informasi.objects.select_related('user').get(pk=match_id)
+        informasi.increment_views()
         data = {
             'id': str(informasi.id),
             'title': informasi.title,
