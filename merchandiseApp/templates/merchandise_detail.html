@@ -363,7 +363,7 @@
                             Be the first to share your thoughts about this product!
                         </p>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'reviewproduct:add_review' merchandise.id %}" 
+                         <a href="{% url 'reviewproduct:product_reviews' merchandise.id %}" 
                         class="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors duration-200">
                             <i class="fas fa-pen mr-2"></i>
                             Write a Review
