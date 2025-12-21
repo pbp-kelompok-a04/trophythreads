@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import show_main_merchandise, show_merchandise, create_merchandise_ajax, edit_merchandise_ajax, delete_merchandise_ajax, get_merchandise_json, show_xml, show_json, show_json_by_id, show_xml_by_id
+from .views import show_main_merchandise, show_merchandise, create_merchandise_ajax, edit_merchandise_ajax, delete_merchandise_ajax, get_merchandise_json, show_xml, show_json, show_json_by_id, show_xml_by_id, increment_views
 
 app_name = 'merchandiseApp'
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('json/<uuid:merchandise_id>/', show_json_by_id, name='show_json_by_id'),
     path('xml/<uuid:merchandise_id>/', show_xml_by_id, name='show_xml_by_id'),
     path('get-merchandise/', get_merchandise_json, name='get_merchandise_json'),
+    path('views/increment/<uuid:id>/', increment_views, name='increment_views'),
 ]
